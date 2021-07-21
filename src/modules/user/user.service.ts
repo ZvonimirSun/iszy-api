@@ -47,7 +47,7 @@ export class UserService {
     let sql;
     if (isNaN(parseInt(key))) {
       sql = `SELECT
-          user_id id, nick_name nickName, role
+          user_id userId, user_name username, nick_name nickName, passwd password, passwd_salt salt, mobile, role
         FROM
           admin_user
         WHERE
