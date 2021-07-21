@@ -6,44 +6,40 @@ import sequelize from '../../database/sequelize';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
-  async findOne(id: number) {
-    const sql = `SELECT
-        user_id id, account_name accountName, real_name realName, role
-      FROM
-        admin_user
-      WHERE
-        user_id = '${id}'
-    `;
+  async findOne(key: string): Promise<any | undefined> {
+    let sql;
+    if (isNaN(parseInt(key))) {
+      sql = `SELECT
+          user_id id, real_name realName, role
+        FROM
+          admin_user
+        WHERE
+          account_name = '${key}'
+      `;
+    } else {
+      sql = `SELECT
+          user_id id, real_name realName, role
+        FROM
+          admin_user
+        WHERE
+          user_id = '${key}'
+      `;
+    }
     try {
-      const res = await sequelize.query(sql, {
-        type: Sequelize.QueryTypes.SELECT,
-      });
-      const user = res[0];
-      if (user) {
-        return {
-          code: 200,
-          data: { user },
-          msg: 'Success',
-        };
-      } else {
-        return {
-          code: 600,
-          msg: '查无此人',
-        };
-      }
+      const user = (
+        await sequelize.query(sql, {
+          type: Sequelize.QueryTypes.SELECT,
+          raw: true,
+          logging: true,
+        })
+      )[0];
+      return user;
     } catch (error) {
-      return {
-        code: 503,
-        msg: `Service error: ${error}`,
-      };
+      return void 0;
     }
   }
 
