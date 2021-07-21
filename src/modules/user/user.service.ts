@@ -3,11 +3,44 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as Sequelize from 'sequelize';
 import sequelize from '../../database/sequelize';
+import { makeSalt, encryptPassword } from '../../utils/cryptogram';
 
 @Injectable()
 export class UserService {
   async create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    if (createUserDto.password !== createUserDto.rePassword) {
+      return {
+        code: 400,
+        msg: '两次密码输入不一致',
+      };
+    }
+    const user = await this.findOne(createUserDto.userName);
+    if (user) {
+      return {
+        code: 400,
+        msg: '用户已存在',
+      };
+    }
+    const salt = makeSalt();
+    const hashPwd = encryptPassword(createUserDto.password, salt);
+    const registerSQL = `
+      INSERT INTO admin_user
+        (user_name, nick_name, passwd, passwd_salt, mobile, user_status, role, create_by)
+      VALUES
+        ('${createUserDto.userName}', '${createUserDto.nickName}', '${hashPwd}', '${salt}', '${createUserDto.mobile}', 1, 3, 0)
+    `;
+    try {
+      await sequelize.query(registerSQL, { logging: false });
+      return {
+        code: 200,
+        msg: 'Success',
+      };
+    } catch (error) {
+      return {
+        code: 503,
+        msg: `Service error: ${error}`,
+      };
+    }
   }
 
   async findOne(key: string): Promise<any | undefined> {
@@ -34,7 +67,7 @@ export class UserService {
         await sequelize.query(sql, {
           type: Sequelize.QueryTypes.SELECT,
           raw: true,
-          logging: true,
+          logging: false,
         })
       )[0];
       return user;
