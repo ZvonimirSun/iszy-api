@@ -14,15 +14,15 @@ export class UserService {
     let sql;
     if (isNaN(parseInt(key))) {
       sql = `SELECT
-          user_id id, real_name realName, role
+          user_id id, nick_name nickName, role
         FROM
           admin_user
         WHERE
-          account_name = '${key}'
+          user_name = '${key}'
       `;
     } else {
       sql = `SELECT
-          user_id id, real_name realName, role
+          user_id id, nick_name nickName, role
         FROM
           admin_user
         WHERE
