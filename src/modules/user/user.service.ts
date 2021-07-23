@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import * as Sequelize from 'sequelize';
-import sequelize from '../../database/sequelize';
-import { makeSalt, encryptPassword } from '../../utils/cryptogram';
+import { Sequelize } from 'sequelize-typescript';
+import { encryptPassword, makeSalt } from '../../utils/cryptogram';
 import { User } from './entities/user.entity';
+import { QueryTypes } from 'sequelize';
 
 @Injectable()
 export class UserService {
+  constructor(private sequelize: Sequelize) {}
+
   async create(createUserDto: CreateUserDto) {
     if (createUserDto.password !== createUserDto.rePassword) {
       return {
@@ -41,7 +43,7 @@ export class UserService {
         ('${newUser.user_name}', '${newUser.nick_name}', '${newUser.passwd}', '${newUser.passwd_salt}', '${newUser.mobile}', '${newUser.user_status}', '${newUser.role}', '${newUser.create_by}')
     `;
     try {
-      await sequelize.query(registerSQL, { logging: false });
+      await this.sequelize.query(registerSQL, { logging: false });
       return {
         code: 200,
         msg: 'Success',
@@ -75,8 +77,8 @@ export class UserService {
     }
     try {
       const user = (
-        await sequelize.query(sql, {
-          type: Sequelize.QueryTypes.SELECT,
+        await this.sequelize.query(sql, {
+          type: QueryTypes.SELECT,
           raw: true,
           logging: false,
         })

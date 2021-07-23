@@ -679,6 +679,13 @@
     jsonc-parser "3.0.0"
     pluralize "8.0.0"
 
+"@nestjs/sequelize@^8.0.0":
+  version "8.0.0"
+  resolved "https://r.cnpmjs.org/@nestjs/sequelize/download/@nestjs/sequelize-8.0.0.tgz#850aa1260dd77e1a8d1860f6408e504060215ea3"
+  integrity sha1-hQqhJg3XfhqNGGD2QI5QQGAhXqM=
+  dependencies:
+    uuid "8.3.2"
+
 "@nestjs/swagger@^5.0.4":
   version "5.0.4"
   resolved "https://registry.nlark.com/@nestjs/swagger/download/@nestjs/swagger-5.0.4.tgz#cc3be175b14e5b1d2d443d38d5808261d44d8f9e"
@@ -806,6 +813,11 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/bluebird@*":
+  version "3.5.36"
+  resolved "https://r.cnpmjs.org/@types/bluebird/download/@types/bluebird-3.5.36.tgz#00d9301d4dc35c2f6465a8aec634bb533674c652"
+  integrity sha1-ANkwHU3DXC9kZaiuxjS7UzZ0xlI=
+
 "@types/body-parser@*":
   version "1.19.1"
   resolved "https://registry.nlark.com/@types/body-parser/download/@types/body-parser-1.19.1.tgz?cache=0&sync_timestamp=1625595536408&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Fbody-parser%2Fdownload%2F%40types%2Fbody-parser-1.19.1.tgz#0c0174c42a7d017b818303d4b5d969cb0b75929c"
@@ -818,6 +830,13 @@
   version "3.4.35"
   resolved "https://registry.nlark.com/@types/connect/download/@types/connect-3.4.35.tgz?cache=0&sync_timestamp=1625604185756&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Fconnect%2Fdownload%2F%40types%2Fconnect-3.4.35.tgz#5fcf6ae445e4021d1fc2219a4873cc73a3bb2ad1"
   integrity sha1-X89q5EXkAh0fwiGaSHPMc6O7KtE=
+  dependencies:
+    "@types/node" "*"
+
+"@types/continuation-local-storage@*":
+  version "3.2.3"
+  resolved "https://r.cnpmjs.org/@types/continuation-local-storage/download/@types/continuation-local-storage-3.2.3.tgz#e4d5b5fddae1a432b78d19d48875c7e297f566e2"
+  integrity sha1-5NW1/drhpDK3jRnUiHXH4pf1ZuI=
   dependencies:
     "@types/node" "*"
 
@@ -922,6 +941,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/lodash@*":
+  version "4.14.171"
+  resolved "https://r.cnpmjs.org/@types/lodash/download/@types/lodash-4.14.171.tgz#f01b3a5fe3499e34b622c362a46a609fdb23573b"
+  integrity sha1-8Bs6X+NJnjS2IsNipGpgn9sjVzs=
+
 "@types/mime@^1":
   version "1.3.2"
   resolved "https://registry.nlark.com/@types/mime/download/@types/mime-1.3.2.tgz#93e25bf9ee75fe0fd80b594bc4feb0e862111b5a"
@@ -951,6 +975,16 @@
   version "1.2.4"
   resolved "https://registry.nlark.com/@types/range-parser/download/@types/range-parser-1.2.4.tgz?cache=0&sync_timestamp=1625678732121&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Frange-parser%2Fdownload%2F%40types%2Frange-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha1-zWZ7z90CUhOq+3ylkVqTJZCs3Nw=
+
+"@types/sequelize@^4.28.10":
+  version "4.28.10"
+  resolved "https://r.cnpmjs.org/@types/sequelize/download/@types/sequelize-4.28.10.tgz#514b716718d4f6f398daaff78c05153534f2104e"
+  integrity sha1-UUtxZxjU9vOY2q/3jAUVNTTyEE4=
+  dependencies:
+    "@types/bluebird" "*"
+    "@types/continuation-local-storage" "*"
+    "@types/lodash" "*"
+    "@types/validator" "*"
 
 "@types/serve-static@*":
   version "1.13.10"
@@ -2521,45 +2555,9 @@ expect@^27.0.6:
     jest-message-util "^27.0.6"
     jest-regex-util "^27.0.6"
 
-express@4.17.1:
+express@4.17.1, express@^4.17.1:
   version "4.17.1"
   resolved "https://registry.nlark.com/express/download/express-4.17.1.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fexpress%2Fdownload%2Fexpress-4.17.1.tgz#4491fc38605cf51f8629d39c2b5d026f98a4c134"
-  integrity sha1-RJH8OGBc9R+GKdOcK10Cb5ikwTQ=
-  dependencies:
-    accepts "~1.3.7"
-    array-flatten "1.1.1"
-    body-parser "1.19.0"
-    content-disposition "0.5.3"
-    content-type "~1.0.4"
-    cookie "0.4.0"
-    cookie-signature "1.0.6"
-    debug "2.6.9"
-    depd "~1.1.2"
-    encodeurl "~1.0.2"
-    escape-html "~1.0.3"
-    etag "~1.8.1"
-    finalhandler "~1.1.2"
-    fresh "0.5.2"
-    merge-descriptors "1.0.1"
-    methods "~1.1.2"
-    on-finished "~2.3.0"
-    parseurl "~1.3.3"
-    path-to-regexp "0.1.7"
-    proxy-addr "~2.0.5"
-    qs "6.7.0"
-    range-parser "~1.2.1"
-    safe-buffer "5.1.2"
-    send "0.17.1"
-    serve-static "1.14.1"
-    setprototypeof "1.1.1"
-    statuses "~1.5.0"
-    type-is "~1.6.18"
-    utils-merge "1.0.1"
-    vary "~1.1.2"
-
-express@^4.17.1:
-  version "4.17.1"
-  resolved "https://r.cnpmjs.org/express/download/express-4.17.1.tgz#4491fc38605cf51f8629d39c2b5d026f98a4c134"
   integrity sha1-RJH8OGBc9R+GKdOcK10Cb5ikwTQ=
   dependencies:
     accepts "~1.3.7"
