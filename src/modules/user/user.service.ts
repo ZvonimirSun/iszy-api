@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as Sequelize from 'sequelize';
 import sequelize from '../../database/sequelize';
 import { makeSalt, encryptPassword } from '../../utils/cryptogram';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -21,13 +22,23 @@ export class UserService {
         msg: '用户已存在',
       };
     }
-    const salt = makeSalt();
-    const hashPwd = encryptPassword(createUserDto.password, salt);
+    const newUser = new User();
+    newUser.user_name = createUserDto.userName;
+    newUser.nick_name = createUserDto.nickName;
+    newUser.mobile = createUserDto.mobile;
+    newUser.passwd_salt = makeSalt();
+    newUser.passwd = encryptPassword(
+      createUserDto.password,
+      newUser.passwd_salt,
+    );
+    newUser.user_status = 1;
+    newUser.role = 3;
+    newUser.create_by = 0;
     const registerSQL = `
       INSERT INTO admin_user
         (user_name, nick_name, passwd, passwd_salt, mobile, user_status, role, create_by)
       VALUES
-        ('${createUserDto.userName}', '${createUserDto.nickName}', '${hashPwd}', '${salt}', '${createUserDto.mobile}', 1, 3, 0)
+        ('${newUser.user_name}', '${newUser.nick_name}', '${newUser.passwd}', '${newUser.passwd_salt}', '${newUser.mobile}', '${newUser.user_status}', '${newUser.role}', '${newUser.create_by}')
     `;
     try {
       await sequelize.query(registerSQL, { logging: false });
