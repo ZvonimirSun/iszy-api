@@ -7,8 +7,6 @@ VOLUME /usr/src/app/config
 
 COPY . .
 
-RUN npm install && npm run build
+RUN yarn && yarn build
 
-COPY . .
-
-CMD ["npm", "run", "start:prod"]
+CMD ["yarn", "start:prod"]
