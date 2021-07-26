@@ -10,7 +10,7 @@ VOLUME /usr/src/app/config
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install
+RUN npm install && npm run build
 
 COPY . .
 
