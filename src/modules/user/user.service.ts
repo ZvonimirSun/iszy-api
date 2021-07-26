@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { encryptPassword, makeSalt } from '../../utils/cryptogram';
 import { User } from './entities/user.model';
-import { QueryTypes } from 'sequelize';
 import { InjectModel } from '@nestjs/sequelize';
-import { userAttributes } from './interfaces/user.interfaces';
 
 @Injectable()
 export class UserService {
@@ -14,7 +11,7 @@ export class UserService {
     private userModel: typeof User,
   ) {}
 
-  async create(createUserDto: userAttributes) {
+  async create(createUserDto: CreateUserDto) {
     return this.userModel.create(createUserDto);
   }
 
