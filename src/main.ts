@@ -7,6 +7,7 @@ async function bootstrap() {
   app.enableCors();
 
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('ISZY API')
     .setDescription('ISZY API description')
     .setVersion('1.0')

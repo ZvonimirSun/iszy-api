@@ -2,7 +2,10 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { encryptPassword } from '../../utils/cryptogram';
+import { encryptPassword, makeSalt } from '../../utils/cryptogram';
+import { RegisterDto } from './dto/register.dto';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,8 +18,8 @@ export class AuthService {
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(username);
     if (user) {
-      const hashedPassword = user.password;
-      const salt = user.salt;
+      const hashedPassword = user.passwd;
+      const salt = user.passwdSalt;
       // 通过密码盐，加密传参，再与数据库里的比较，判断是否相等
       const hashPassword = encryptPassword(password, salt);
       if (hashedPassword === hashPassword) {
@@ -45,7 +48,7 @@ export class AuthService {
     const payload = {
       username: user.username,
       sub: user.userId,
-      realName: user.realName,
+      nickName: user.nickName,
       role: user.role,
     };
     try {
@@ -61,6 +64,69 @@ export class AuthService {
       return {
         code: 600,
         msg: `账号或密码错误`,
+      };
+    }
+  }
+
+  async login(loginDto: LoginDto): Promise<any> {
+    const authResult = await this.validateUser(
+      loginDto.userName,
+      loginDto.password,
+    );
+
+    switch (authResult.code) {
+      case 1:
+        return this.certificate(authResult.user);
+      case 2:
+        return {
+          code: 600,
+          msg: `账号或密码不正确`,
+        };
+      default:
+        return {
+          code: 600,
+          msg: `查无此人`,
+        };
+    }
+  }
+
+  async register(registerDto: RegisterDto): Promise<any> {
+    if (registerDto.password !== registerDto.rePassword) {
+      return {
+        code: 400,
+        msg: '两次密码输入不一致',
+      };
+    }
+    const user = await this.usersService.findOne(registerDto.userName);
+    if (user) {
+      return {
+        code: 400,
+        msg: '用户已存在',
+      };
+    }
+
+    const createUserDto: CreateUserDto = new CreateUserDto();
+    createUserDto.userName = registerDto.userName;
+    createUserDto.nickName = registerDto.nickName;
+    createUserDto.mobile = registerDto.mobile;
+    createUserDto.passwdSalt = makeSalt();
+    createUserDto.passwd = encryptPassword(
+      registerDto.password,
+      createUserDto.passwdSalt,
+    );
+    createUserDto.userStatus = 1;
+    createUserDto.role = 3;
+    createUserDto.createBy = 0;
+    try {
+      await this.usersService.create(createUserDto);
+      return {
+        code: 200,
+        msg: 'Success',
+      };
+    } catch (error) {
+      return {
+        code: 503,
+        msg: `Service error: ${error}`,
       };
     }
   }

@@ -1,18 +1,31 @@
+import { userAttributes } from '../interfaces/user.interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserDto {
+export class CreateUserDto implements userAttributes {
   @ApiProperty()
-  userName: string;
+  createBy: number;
+
+  @ApiProperty()
+  mobile: string;
 
   @ApiProperty()
   nickName: string;
 
   @ApiProperty()
-  password: string;
+  passwd: string;
 
   @ApiProperty()
-  rePassword: string;
+  passwdSalt: string;
 
   @ApiProperty()
-  mobile: string;
+  role: number;
+
+  @ApiProperty()
+  updateBy: number;
+
+  @ApiProperty()
+  userName: string;
+
+  @ApiProperty()
+  userStatus: number;
 }
