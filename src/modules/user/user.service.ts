@@ -12,7 +12,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    return this.userModel.create(createUserDto);
+    return this.userModel.create(createUserDto as User);
   }
 
   async findOne(key: string): Promise<User> {

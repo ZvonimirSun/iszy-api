@@ -100,14 +100,13 @@ export class AuthService {
     const createUserDto: CreateUserDto = new CreateUserDto();
     createUserDto.userName = registerDto.userName;
     createUserDto.nickName = registerDto.nickName;
-    createUserDto.mobile = registerDto.mobile;
     createUserDto.passwdSalt = makeSalt();
     createUserDto.passwd = encryptPassword(
       registerDto.password,
       createUserDto.passwdSalt,
     );
+    createUserDto.mobile = registerDto.mobile;
     createUserDto.userStatus = 1;
-    createUserDto.role = 3;
     createUserDto.createBy = 0;
     try {
       await this.usersService.create(createUserDto);

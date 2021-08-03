@@ -1,66 +1,45 @@
-import { Model, Table, Column, DataType } from 'sequelize-typescript';
-import { userAttributes } from '../interfaces/user.interfaces';
+import {
+  Model,
+  Table,
+  Column,
+  BelongsToMany,
+  PrimaryKey,
+  AutoIncrement,
+} from 'sequelize-typescript';
+import { Role } from './role.model';
+import { UserRole } from './user_role.model';
 
-@Table({
-  tableName: 'user',
-  timestamps: true,
-  comment: '后台用户表',
-})
-export class User extends Model<userAttributes> implements userAttributes {
-  @Column({
-    primaryKey: true,
-    autoIncrement: true,
-    type: DataType.SMALLINT,
-    comment: '用户ID',
-  })
+@Table
+export class User extends Model<User> {
+  @PrimaryKey
+  @AutoIncrement
+  @Column
   userId?: number;
 
-  @Column({
-    type: DataType.STRING(24),
-    comment: '用户账号',
-  })
+  @Column
   userName!: string;
 
-  @Column({
-    type: DataType.STRING(24),
-    comment: '昵称',
-  })
+  @Column
   nickName!: string;
 
-  @Column({ type: DataType.CHAR(32), comment: '密码' })
+  @Column
   passwd!: string;
 
-  @Column({
-    type: DataType.CHAR(6),
-    comment: '密码盐',
-  })
+  @Column
   passwdSalt!: string;
 
-  @Column({ type: DataType.STRING(15), comment: '手机号码' })
+  @Column
   mobile!: string;
 
-  @Column({
-    type: DataType.TINYINT,
-    comment:
-      '用户角色：0-超级管理员|1-管理员|2-开发&测试&运营|3-普通用户（只能查看）',
-  })
-  role!: number;
+  @BelongsToMany(() => Role, () => UserRole)
+  roles?: Role[];
 
-  @Column({
-    type: DataType.TINYINT,
-    comment: '状态：0-失效|1-有效|2-删除',
-  })
+  @Column
   userStatus!: number;
 
-  @Column({
-    type: DataType.SMALLINT,
-    comment: '创建人ID',
-  })
+  @Column
   createBy!: number;
 
-  @Column({
-    type: DataType.SMALLINT,
-    comment: '修改人ID',
-  })
+  @Column
   updateBy!: number;
 }
