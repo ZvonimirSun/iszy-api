@@ -11,8 +11,5 @@ export class RegisterDto {
   readonly password!: string;
 
   @ApiProperty()
-  readonly rePassword!: string;
-
-  @ApiProperty()
   readonly mobile?: string;
 }

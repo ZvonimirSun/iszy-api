@@ -6,6 +6,7 @@ import { encryptPassword, makeSalt } from '../../utils/cryptogram';
 import { RegisterDto } from './dto/register.dto';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { ResultDto } from '../../core/result.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // JWT验证 - Step 2: 校验用户信息
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(username);
     if (user) {
@@ -43,8 +43,7 @@ export class AuthService {
     };
   }
 
-  // JWT验证 - Step 3: 处理 jwt 签证
-  async certificate(user: any) {
+  async certificate(user: any): Promise<ResultDto> {
     const payload = {
       username: user.username,
       sub: user.userId,
@@ -54,21 +53,21 @@ export class AuthService {
     try {
       const token = this.jwtService.sign(payload);
       return {
-        code: 200,
+        code: '00000',
         data: {
           token,
         },
-        msg: `登录成功`,
+        message: `登录成功`,
       };
     } catch (error) {
       return {
-        code: 600,
-        msg: `账号或密码错误`,
+        code: 'B0101',
+        message: `登录失败，签署token出错，${error}`,
       };
     }
   }
 
-  async login(loginDto: LoginDto): Promise<any> {
+  async login(loginDto: LoginDto): Promise<ResultDto> {
     const authResult = await this.validateUser(
       loginDto.userName,
       loginDto.password,
@@ -79,32 +78,25 @@ export class AuthService {
         return this.certificate(authResult.user);
       case 2:
         return {
-          code: 600,
-          msg: `账号或密码不正确`,
+          code: 'A0103',
+          message: `账号或密码不正确`,
         };
       default:
         return {
-          code: 600,
-          msg: `查无此人`,
+          code: 'A0102',
+          message: `查无此人`,
         };
     }
   }
 
-  async register(registerDto: RegisterDto): Promise<any> {
-    if (registerDto.password !== registerDto.rePassword) {
-      return {
-        code: 400,
-        msg: '两次密码输入不一致',
-      };
-    }
+  async register(registerDto: RegisterDto): Promise<ResultDto> {
     const user = await this.usersService.findOne(registerDto.userName);
     if (user) {
       return {
-        code: 400,
-        msg: '用户已存在',
+        code: 'A0101',
+        message: '用户已存在',
       };
     }
-
     const createUserDto: CreateUserDto = new CreateUserDto();
     createUserDto.userName = registerDto.userName;
     createUserDto.nickName = registerDto.nickName;
@@ -120,13 +112,13 @@ export class AuthService {
     try {
       await this.usersService.create(createUserDto);
       return {
-        code: 200,
-        msg: 'Success',
+        code: '00000',
+        message: 'Success',
       };
     } catch (error) {
       return {
-        code: 503,
-        msg: `Service error: ${error}`,
+        code: 'C0101',
+        message: `Service error: ${error}`,
       };
     }
   }
