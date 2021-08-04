@@ -7,6 +7,7 @@ import { RegisterDto } from './dto/register.dto';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { ResultDto } from '../../core/result.dto';
+import { User } from '../user/entities/user.model';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
         // 密码正确
         return {
           code: 1,
-          user,
+          user: user.get({ plain: true }),
         };
       } else {
         // 密码错误
@@ -43,12 +44,10 @@ export class AuthService {
     };
   }
 
-  async certificate(user: any): Promise<ResultDto> {
+  async certificate(user: User): Promise<ResultDto> {
     const payload = {
-      username: user.username,
+      userName: user.userName,
       sub: user.userId,
-      nickName: user.nickName,
-      role: user.role,
     };
     try {
       const token = this.jwtService.sign(payload);
@@ -112,12 +111,31 @@ export class AuthService {
       await this.usersService.create(createUserDto);
       return {
         code: '00000',
-        message: 'Success',
+        message: '用户已创建',
       };
     } catch (error) {
       return {
         code: 'C0101',
         message: `Service error: ${error}`,
+      };
+    }
+  }
+
+  async getProfile(userName: string): Promise<ResultDto> {
+    const user = await this.usersService.findOne(userName);
+    if (user) {
+      const { passwd, passwdSalt, createdAt, updatedAt, ...result } = user.get({
+        plain: true,
+      });
+      return {
+        code: '00000',
+        data: result,
+        message: '获取成功',
+      };
+    } else {
+      return {
+        code: 'A0102',
+        message: `查无此人`,
       };
     }
   }
