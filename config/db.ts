@@ -1,12 +1,14 @@
 // config/db.ts
 
-export default {
-  mysql: {
-    port: parseInt(process.env.MYSQL_PORT) || 3306,
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWD,
-    database: process.env.MYSQL_DATABASE,
-    connectionLimit: 10,
+export default () => ({
+  database: {
+    type: process.env.DATABASE_TYPE || 'postgres',
+    port: parseInt(process.env.DATABASE_PORT || '35432'),
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWD,
+    database: process.env.DATABASE_DATABASE,
+    schema: process.env.DATABASE_SCHEMA || 'public',
+    connectionLimit: parseInt(process.env.DATABASE_LIMIT || '10'),
   },
-};
+});
