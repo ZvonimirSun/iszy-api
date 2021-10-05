@@ -15,7 +15,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
+      - name: Restore cached ./node_modules
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-yarn-lock-${{ hashFiles('./yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-lock-
+      - name: Install dependencies 🔧
+        run: yarn install --frozen-lockfile
+      - name: Build app 🔧
+        run: yarn build
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
 
