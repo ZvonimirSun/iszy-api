@@ -26,6 +26,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build app 🔧
         run: yarn build
+      - name: move directories for docker build
+        run: mkdir dockerPackages && mv dist node_modules dockerPackages
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
 
