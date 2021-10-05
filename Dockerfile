@@ -3,7 +3,7 @@ FROM node:alpine
 # Create app directory
 WORKDIR /usr/src/app
 
-COPY dockerPackages package.json ./
+COPY . ./
 
 EXPOSE 3000
 
