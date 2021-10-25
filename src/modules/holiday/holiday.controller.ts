@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HolidayService } from './holiday.service';
 import { ImportHolidayDto } from './dto/import_holiday.dto';
@@ -20,7 +20,13 @@ export class HolidayController {
   }
 
   @Get()
-  isHoliday() {
+  isHolidayNow() {
     return this.holidayService.isHoliday();
+  }
+
+  @Get(':date')
+  isHolidayByDate(@Param('date') date?: number) {
+    console.log(date);
+    return this.holidayService.isHoliday(date);
   }
 }
