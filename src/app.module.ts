@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HolidayModule } from './modules/holiday/holiday.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import db from '../config/db';
@@ -39,6 +40,7 @@ import { Dialect } from 'sequelize/types';
     }),
     UserModule,
     AuthModule,
+    HolidayModule,
   ],
   controllers: [AppController],
   providers: [AppService],
