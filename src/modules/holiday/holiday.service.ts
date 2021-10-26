@@ -21,16 +21,17 @@ export class HolidayService {
           'YYYYMMDD',
         );
         const endDate = dayjs(importHolidayDto.endDate.toString(), 'YYYYMMDD');
+        const last = endDate.diff(startDate, 'day') + 1;
         await this.sequelize.transaction(async (t) => {
           const transactionHost = { transaction: t };
-          for (let i = 0; i <= endDate.diff(startDate, 'day'); i++) {
+          for (let i = 0; i < last; i++) {
             const tmp = startDate.add(i, 'day');
             await this.holidayModel.create(
               {
                 id: parseInt(tmp.format('YYYYMMDD')),
                 desc: importHolidayDto.desc,
                 isHoliday: true,
-                last: tmp.diff(startDate, 'day') + 1,
+                last,
               } as Holiday,
               transactionHost,
             );
@@ -38,6 +39,7 @@ export class HolidayService {
         });
         return true;
       } catch (e) {
+        console.error(e);
         return false;
       }
     } else {
@@ -61,6 +63,7 @@ export class HolidayService {
       });
       return true;
     } catch (e) {
+      console.error(e);
       return false;
     }
   }
@@ -96,7 +99,7 @@ export class HolidayService {
         }
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return false;
     }
   }
