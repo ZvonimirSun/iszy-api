@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Header, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HolidayService } from './holiday.service';
 import { ImportHolidayDto } from './dto/import_holiday.dto';
@@ -19,6 +19,7 @@ export class HolidayController {
   }
 
   @Get('holiday.ics')
+  @Header('content-type', 'text/calendar')
   getHolidayICS() {
     return this.holidayService.getHolidayICS();
   }
