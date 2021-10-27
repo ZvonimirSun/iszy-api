@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Holiday } from './entities/holiday.model';
 import { ImportHolidayDto } from './dto/import_holiday.dto';
-import { ImportWorkdayDto } from './dto/import_workday.dto';
 import { Sequelize } from 'sequelize-typescript';
 import dayjs from 'dayjs';
+import { ResultDto } from '../../core/result.dto';
 
 @Injectable()
 export class HolidayService {
@@ -13,7 +13,7 @@ export class HolidayService {
     private sequelize: Sequelize,
   ) {}
 
-  async importHoliday(importHolidayDto: ImportHolidayDto) {
+  async importHoliday(importHolidayDto: ImportHolidayDto): Promise<ResultDto> {
     if (importHolidayDto.endDate - importHolidayDto.startDate >= 0) {
       try {
         const startDate = dayjs(
@@ -36,35 +36,39 @@ export class HolidayService {
               transactionHost,
             );
           }
+          if (
+            importHolidayDto.workdays &&
+            importHolidayDto.workdays.length > 0
+          ) {
+            for (const date of importHolidayDto.workdays) {
+              await this.holidayModel.create(
+                {
+                  id: date,
+                  desc: importHolidayDto.desc + '调休',
+                  isHoliday: false,
+                  last: null,
+                } as Holiday,
+                transactionHost,
+              );
+            }
+          }
         });
-        return true;
+        return {
+          code: '00000',
+          message: '导入成功',
+        };
       } catch (e) {
         console.error(e);
-        return false;
+        return {
+          code: 'C0102',
+          message: `导入失败，重复导入`,
+        };
       }
     } else {
-      return false;
-    }
-  }
-
-  async importWorkDay(importWorkdayDto: ImportWorkdayDto) {
-    try {
-      await this.sequelize.transaction(async (t) => {
-        const transactionHost = { transaction: t };
-        await this.holidayModel.create(
-          {
-            id: importWorkdayDto.date,
-            desc: importWorkdayDto.desc,
-            isHoliday: false,
-            last: null,
-          } as Holiday,
-          transactionHost,
-        );
-      });
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
+      return {
+        code: 'B0102',
+        message: '导入失败，参数有误',
+      };
     }
   }
 
