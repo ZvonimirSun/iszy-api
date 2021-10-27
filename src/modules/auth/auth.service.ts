@@ -124,6 +124,7 @@ export class AuthService {
   async getProfile(userName: string): Promise<ResultDto> {
     const user = await this.usersService.findOne(userName);
     if (user) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { passwd, passwdSalt, createdAt, updatedAt, ...result } = user.get({
         plain: true,
       });
