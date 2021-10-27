@@ -3062,6 +3062,11 @@ human-signals@^2.1.0:
   resolved "https://r.cnpmjs.org/human-signals/download/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
   integrity sha1-3JH8ukLk0G5Kuu0zs+ejwC9RTqA=
 
+icalendar@^0.7.1:
+  version "0.7.1"
+  resolved "https://r.cnpmjs.org/icalendar/download/icalendar-0.7.1.tgz#d0d3486795f8f1c5cf4f8cafac081b4b4e7a32ae"
+  integrity sha1-0NNIZ5X48cXPT4yvrAgbS056Mq4=
+
 iconv-lite@0.4.24, iconv-lite@^0.4.24:
   version "0.4.24"
   resolved "https://r.cnpmjs.org/iconv-lite/download/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"

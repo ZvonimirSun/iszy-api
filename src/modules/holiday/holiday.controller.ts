@@ -18,9 +18,13 @@ export class HolidayController {
     return this.holidayService.isHoliday();
   }
 
+  @Get('holiday.ics')
+  getHolidayICS() {
+    return this.holidayService.getHolidayICS();
+  }
+
   @Get(':date')
   isHolidayByDate(@Param('date') date?: number) {
-    console.log(date);
     return this.holidayService.isHoliday(date);
   }
 }

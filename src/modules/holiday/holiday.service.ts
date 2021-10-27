@@ -5,6 +5,7 @@ import { ImportHolidayDto } from './dto/import_holiday.dto';
 import { Sequelize } from 'sequelize-typescript';
 import dayjs from 'dayjs';
 import { ResultDto } from '../../core/result.dto';
+import icalendar from 'icalendar';
 
 @Injectable()
 export class HolidayService {
@@ -80,11 +81,7 @@ export class HolidayService {
       } else {
         date = parseInt(day.format('YYYYMMDD'));
       }
-      const result = await this.holidayModel.findOne({
-        where: {
-          id: date,
-        },
-      });
+      const result = await this.holidayModel.findByPk(date);
       if (result) {
         return { isHoliday: result.isHoliday, desc: result.desc };
       } else {
@@ -105,6 +102,53 @@ export class HolidayService {
     } catch (e) {
       console.error(e);
       return false;
+    }
+  }
+
+  async getHolidayICS() {
+    try {
+      const list = await this.holidayModel.findAll({
+        attributes: ['id', 'desc', 'last'],
+        order: ['id'],
+      });
+      const tmp = list.map((item) => {
+        return item.get({ plain: true });
+      });
+      const ics = new icalendar.iCalendar();
+      let tmpEvent = undefined;
+      let tmpDate = undefined;
+      for (const day of tmp) {
+        if (
+          !tmpEvent ||
+          !tmpEvent.last ||
+          dayjs(day.id.toString(), 'YYYYMMDD').diff(tmpDate, 'day') >=
+            tmpEvent.last
+        ) {
+          tmpEvent = day;
+          const event = ics.addComponent('VEVENT');
+          event.setSummary(day.desc);
+          tmpDate = dayjs(day.id.toString(), 'YYYYMMDD');
+          if (day.last) {
+            event.setDate(
+              new Date(tmpDate.startOf('day').valueOf()),
+              new Date(
+                tmpDate
+                  .add(day.last - 1, 'day')
+                  .endOf('day')
+                  .valueOf(),
+              ),
+            );
+          } else {
+            event.setDate(
+              new Date(tmpDate.startOf('day').valueOf()),
+              new Date(tmpDate.endOf('day').valueOf()),
+            );
+          }
+        }
+      }
+      return ics.toString();
+    } catch (e) {
+      return '';
     }
   }
 }
