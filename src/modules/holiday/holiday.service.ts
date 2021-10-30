@@ -5,7 +5,6 @@ import { ImportHolidayDto } from './dto/import_holiday.dto';
 import { Sequelize } from 'sequelize-typescript';
 import dayjs from 'dayjs';
 import { ResultDto } from '../../core/result.dto';
-import icalendar from 'icalendar';
 
 @Injectable()
 export class HolidayService {
@@ -114,7 +113,7 @@ export class HolidayService {
       const tmp = list.map((item) => {
         return item.get({ plain: true });
       });
-      const ics = new icalendar.iCalendar();
+      let ics = 'BEGIN:VCALENDAR\n' + 'VERSION:2.0\n' + 'X-WR-CALNAME:家庭\n';
       let tmpEvent = undefined;
       let tmpDate = undefined;
       for (const day of tmp) {
@@ -125,28 +124,25 @@ export class HolidayService {
             tmpEvent.last
         ) {
           tmpEvent = day;
-          const event = ics.addComponent('VEVENT');
-          event.setSummary(day.desc);
+          ics += 'BEGIN:VEVENT\n';
+          ics += `SUMMARY:${day.desc}\n`;
           tmpDate = dayjs(day.id.toString(), 'YYYYMMDD');
           if (day.last) {
-            event.setDate(
-              new Date(tmpDate.startOf('day').valueOf()),
-              new Date(
-                tmpDate
-                  .add(day.last - 1, 'day')
-                  .endOf('day')
-                  .valueOf(),
-              ),
-            );
+            ics += `DTSTART;VALUE=DATE:${tmpDate.format('YYYYMMDD')}\n`;
+            ics += `DTEND;VALUE=DATE:${tmpDate
+              .add(day.last, 'day')
+              .format('YYYYMMDD')}\n`;
           } else {
-            event.setDate(
-              new Date(tmpDate.startOf('day').valueOf()),
-              new Date(tmpDate.endOf('day').valueOf()),
-            );
+            ics += `DTSTART;VALUE=DATE:${tmpDate.format('YYYYMMDD')}\n`;
+            ics += `DTEND;VALUE=DATE:${tmpDate
+              .add(1, 'day')
+              .format('YYYYMMDD')}\n`;
           }
+          ics += 'END:VEVENT\n';
         }
       }
-      return ics.toString();
+      ics += 'END:VCALENDAR\n';
+      return ics;
     } catch (e) {
       return '';
     }
