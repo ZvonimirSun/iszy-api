@@ -1,6 +1,11 @@
 name: Docker Build CI
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
   workflow_dispatch:
 
 env:
