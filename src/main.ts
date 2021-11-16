@@ -6,6 +6,7 @@ import 'dayjs/locale/zh-cn';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { HttpExceptionFilter } from './core/filter/http-exception.filter';
 
 async function bootstrap() {
   dayjs.locale('zh-cn');
@@ -16,6 +17,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.enableCors();
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
     .addBearerAuth()
