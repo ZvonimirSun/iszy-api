@@ -10,7 +10,7 @@ import { Role } from './role.model';
 import { UserRole } from './user_role.model';
 
 @Table
-export class User extends Model<User> {
+export class User extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column

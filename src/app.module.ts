@@ -35,6 +35,7 @@ import { Dialect } from 'sequelize/types';
 
         autoLoadModels: true,
         synchronize: true,
+        logging: configService.get<boolean>('database.logging'),
       }),
       inject: [ConfigService],
     }),

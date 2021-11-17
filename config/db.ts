@@ -10,5 +10,6 @@ export default () => ({
     database: process.env.DATABASE_DATABASE,
     schema: process.env.DATABASE_SCHEMA || 'public',
     connectionLimit: parseInt(process.env.DATABASE_LIMIT || '10'),
+    logging: process.env.DATABASE_LOGGING === 'true',
   },
 });
