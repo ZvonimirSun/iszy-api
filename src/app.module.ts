@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import db from '../config/db';
 import { Dialect } from 'sequelize/types';
 import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
+import { GisModule } from './modules/gis/gis.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
     AuthModule,
     HolidayModule,
     IszyToolsModule,
+    GisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
