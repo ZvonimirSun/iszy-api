@@ -10,6 +10,7 @@ import db from '../config/db';
 import { Dialect } from 'sequelize/types';
 import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
 import { GisModule } from './modules/gis/gis.module';
+import { TronModule } from './modules/tron/tron.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { GisModule } from './modules/gis/gis.module';
     HolidayModule,
     IszyToolsModule,
     GisModule,
+    TronModule,
   ],
   controllers: [AppController],
   providers: [AppService],
