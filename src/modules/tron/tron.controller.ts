@@ -1,9 +1,12 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { TronService } from './tron.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResultDto } from '../../core/result.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Tron')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 @Controller('tron')
 export class TronController {
   constructor(private readonly tronService: TronService) {}
@@ -28,6 +31,36 @@ export class TronController {
       code: res != null ? '00000' : 'B0100',
       data: res,
       message: res != null ? '查询成功' : '查询失败',
+    };
+  }
+
+  @Get('addressToHex')
+  async addressToHex(@Query('address') address: string): Promise<ResultDto> {
+    const res = await this.tronService.addressToHex(address);
+    return {
+      code: res != null ? '00000' : 'B0100',
+      data: res,
+      message: res != null ? '转换成功' : '转换失败',
+    };
+  }
+
+  @Get('addressToBase58')
+  async addressToBase58(@Query('address') address: string): Promise<ResultDto> {
+    const res = await this.tronService.addressToBase58(address);
+    return {
+      code: res != null ? '00000' : 'B0100',
+      data: res,
+      message: res != null ? '转换成功' : '转换失败',
+    };
+  }
+
+  @Get('addressFromPrivateKey')
+  async addressFromPrivateKey(@Query('key') key: string): Promise<ResultDto> {
+    const res = await this.tronService.addressFromPrivateKey(key);
+    return {
+      code: res != null ? '00000' : 'B0100',
+      data: res,
+      message: res != null ? '转换成功' : '转换失败',
     };
   }
 }
