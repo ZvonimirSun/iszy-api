@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { TronService } from './tron.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResultDto } from '../../core/result.dto';
@@ -34,8 +34,8 @@ export class TronController {
     };
   }
 
-  @Get('addressToHex')
-  async addressToHex(@Query('address') address: string): Promise<ResultDto> {
+  @Get('addressToHex/:address')
+  async addressToHex(@Param('address') address: string): Promise<ResultDto> {
     const res = await this.tronService.addressToHex(address);
     return {
       code: res != null ? '00000' : 'B0100',
@@ -44,8 +44,8 @@ export class TronController {
     };
   }
 
-  @Get('addressToBase58')
-  async addressToBase58(@Query('address') address: string): Promise<ResultDto> {
+  @Get('addressToBase58/:address')
+  async addressToBase58(@Param('address') address: string): Promise<ResultDto> {
     const res = await this.tronService.addressToBase58(address);
     return {
       code: res != null ? '00000' : 'B0100',
@@ -54,8 +54,8 @@ export class TronController {
     };
   }
 
-  @Get('addressFromPrivateKey')
-  async addressFromPrivateKey(@Query('key') key: string): Promise<ResultDto> {
+  @Get('addressFromPrivateKey/:key')
+  async addressFromPrivateKey(@Param('key') key: string): Promise<ResultDto> {
     const res = await this.tronService.addressFromPrivateKey(key);
     return {
       code: res != null ? '00000' : 'B0100',
