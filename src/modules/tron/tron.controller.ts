@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { TronService } from './tron.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResultDto } from '../../core/result.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiImplicitQuery } from '@nestjs/swagger/dist/decorators/api-implicit-query.decorator';
 
 @ApiTags('Tron')
 @ApiBearerAuth()
@@ -24,12 +26,35 @@ export class TronController {
     return await this.tronService.createAccount();
   }
 
-  @Get('getBalance/:contract/:address')
+  @Get('getBalance/:address/:contract')
   async getBalance(
-    @Param('contract') contract: string,
     @Param('address') address: string,
+    @Param('contract') contract: string,
   ): Promise<ResultDto> {
-    return await this.tronService.getBalance(contract, address);
+    return await this.tronService.getBalance(address, contract);
+  }
+
+  @ApiImplicitQuery({
+    name: 'fingerprint',
+    required: false,
+  })
+  @ApiImplicitQuery({
+    name: 'limit',
+    required: false,
+  })
+  @Get('getTransactions/:address/:contract')
+  async getTransactions(
+    @Param('address') address: string,
+    @Param('contract') contract: string,
+    @Query('fingerprint') fingerprint?: string,
+    @Query('limit') limit?: number,
+  ): Promise<ResultDto> {
+    return await this.tronService.getTransactions(
+      address,
+      contract,
+      fingerprint,
+      limit,
+    );
   }
 
   @Get('addressToHex/:address')

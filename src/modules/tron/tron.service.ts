@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import TronWeb from 'tronweb';
+import TronGrid from 'trongrid';
 import { contractAddresses } from './ContractAddresses';
 import { TronModel } from './entities/tron.model';
 import { InjectModel } from '@nestjs/sequelize';
@@ -55,8 +56,8 @@ export class TronService {
   }
 
   async getBalance(
-    contractAddress: string,
     address: string,
+    contractAddress: string,
   ): Promise<ResultDto> {
     try {
       this.tronWeb.setAddress(address);
@@ -68,6 +69,40 @@ export class TronService {
       return {
         code: '00000',
         data: res.toNumber() / 10 ** decimals,
+        message: '查询成功',
+      };
+    } catch (e) {
+      this.logger.error(e.message);
+      return {
+        code: 'B0100',
+        message: '查询失败',
+      };
+    }
+  }
+
+  async getTransactions(
+    address: string,
+    contractAddress: string,
+    fingerprint?: string,
+    limit?: number,
+  ): Promise<ResultDto> {
+    try {
+      const tronGrid = new TronGrid(this.tronWeb);
+      const {
+        data,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        meta: { links, ...others },
+      } = await tronGrid.account.getTrc20Transactions(address, {
+        contract_address: contractAddresses[contractAddress.toUpperCase()],
+        fingerprint,
+        limit: limit || 20,
+      });
+      return {
+        code: '00000',
+        data: {
+          transactions: data,
+          ...others,
+        },
         message: '查询成功',
       };
     } catch (e) {
