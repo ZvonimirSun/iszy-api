@@ -1,4 +1,4 @@
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -18,6 +18,9 @@ import { ResultDto } from '../../core/result.dto';
 export class IszyToolsController {
   constructor(private readonly iszyToolsService: IszyToolsService) {}
 
+  @ApiBody({
+    type: Object,
+  })
   @Post('settings')
   async uploadSettings(
     @Request() req,
