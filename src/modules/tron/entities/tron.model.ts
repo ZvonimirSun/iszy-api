@@ -1,9 +1,11 @@
 import {
   Column,
   ForeignKey,
+  Index,
   Model,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 import { User } from '../../user/entities/user.model';
 
@@ -19,6 +21,8 @@ export class TronModel extends Model {
   @Column
   userId: number;
 
+  @Unique
+  @Index
   @Column
   pk: string;
 }

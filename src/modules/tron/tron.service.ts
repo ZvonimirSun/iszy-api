@@ -5,6 +5,7 @@ import { contractAddresses } from './ContractAddresses';
 import { TronModel } from './entities/tron.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { ResultDto } from '../../core/result.dto';
+import { Sequelize } from 'sequelize-typescript';
 
 const HttpProvider = TronWeb.providers.HttpProvider;
 const fullNode = new HttpProvider('https://api.trongrid.io');
@@ -26,6 +27,7 @@ export class TronService {
   constructor(
     private configService: ConfigService,
     @InjectModel(TronModel) private tronModel: typeof TronModel,
+    private sequelize: Sequelize,
   ) {}
 
   async createAccount(): Promise<ResultDto> {
@@ -44,7 +46,7 @@ export class TronService {
         message: '创建成功',
       };
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(e.message);
       return {
         code: 'B0100',
         message: '创建失败',
@@ -69,7 +71,7 @@ export class TronService {
         message: '查询成功',
       };
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(e.message);
       return {
         code: 'B0100',
         message: '查询失败',
@@ -85,7 +87,7 @@ export class TronService {
         message: '转换成功',
       };
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(e.message);
       return {
         code: 'B0100',
         message: '转换失败',
@@ -101,7 +103,7 @@ export class TronService {
         message: '转换成功',
       };
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(e.message);
       return {
         code: 'B0100',
         message: '转换失败',
@@ -117,7 +119,7 @@ export class TronService {
         message: '转换成功',
       };
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(e.message);
       return {
         code: 'B0100',
         message: '转换失败',
@@ -127,20 +129,51 @@ export class TronService {
 
   async addAccount(userId: number, key: string) {
     try {
-      await this.tronModel.create({
-        userId,
-        address: this.tronWeb.address.fromPrivateKey(key),
-        pk: key,
+      await this.sequelize.transaction(async (transaction) => {
+        await this.tronModel.create(
+          {
+            userId,
+            address: this.tronWeb.address.fromPrivateKey(key),
+            pk: key,
+          },
+          { transaction },
+        );
       });
       return {
         code: '00000',
         message: '保存成功',
       };
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(e.message);
       return {
         code: 'B0100',
         message: '保存失败',
+      };
+    }
+  }
+
+  async removeAccount(userId: number, key: string) {
+    try {
+      await this.sequelize.transaction(async (transaction) => {
+        const res = await this.tronModel.findOne({
+          where: {
+            userId,
+            pk: key,
+          },
+        });
+        if (res) {
+          await res.destroy({ transaction });
+        }
+      });
+      return {
+        code: '00000',
+        message: '删除成功',
+      };
+    } catch (e) {
+      this.logger.error(e.message);
+      return {
+        code: 'B0100',
+        message: e.message,
       };
     }
   }

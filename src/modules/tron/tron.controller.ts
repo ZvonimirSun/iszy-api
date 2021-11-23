@@ -1,6 +1,6 @@
 import {
-  Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -11,7 +11,6 @@ import { TronService } from './tron.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResultDto } from '../../core/result.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AddAccountDto } from './dto/add.account.dto';
 
 @ApiTags('Tron')
 @ApiBearerAuth()
@@ -48,8 +47,13 @@ export class TronController {
     return await this.tronService.addressFromPrivateKey(key);
   }
 
-  @Post('addAccount')
-  async addAccount(@Request() req, @Body() addAccountDto: AddAccountDto) {
-    return await this.tronService.addAccount(req.user.sub, addAccountDto.pk);
+  @Post('account/:key')
+  async addAccount(@Request() req, @Param('key') key: string) {
+    return await this.tronService.addAccount(req.user.sub, key);
+  }
+
+  @Delete('account/:key')
+  async removeAccount(@Request() req, @Param('key') key: string) {
+    return await this.tronService.removeAccount(req.user.sub, key);
   }
 }
