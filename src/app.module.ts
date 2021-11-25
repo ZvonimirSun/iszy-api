@@ -6,16 +6,17 @@ import { AuthModule } from './modules/auth/auth.module';
 import { HolidayModule } from './modules/holiday/holiday.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import db from '../config/db';
 import { Dialect } from 'sequelize/types';
 import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
 import { GisModule } from './modules/gis/gis.module';
+import { db, jwt } from '../config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [db],
+      load: [db, jwt],
+      cache: true,
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
