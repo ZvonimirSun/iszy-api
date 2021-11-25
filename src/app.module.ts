@@ -9,13 +9,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Dialect } from 'sequelize/types';
 import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
 import { GisModule } from './modules/gis/gis.module';
-import { db } from '../config';
+import configs from './core/configs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [db],
+      load: [configs],
       cache: true,
     }),
     SequelizeModule.forRootAsync({
