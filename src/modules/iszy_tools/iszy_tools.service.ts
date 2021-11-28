@@ -46,8 +46,8 @@ export class IszyToolsService {
 
   async downloadSettings(userId: number) {
     try {
-      const setting = await this.settingModel.findByPk(userId);
-      return setting.get({ plain: true }).settings;
+      const setting = await this.settingModel.findByPk(userId, { raw: true });
+      return setting.settings;
     } catch (e) {
       this.logger.error(e);
     }
