@@ -130,7 +130,7 @@ export class TronService {
     }
   }
 
-  async addressToBase58(address: string) {
+  async addressToBase58(address: string): Promise<ResultDto> {
     try {
       return {
         code: '00000',
@@ -146,7 +146,7 @@ export class TronService {
     }
   }
 
-  async addressFromPrivateKey(key: string) {
+  async addressFromPrivateKey(key: string): Promise<ResultDto> {
     try {
       return {
         code: '00000',
@@ -162,7 +162,7 @@ export class TronService {
     }
   }
 
-  async addAccount(userId: number, key: string) {
+  async addAccount(userId: number, key: string): Promise<ResultDto> {
     try {
       await this.sequelize.transaction(async (transaction) => {
         await this.tronModel.create(
@@ -187,7 +187,37 @@ export class TronService {
     }
   }
 
-  async removeAccount(userId: number, key: string) {
+  async getAddress(userId: number): Promise<ResultDto> {
+    try {
+      const res = await this.tronModel.findAll({
+        where: {
+          userId,
+        },
+        raw: true,
+      });
+      if (res) {
+        return {
+          code: '00000',
+          data: res.map((item) => item.address),
+          message: '获取成功',
+        };
+      } else {
+        return {
+          code: '00000',
+          data: [],
+          message: '获取成功',
+        };
+      }
+    } catch (e) {
+      this.logger.error(e.message);
+      return {
+        code: 'B0100',
+        message: e.message,
+      };
+    }
+  }
+
+  async removeAccount(userId: number, key: string): Promise<ResultDto> {
     try {
       await this.sequelize.transaction(async (transaction) => {
         const res = await this.tronModel.findOne({

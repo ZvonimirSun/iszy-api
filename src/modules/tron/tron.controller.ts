@@ -77,6 +77,11 @@ export class TronController {
     return await this.tronService.addAccount(req.user.sub, key);
   }
 
+  @Get('account/address')
+  async getAddresses(@Request() req) {
+    return await this.tronService.getAddress(req.user.sub);
+  }
+
   @Delete('account/:key')
   async removeAccount(@Request() req, @Param('key') key: string) {
     return await this.tronService.removeAccount(req.user.sub, key);
