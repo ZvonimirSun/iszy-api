@@ -7,6 +7,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { HttpExceptionFilter } from './core/filter/http-exception.filter';
+import { json, urlencoded } from 'body-parser';
 
 async function bootstrap() {
   dayjs.locale('zh-cn');
@@ -16,6 +17,8 @@ async function bootstrap() {
   dayjs.tz.setDefault('Asia/Shanghai');
 
   const app = await NestFactory.create(AppModule);
+  app.use(json({ limit: '200mb' }));
+  app.use(urlencoded({ limit: '200mb', extended: true }));
   app.enableCors();
   app.useGlobalFilters(new HttpExceptionFilter());
 
