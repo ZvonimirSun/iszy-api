@@ -122,6 +122,28 @@ export class AuthService {
     }
   }
 
+  async refreshToken({ userId, userName }: User): Promise<ResultDto> {
+    const payload: JwtPayload = {
+      userName: userName,
+      userId: userId,
+    };
+    try {
+      const token = this.jwtService.sign(payload);
+      return {
+        code: '00000',
+        data: {
+          token,
+        },
+        message: `刷新成功`,
+      };
+    } catch (error) {
+      return {
+        code: 'B0101',
+        message: `刷新失败，签署token出错，${error}`,
+      };
+    }
+  }
+
   async getProfile(userName: string): Promise<ResultDto> {
     const user = await this.usersService.findOne(userName);
     if (user) {
