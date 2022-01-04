@@ -8,6 +8,7 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { ResultDto } from '../../core/result.dto';
 import { User } from '../user/entities/user.model';
+import { JwtPayload } from './dto/jwt.payload';
 
 @Injectable()
 export class AuthService {
@@ -45,9 +46,9 @@ export class AuthService {
   }
 
   async certificate(user: User): Promise<ResultDto> {
-    const payload = {
+    const payload: JwtPayload = {
       userName: user.userName,
-      sub: user.userId,
+      userId: user.userId,
     };
     try {
       const token = this.jwtService.sign(payload);

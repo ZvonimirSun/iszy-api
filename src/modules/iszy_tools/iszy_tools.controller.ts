@@ -24,7 +24,7 @@ export class IszyToolsController {
     @Body() settingDto: any,
   ): Promise<ResultDto> {
     const result = await this.iszyToolsService.uploadSettings(
-      req.user.sub,
+      req.user.userId,
       settingDto,
     );
     return {
@@ -36,7 +36,9 @@ export class IszyToolsController {
 
   @Get('settings')
   async downloadSettings(@Request() req) {
-    const result = await this.iszyToolsService.downloadSettings(req.user.sub);
+    const result = await this.iszyToolsService.downloadSettings(
+      req.user.userId,
+    );
     return {
       code: '00000',
       data: result,
