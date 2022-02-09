@@ -30,7 +30,7 @@ export class HolidayService {
               desc: importHolidayDto.desc,
               isHoliday: true,
               last,
-            } as Holiday,
+            },
             transactionHost,
           );
         }
@@ -42,7 +42,7 @@ export class HolidayService {
                 desc: importHolidayDto.desc + '调休',
                 isHoliday: false,
                 last: null,
-              } as Holiday,
+              },
               transactionHost,
             );
           }
