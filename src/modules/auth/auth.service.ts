@@ -64,13 +64,32 @@ export class AuthService {
         registerDto.password,
         createUserDto.passwdSalt,
       );
-      createUserDto.mobile = registerDto.mobile;
-      createUserDto.email = registerDto.email;
+      createUserDto.mobile = registerDto.mobile || undefined;
+      createUserDto.email = registerDto.email || undefined;
       createUserDto.userStatus = 0;
       await this.usersService.create(createUserDto);
     } catch (e) {
       if (e.name === 'SequelizeUniqueConstraintError') {
-        throw new Error('用户已存在');
+        const error = e.errors[0];
+        if (error) {
+          this.logger.error(error.message);
+          switch (error.path) {
+            case 'userName': {
+              throw new Error('用户已存在');
+            }
+            case 'mobile': {
+              throw new Error('手机号已存在');
+            }
+            case 'email': {
+              throw new Error('邮箱已被绑定');
+            }
+            default: {
+              throw new Error(error.message);
+            }
+          }
+        } else {
+          throw new Error(e.name);
+        }
       }
       throw new Error(e.name ? e.name + e.message : e.message);
     }
