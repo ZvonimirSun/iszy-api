@@ -20,4 +20,9 @@ export class RegisterDto {
     description: '手机号',
   })
   readonly mobile?: string;
+
+  @ApiPropertyOptional({
+    description: '邮箱',
+  })
+  readonly email?: string;
 }

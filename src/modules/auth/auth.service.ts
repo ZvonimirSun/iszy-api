@@ -69,8 +69,8 @@ export class AuthService {
       createUserDto.passwdSalt,
     );
     createUserDto.mobile = registerDto.mobile;
-    createUserDto.userStatus = 1;
-    createUserDto.createBy = 0;
+    createUserDto.email = registerDto.email;
+    createUserDto.userStatus = 0;
     await this.usersService.create(createUserDto);
   }
 

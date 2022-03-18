@@ -17,6 +17,9 @@ export class CreateUserDto {
   mobile: string;
 
   @ApiProperty()
+  email: string;
+
+  @ApiProperty()
   userStatus: number;
 
   @ApiProperty()

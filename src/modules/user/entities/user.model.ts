@@ -29,7 +29,10 @@ export class User extends Model {
   passwdSalt!: string;
 
   @Column
-  mobile!: string;
+  mobile?: string;
+
+  @Column
+  email?: string;
 
   @BelongsToMany(() => Role, () => UserRole)
   roles?: Role[];
