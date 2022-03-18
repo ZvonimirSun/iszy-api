@@ -5,6 +5,7 @@ import {
   BelongsToMany,
   PrimaryKey,
   AutoIncrement,
+  Unique,
 } from 'sequelize-typescript';
 import { Role } from './role.model';
 import { UserRole } from './user_role.model';
@@ -16,6 +17,7 @@ export class User extends Model {
   @Column
   userId?: number;
 
+  @Unique
   @Column
   userName!: string;
 
@@ -28,9 +30,11 @@ export class User extends Model {
   @Column
   passwdSalt!: string;
 
+  @Unique
   @Column
   mobile?: string;
 
+  @Unique
   @Column
   email?: string;
 

@@ -13,13 +13,13 @@ export class IdiomController {
     const result = await this.idiomService.getIdiomHandle();
     if (result) {
       return {
-        code: '00000',
+        success: true,
         message: '获取成功',
         data: result,
       };
     } else {
       return {
-        code: 'C0100',
+        success: false,
         message: '获取失败',
       };
     }

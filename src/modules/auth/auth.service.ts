@@ -55,23 +55,25 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<void> {
-    const user = await this.usersService.findOne(registerDto.userName);
-    if (user) {
-      this.logger.error('用户已存在');
-      throw new Error('用户已存在');
+    try {
+      const createUserDto: CreateUserDto = new CreateUserDto();
+      createUserDto.userName = registerDto.userName;
+      createUserDto.nickName = registerDto.nickName;
+      createUserDto.passwdSalt = makeSalt();
+      createUserDto.passwd = encryptPassword(
+        registerDto.password,
+        createUserDto.passwdSalt,
+      );
+      createUserDto.mobile = registerDto.mobile;
+      createUserDto.email = registerDto.email;
+      createUserDto.userStatus = 0;
+      await this.usersService.create(createUserDto);
+    } catch (e) {
+      if (e.name === 'SequelizeUniqueConstraintError') {
+        throw new Error('用户已存在');
+      }
+      throw new Error(e.name ? e.name + e.message : e.message);
     }
-    const createUserDto: CreateUserDto = new CreateUserDto();
-    createUserDto.userName = registerDto.userName;
-    createUserDto.nickName = registerDto.nickName;
-    createUserDto.passwdSalt = makeSalt();
-    createUserDto.passwd = encryptPassword(
-      registerDto.password,
-      createUserDto.passwdSalt,
-    );
-    createUserDto.mobile = registerDto.mobile;
-    createUserDto.email = registerDto.email;
-    createUserDto.userStatus = 0;
-    await this.usersService.create(createUserDto);
   }
 
   async getProfile(userName: string): Promise<User> {

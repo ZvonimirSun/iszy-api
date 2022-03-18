@@ -16,12 +16,12 @@ export class HolidayController {
     try {
       await this.holidayService.importHoliday(importHolidayDto);
       return {
-        code: '00000',
+        success: true,
         message: '导入成功',
       };
     } catch (e) {
       return {
-        code: 'C0102',
+        success: false,
         message: `导入失败，${e.message}`,
       };
     }
@@ -31,13 +31,13 @@ export class HolidayController {
   async isHolidayNow(): Promise<ResultDto> {
     try {
       return {
-        code: '00000',
+        success: true,
         data: await this.holidayService.isHoliday(),
         message: '获取成功',
       };
     } catch (e) {
       return {
-        code: 'C0100',
+        success: false,
         message: `获取失败，${e.message}`,
       };
     }
@@ -53,13 +53,13 @@ export class HolidayController {
   async isHolidayByDate(@Param('date') date?: number): Promise<ResultDto> {
     try {
       return {
-        code: '00000',
+        success: true,
         data: await this.holidayService.isHoliday(date),
         message: '获取成功',
       };
     } catch (e) {
       return {
-        code: 'C0100',
+        success: false,
         message: `获取失败，${e.message}`,
       };
     }

@@ -28,7 +28,7 @@ export class IszyToolsController {
       settingDto,
     );
     return {
-      code: '00000',
+      success: true,
       data: result,
       message: result ? '更新成功' : '更新失败',
     };
@@ -40,7 +40,7 @@ export class IszyToolsController {
       req.user.userId,
     );
     return {
-      code: '00000',
+      success: true,
       data: result,
       message: result ? '获取成功' : '数据不存在',
     };
