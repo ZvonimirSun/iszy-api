@@ -7,7 +7,10 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { HttpExceptionFilter } from './core/filter/http-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { json, urlencoded } from 'body-parser';
+import { join } from 'path';
+import * as nunjucks from 'nunjucks';
 
 async function bootstrap() {
   dayjs.locale('zh-cn');
@@ -16,11 +19,21 @@ async function bootstrap() {
   dayjs.extend(customParseFormat);
   dayjs.tz.setDefault('Asia/Shanghai');
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const express = app.getHttpAdapter().getInstance();
+
   app.use(json({ limit: '200mb' }));
   app.use(urlencoded({ limit: '200mb', extended: true }));
   app.enableCors();
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  const assets = join(__dirname, '..', 'assets');
+  const views = join(__dirname, '..', 'views');
+  nunjucks.configure(views, { express });
+
+  app.useStaticAssets(assets);
+  app.setBaseViewsDir(views);
+  app.setViewEngine('njk');
 
   const config = new DocumentBuilder()
     .addBearerAuth()
@@ -36,4 +49,6 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT || 3000);
 }
-bootstrap();
+bootstrap().then(() =>
+  console.log(`Server is running on port ${process.env.PORT || 3000}`),
+);
