@@ -10,6 +10,7 @@ import { Dialect } from 'sequelize/types';
 import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
 import { GisModule } from './modules/gis/gis.module';
 import configs from './core/configs';
+import { UrlsModule } from './modules/urls/urls.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import configs from './core/configs';
     HolidayModule,
     IszyToolsModule,
     GisModule,
+    UrlsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
