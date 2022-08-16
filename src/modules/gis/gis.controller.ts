@@ -17,13 +17,13 @@ export class GisController {
     const res = await this.gisService.transformPoint(transformPointDto);
     if (res) {
       return {
-        code: '00000',
+        success: true,
         data: res,
         message: '转换成功',
       };
     } else {
       return {
-        code: 'B0102',
+        success: false,
         data: res,
         message: '转换失败',
       };
@@ -31,17 +31,19 @@ export class GisController {
   }
 
   @Post('transformGeometry')
-  async transformGeometry(@Body() transformGeometryDto: TransformGeometryDto) {
+  async transformGeometry(
+    @Body() transformGeometryDto: TransformGeometryDto,
+  ): Promise<ResultDto> {
     const res = await this.gisService.transformGeometry(transformGeometryDto);
     if (res) {
       return {
-        code: '00000',
+        success: true,
         data: res,
         message: '转换成功',
       };
     } else {
       return {
-        code: 'B0102',
+        success: false,
         data: res,
         message: '转换失败',
       };

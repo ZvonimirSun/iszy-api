@@ -1,5 +1,5 @@
 export class ResultDto {
-  code: string;
+  success: boolean;
   message: string;
   data?: any;
 }

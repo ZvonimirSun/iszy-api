@@ -23,13 +23,13 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto): Promise<ResultDto> {
     try {
       return {
-        code: '00000',
+        success: true,
         data: { token: await this.authService.login(loginDto) },
         message: '登录成功',
       };
     } catch (e) {
       return {
-        code: 'B0101',
+        success: false,
         message: `登录失败, ${e.message}`,
       };
     }
@@ -39,11 +39,14 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto): Promise<ResultDto> {
     try {
       await this.authService.register(registerDto);
-      return { code: '00000', message: '用户创建成功' };
+      return {
+        success: true,
+        message: '用户创建成功',
+      };
     } catch (e) {
       return {
-        code: 'B0101',
-        message: `登录失败, ${e.message}`,
+        success: false,
+        message: `用户创建失败, ${e.message}`,
       };
     }
   }
@@ -55,7 +58,7 @@ export class AuthController {
     try {
       const { userName, userId } = req.user;
       return {
-        code: '00000',
+        success: true,
         data: {
           token: this.authService.certificate({
             userId,
@@ -66,7 +69,7 @@ export class AuthController {
       };
     } catch (e) {
       return {
-        code: 'B0101',
+        success: false,
         message: `登录失败, ${e.message}`,
       };
     }
@@ -78,13 +81,13 @@ export class AuthController {
   async getProfile(@Request() req): Promise<ResultDto> {
     try {
       return {
-        code: '00000',
+        success: true,
         data: await this.authService.getProfile(req.user.userName),
         message: '获取成功',
       };
     } catch (e) {
       return {
-        code: 'A0102',
+        success: false,
         message: e.message,
       };
     }

@@ -22,7 +22,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       : `${status >= 500 ? 'Service Error' : 'Client Error'}`;
     const errorResponse: ResultDto = {
       message,
-      code: status >= 500 ? `B0${status}` : `A0${status}`, // 自定义code
+      success: false, // 自定义code
     };
     // 设置返回的状态码、请求头、发送错误信息
     response.status(status).json(errorResponse);
