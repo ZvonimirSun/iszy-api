@@ -1,15 +1,22 @@
-import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import {
+  AutoIncrement,
+  Column,
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
 
 @Table({
   tableName: 'ShortUrlLog',
 })
 export class LogModel extends Model {
   @PrimaryKey
+  @AutoIncrement
   @Column
   id: number;
 
   @Column
-  shorturl: string;
+  shortUrl: string;
 
   @Column
   referrer: string;

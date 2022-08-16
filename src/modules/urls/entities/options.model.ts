@@ -1,4 +1,11 @@
-import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import {
+  AutoIncrement,
+  Column,
+  Model,
+  PrimaryKey,
+  Table,
+  Unique,
+} from 'sequelize-typescript';
 
 @Table({
   tableName: 'ShortUrlOptions',
@@ -6,9 +13,11 @@ import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
 })
 export class OptionsModel extends Model {
   @PrimaryKey
+  @AutoIncrement
   @Column
   id: number;
 
+  @Unique
   @Column
   key: string;
 

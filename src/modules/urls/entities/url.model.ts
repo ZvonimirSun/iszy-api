@@ -1,4 +1,10 @@
-import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import {
+  Column,
+  Default,
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
 
 @Table({
   tableName: 'ShortUrlUrl',
@@ -17,6 +23,7 @@ export class UrlModel extends Model {
   @Column
   ip: string;
 
+  @Default(0)
   @Column
   clicks: number;
 }
