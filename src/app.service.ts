@@ -3,6 +3,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World! ISZY API!';
+    return `Hello World! ${process.env.APP_TITLE || 'ISZY API'}!`;
   }
 }

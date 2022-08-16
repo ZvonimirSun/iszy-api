@@ -24,8 +24,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle('ISZY API')
-    .setDescription('ISZY API description')
+    .setTitle(process.env.APP_TITLE || 'ISZY API')
+    .setDescription(process.env.APP_DESCRIPTION || 'ISZY API description')
     .setVersion('1.0')
     .build();
 
