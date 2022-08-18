@@ -43,7 +43,6 @@ export class UrlsService {
         key = await this._getNextKeyword();
       }
       await this.sequelize.transaction(async (t) => {
-        const transactionHost = { transaction: t };
         await this.urlModel.create(
           {
             keyword: key,
@@ -51,7 +50,7 @@ export class UrlsService {
             title,
             ip: req.ip,
           },
-          transactionHost,
+          { transaction: t },
         );
       });
       return true;
@@ -86,8 +85,7 @@ export class UrlsService {
     }
     try {
       await this.sequelize.transaction(async (t) => {
-        const transactionHost = { transaction: t };
-        await data.update(options, transactionHost);
+        await data.update(options, { transaction: t });
       });
       return true;
     } catch (e) {
@@ -104,8 +102,10 @@ export class UrlsService {
     if (data) {
       try {
         await this.sequelize.transaction(async (t) => {
-          const transactionHost = { transaction: t };
-          await data.destroy(transactionHost);
+          await data.destroy({ transaction: t });
+        });
+        setImmediate(() => {
+          this._clearLog(keyword);
         });
         return true;
       } catch (e) {
@@ -207,18 +207,18 @@ export class UrlsService {
   async _setNextKeyword(keyword: string): Promise<boolean> {
     try {
       await this.sequelize.transaction(async (t) => {
-        const transactionHost = { transaction: t };
         const data = await this.optionsModel.findOne({
           where: {
             key: OPTIONS.NEXT_KEYWORD,
           },
+          transaction: t,
         });
         if (data) {
           await data.update(
             {
               value: keyword,
             },
-            transactionHost,
+            { transaction: t },
           );
         } else {
           await this.optionsModel.create({
@@ -258,6 +258,35 @@ export class UrlsService {
         result += base[index];
       });
       return result;
+    }
+  }
+
+  async _clearLog(keyword: string): Promise<boolean> {
+    try {
+      await this.sequelize.transaction(async (t) => {
+        const data = await this.logModel.findAll({
+          where: {
+            shortUrl: keyword,
+          },
+          attributes: ['id'],
+          raw: true,
+          transaction: t,
+        });
+        if (data) {
+          await this.logModel.destroy({
+            where: {
+              id: data.map((item) => {
+                return item.id;
+              }),
+            },
+            transaction: t,
+          });
+        }
+      });
+      return true;
+    } catch (e) {
+      this.logger.log(e);
+      return false;
     }
   }
 }
