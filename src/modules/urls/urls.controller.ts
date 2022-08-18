@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Redirect,
   Req,
   UseGuards,
@@ -14,6 +15,7 @@ import { Request } from 'express';
 import { CreateDto } from './dto/create.dto';
 import { ResultDto } from '../../core/result.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { PaginationQueryDto } from './dto/pagination_query.dto';
 
 @ApiTags('Tools/Urls')
 @Controller('tools/urls')
@@ -47,6 +49,30 @@ export class UrlsController {
       return {
         success: false,
         message: '创建失败',
+      };
+    }
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('getUrlList')
+  async getUrlList(
+    @Query() paginationQueryDto: PaginationQueryDto,
+  ): Promise<ResultDto> {
+    const data = await this.urlsService.getUrlList(
+      paginationQueryDto.pageIndex,
+      paginationQueryDto.pageSize,
+    );
+    if (data) {
+      return {
+        success: true,
+        message: '获取成功',
+        data,
+      };
+    } else {
+      return {
+        success: false,
+        message: '获取失败',
       };
     }
   }

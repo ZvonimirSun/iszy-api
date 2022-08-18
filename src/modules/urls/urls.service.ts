@@ -6,9 +6,9 @@ import { OptionsModel } from './entities/options.model';
 import { LogModel } from './entities/log.model';
 import { Request } from 'express';
 
-const OPTIONS = {
-  NEXT_KEYWORD: 'nextKeyword',
-};
+export enum OPTIONS {
+  NEXT_KEYWORD = 'nextKeyword',
+}
 
 @Injectable()
 export class UrlsService {
@@ -40,7 +40,7 @@ export class UrlsService {
     try {
       let key = keyword;
       if (!keyword) {
-        key = await this.getNextKeyword();
+        key = await this._getNextKeyword();
       }
       await this.sequelize.transaction(async (t) => {
         const transactionHost = { transaction: t };
@@ -93,7 +93,36 @@ export class UrlsService {
     return url;
   }
 
-  async getNextKeyword(): Promise<string> {
+  async getUrlList(
+    pageIndex = 0,
+    pageSize = 10,
+  ): Promise<{
+    rows: UrlModel[];
+    count: number;
+    pageSize: number;
+    pageIndex: number;
+  }> {
+    try {
+      const { rows, count } = await this.urlModel.findAndCountAll({
+        attributes: ['keyword', 'url', 'title', 'createdAt', 'updatedAt'],
+        order: [['createdAt', 'desc']],
+        limit: pageSize,
+        offset: pageIndex * pageSize,
+        raw: true,
+      });
+      return {
+        count,
+        rows,
+        pageSize,
+        pageIndex,
+      };
+    } catch (e) {
+      this.logger.error(e);
+    }
+    return null;
+  }
+
+  async _getNextKeyword(): Promise<string> {
     const data = await this.optionsModel.findOne({
       where: {
         key: OPTIONS.NEXT_KEYWORD,
