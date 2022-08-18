@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
@@ -11,6 +11,8 @@ import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
 import { GisModule } from './modules/gis/gis.module';
 import configs from './core/configs';
 import { UrlsModule } from './modules/urls/urls.module';
+
+const logger = new Logger('Database');
 
 @Module({
   imports: [
@@ -39,7 +41,11 @@ import { UrlsModule } from './modules/urls/urls.module';
 
         autoLoadModels: true,
         synchronize: true,
-        logging: configService.get<boolean>('database.logging'),
+        logging: configService.get<boolean>('database.logging')
+          ? function (str) {
+              logger.log(str);
+            }
+          : false,
       }),
       inject: [ConfigService],
     }),

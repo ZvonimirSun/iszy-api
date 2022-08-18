@@ -61,6 +61,62 @@ export class UrlsService {
     return false;
   }
 
+  async readUrl(keyword: string): Promise<UrlModel> {
+    return await this.urlModel.findByPk(keyword);
+  }
+
+  async updateUrl(
+    keyword: string,
+    url?: string,
+    title?: string,
+  ): Promise<boolean> {
+    if (!keyword || !(url != null || title != null)) {
+      return false;
+    }
+    const options = { keyword, url: undefined, title: undefined };
+    if (url != null) {
+      options.url = url;
+    }
+    if (title != null) {
+      options.title = title;
+    }
+    const data = await this.urlModel.findByPk(keyword);
+    if (!data) {
+      return false;
+    }
+    try {
+      await this.sequelize.transaction(async (t) => {
+        const transactionHost = { transaction: t };
+        await data.update(options, transactionHost);
+      });
+      return true;
+    } catch (e) {
+      this.logger.error(e);
+      return false;
+    }
+  }
+
+  async deleteUrl(keyword: string): Promise<boolean> {
+    if (!keyword) {
+      return false;
+    }
+    const data = await this.urlModel.findByPk(keyword);
+    if (data) {
+      try {
+        await this.sequelize.transaction(async (t) => {
+          const transactionHost = { transaction: t };
+          await data.destroy(transactionHost);
+        });
+        return true;
+      } catch (e) {
+        this.logger.log(e);
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
   async visitUrl(keyword: string, req: Request): Promise<string> {
     const url = await this.getUrl(keyword);
     if (url) {
