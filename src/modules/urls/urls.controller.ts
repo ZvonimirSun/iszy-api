@@ -10,10 +10,11 @@ import {
   Query,
   Redirect,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { UrlsService } from './urls.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { CreateDto } from './dto/create.dto';
 import { ResultDto } from '../../core/result.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -135,5 +136,10 @@ export class UrlsController {
     } else {
       return { statusCode: 403 };
     }
+  }
+
+  @Get()
+  rootPage(@Res() res: Response) {
+    res.sendStatus(403);
   }
 }
