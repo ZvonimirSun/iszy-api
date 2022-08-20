@@ -29,11 +29,13 @@ async function bootstrap() {
 
   const assets = join(__dirname, '..', 'assets');
   const views = join(__dirname, '..', 'views');
-  nunjucks.configure(views, { express });
+  const environment = nunjucks.configure(views, { express });
 
   app.useStaticAssets(assets);
+  app.engine('njk', environment.render);
   app.setBaseViewsDir(views);
   app.setViewEngine('njk');
+  app.set('view cache', true);
 
   const config = new DocumentBuilder()
     .addBearerAuth()

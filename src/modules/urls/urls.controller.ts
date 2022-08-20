@@ -8,7 +8,7 @@ import {
   Post,
   Put,
   Query,
-  Redirect,
+  Render,
   Req,
   Res,
   UseGuards,
@@ -123,18 +123,22 @@ export class UrlsController {
   }
 
   @Get('admin')
+  @Render('urls/admin')
   adminPage() {
-    return null;
+    return;
   }
 
   @Get(':keyword')
-  @Redirect()
-  async visitUrl(@Param('keyword') keyword: string, @Req() req: Request) {
+  async visitUrl(
+    @Param('keyword') keyword: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     const url = await this.urlsService.visitUrl(keyword, req);
     if (url) {
-      return { url, statusCode: 302 };
+      res.redirect(302, url);
     } else {
-      return { statusCode: 403 };
+      res.sendStatus(403);
     }
   }
 
