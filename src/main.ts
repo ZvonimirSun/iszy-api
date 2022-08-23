@@ -19,7 +19,12 @@ async function bootstrap() {
   dayjs.extend(customParseFormat);
   dayjs.tz.setDefault('Asia/Shanghai');
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger:
+      process.env.DEVELOPMENT === 'true'
+        ? ['log', 'error', 'warn', 'debug']
+        : ['log', 'error', 'warn'],
+  });
   const express = app.getHttpAdapter().getInstance();
 
   app.use(json({ limit: '200mb' }));
@@ -44,7 +49,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
 
-  if (process.env.ENABLE_SWAGGER === 'true') {
+  if (process.env.DEVELOPMENT === 'true') {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
   }
