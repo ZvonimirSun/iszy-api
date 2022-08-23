@@ -9,4 +9,4 @@ COPY dist ./dist
 
 EXPOSE 3000
 
-CMD ["yarn", "start:prod"]
+CMD ["node", "dist/main"]
