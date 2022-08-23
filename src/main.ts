@@ -11,6 +11,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { json, urlencoded } from 'body-parser';
 import { join } from 'path';
 import * as nunjucks from 'nunjucks';
+import getLogLevels from './core/getLogLevels';
 
 async function bootstrap() {
   dayjs.locale('zh-cn');
@@ -20,10 +21,7 @@ async function bootstrap() {
   dayjs.tz.setDefault('Asia/Shanghai');
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger:
-      process.env.DEVELOPMENT === 'true'
-        ? ['log', 'error', 'warn', 'debug']
-        : ['log', 'error', 'warn'],
+    logger: getLogLevels(process.env.DEVELOPMENT === 'true'),
   });
   const express = app.getHttpAdapter().getInstance();
 
