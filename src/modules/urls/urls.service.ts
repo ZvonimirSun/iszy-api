@@ -5,6 +5,7 @@ import { UrlModel } from './entities/url.model';
 import { OptionsModel } from './entities/options.model';
 import { LogModel } from './entities/log.model';
 import { Request } from 'express';
+import { PaginationDto } from '../../core/pagination.dto';
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -152,12 +153,7 @@ export class UrlsService {
   async getUrlList(
     pageIndex = 0,
     pageSize = 10,
-  ): Promise<{
-    rows: UrlModel[];
-    count: number;
-    pageSize: number;
-    pageIndex: number;
-  }> {
+  ): Promise<PaginationDto<UrlModel>> {
     try {
       const { rows, count } = await this.urlModel.findAndCountAll({
         attributes: ['keyword', 'url', 'title', 'createdAt', 'updatedAt'],

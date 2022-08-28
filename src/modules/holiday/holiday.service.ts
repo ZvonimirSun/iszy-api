@@ -53,7 +53,11 @@ export class HolidayService {
     }
   }
 
-  async isHoliday(date?: number) {
+  async isHoliday(date?: number): Promise<{
+    isHoliday: boolean;
+    desc: string;
+    date?: string;
+  }> {
     let day = dayjs();
     if (date != null) {
       day = dayjs(date.toString(), 'YYYYMMDD');

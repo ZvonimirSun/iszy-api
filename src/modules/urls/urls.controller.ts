@@ -20,6 +20,8 @@ import { ResultDto } from '../../core/result.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { PaginationQueryDto } from './dto/pagination_query.dto';
 import { UpdateDto } from './dto/update.dto';
+import { UrlModel } from './entities/url.model';
+import { PaginationDto } from '../../core/pagination.dto';
 
 @ApiTags('Tools/Urls')
 @Controller('tools/urls')
@@ -32,7 +34,7 @@ export class UrlsController {
   async createUrl(
     @Body() createDto: CreateDto,
     @Req() req: Request,
-  ): Promise<ResultDto> {
+  ): Promise<ResultDto<null>> {
     if (createDto.keyword !== 'admin') {
       const status = await this.urlsService.createUrl(
         req,
@@ -53,7 +55,9 @@ export class UrlsController {
   }
 
   @Get('admin/url/:keyword')
-  async readUrl(@Param('keyword') keyword: string): Promise<ResultDto> {
+  async readUrl(
+    @Param('keyword') keyword: string,
+  ): Promise<ResultDto<UrlModel>> {
     const data = await this.urlsService.readUrl(keyword);
     if (data) {
       return {
@@ -75,7 +79,7 @@ export class UrlsController {
   async updateUrl(
     @Param('keyword') keyword: string,
     @Body() updateDto: UpdateDto,
-  ) {
+  ): Promise<ResultDto<null>> {
     const status = await this.urlsService.updateUrl(
       keyword,
       updateDto.url,
@@ -90,7 +94,7 @@ export class UrlsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Delete('admin/url/:keyword')
-  async deleteUrl(@Param('keyword') keyword: string) {
+  async deleteUrl(@Param('keyword') keyword: string): Promise<ResultDto<null>> {
     const status = await this.urlsService.deleteUrl(keyword);
     return {
       success: status,
@@ -103,7 +107,7 @@ export class UrlsController {
   @Get('admin/manage/getUrlList')
   async getUrlList(
     @Query() paginationQueryDto: PaginationQueryDto,
-  ): Promise<ResultDto> {
+  ): Promise<ResultDto<PaginationDto<UrlModel>>> {
     const data = await this.urlsService.getUrlList(
       paginationQueryDto.pageIndex,
       paginationQueryDto.pageSize,

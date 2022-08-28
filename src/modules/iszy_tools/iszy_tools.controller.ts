@@ -22,7 +22,7 @@ export class IszyToolsController {
   async uploadSettings(
     @Request() req,
     @Body() settingDto: any,
-  ): Promise<ResultDto> {
+  ): Promise<ResultDto<any>> {
     const result = await this.iszyToolsService.uploadSettings(
       req.user.userId,
       settingDto,

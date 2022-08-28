@@ -20,7 +20,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const message = exception.message
       ? exception.message
       : `${status >= 500 ? 'Service Error' : 'Client Error'}`;
-    const errorResponse: ResultDto = {
+    const errorResponse: ResultDto<null> = {
       message,
       success: false, // 自定义code
     };

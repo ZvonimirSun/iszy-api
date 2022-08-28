@@ -1,5 +1,5 @@
-export class ResultDto {
+export class ResultDto<T> {
   success: boolean;
   message: string;
-  data?: any;
+  data?: T;
 }

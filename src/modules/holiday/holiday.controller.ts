@@ -12,7 +12,7 @@ export class HolidayController {
   @Post()
   async importHoliday(
     @Body() importHolidayDto: ImportHolidayDto,
-  ): Promise<ResultDto> {
+  ): Promise<ResultDto<null>> {
     try {
       await this.holidayService.importHoliday(importHolidayDto);
       return {
@@ -28,7 +28,7 @@ export class HolidayController {
   }
 
   @Get()
-  async isHolidayNow(): Promise<ResultDto> {
+  async isHolidayNow(): Promise<ResultDto<any>> {
     try {
       return {
         success: true,
@@ -50,7 +50,13 @@ export class HolidayController {
   }
 
   @Get(':date')
-  async isHolidayByDate(@Param('date') date?: number): Promise<ResultDto> {
+  async isHolidayByDate(@Param('date') date?: number): Promise<
+    ResultDto<{
+      isHoliday: boolean;
+      desc: string;
+      date?: string;
+    }>
+  > {
     try {
       return {
         success: true,

@@ -9,7 +9,7 @@ export class IdiomController {
   constructor(private readonly idiomService: IdiomService) {}
 
   @Get('handle')
-  async getIdiomHandle(): Promise<ResultDto> {
+  async getIdiomHandle(): Promise<ResultDto<any>> {
     const result = await this.idiomService.getIdiomHandle();
     if (result) {
       return {

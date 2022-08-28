@@ -13,7 +13,7 @@ export class GisController {
   @Post('transformPoint')
   async transformPoint(
     @Body() transformPointDto: TransformPointDto,
-  ): Promise<ResultDto> {
+  ): Promise<ResultDto<any>> {
     const res = await this.gisService.transformPoint(transformPointDto);
     if (res) {
       return {
@@ -33,7 +33,7 @@ export class GisController {
   @Post('transformGeometry')
   async transformGeometry(
     @Body() transformGeometryDto: TransformGeometryDto,
-  ): Promise<ResultDto> {
+  ): Promise<ResultDto<any>> {
     const res = await this.gisService.transformGeometry(transformGeometryDto);
     if (res) {
       return {

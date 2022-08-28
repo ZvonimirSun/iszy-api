@@ -20,7 +20,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto): Promise<ResultDto> {
+  async login(
+    @Body() loginDto: LoginDto,
+  ): Promise<ResultDto<{ token: string }>> {
     try {
       return {
         success: true,
@@ -36,7 +38,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto): Promise<ResultDto> {
+  async register(@Body() registerDto: RegisterDto): Promise<ResultDto<null>> {
     try {
       await this.authService.register(registerDto);
       return {
@@ -54,7 +56,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Post('token')
-  refreshToken(@Request() req): ResultDto {
+  refreshToken(@Request() req): ResultDto<{ token: string }> {
     try {
       const { userName, userId } = req.user;
       return {
@@ -78,7 +80,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
-  async getProfile(@Request() req): Promise<ResultDto> {
+  async getProfile(@Request() req): Promise<ResultDto<User>> {
     try {
       return {
         success: true,

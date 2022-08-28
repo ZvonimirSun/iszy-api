@@ -12,4 +12,57 @@ export class JsoneditorService {
   ) {}
 
   private readonly logger = new Logger(JsoneditorService.name);
+
+  async getList(): Promise<JsoneditorModel[]> {
+    try {
+      return await this.jsoneditorModel.findAll({
+        raw: true,
+      });
+    } catch (e) {
+      this.logger.error(e);
+      return [];
+    }
+  }
+
+  async updateItem(
+    userId: string,
+    key: string,
+    name: string,
+    text: string,
+    json: any,
+  ): Promise<boolean> {
+    try {
+      await this.sequelize.transaction(async (t) => {
+        const data = await this.jsoneditorModel.findByPk(key);
+        if (data) {
+          await data.update(
+            {
+              name,
+              text,
+              json,
+            },
+            {
+              transaction: t,
+            },
+          );
+        } else {
+          await this.jsoneditorModel.create(
+            {
+              key,
+              name,
+              text,
+              json,
+            },
+            {
+              transaction: t,
+            },
+          );
+        }
+      });
+      return true;
+    } catch (e) {
+      this.logger.error(e);
+      return false;
+    }
+  }
 }
