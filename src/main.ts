@@ -12,6 +12,7 @@ import { json, urlencoded } from 'body-parser';
 import { join } from 'path';
 import * as nunjucks from 'nunjucks';
 import getLogLevels from './core/getLogLevels';
+import info from '../package.json';
 
 async function bootstrap() {
   dayjs.locale('zh-cn');
@@ -44,7 +45,7 @@ async function bootstrap() {
     .addBearerAuth()
     .setTitle(process.env.APP_TITLE || 'ISZY API')
     .setDescription(process.env.APP_DESCRIPTION || 'ISZY API description')
-    .setVersion('1.0')
+    .setVersion(info.version)
     .build();
 
   if (process.env.DEVELOPMENT === 'true') {
