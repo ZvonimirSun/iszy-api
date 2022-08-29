@@ -1,5 +1,5 @@
 import { JsoneditorService } from './jsoneditor.service';
-import { Controller, Get, Param, Post, Request } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Request } from '@nestjs/common';
 import { ResultDto } from '../../../../core/result.dto';
 import { JsoneditorModel } from './entities/jsoneditor.model';
 import { JsoneditorItemDto } from './dto/jsoneditor_item.dto';
@@ -9,11 +9,11 @@ export class JsoneditorController {
   constructor(private readonly jsoneditorService: JsoneditorService) {}
 
   @Get()
-  async getList(): Promise<ResultDto<JsoneditorModel[]>> {
+  async getList(@Request() req): Promise<ResultDto<JsoneditorModel[]>> {
     return {
       success: true,
       message: '获取成功',
-      data: await this.jsoneditorService.getList(),
+      data: await this.jsoneditorService.getList(req.user.userId),
     };
   }
 
@@ -39,6 +39,21 @@ export class JsoneditorController {
     return {
       message: '失败',
       success: false,
+    };
+  }
+
+  @Delete(':key')
+  async deleteItem(
+    @Request() req,
+    @Param('key') key: string,
+  ): Promise<ResultDto<null>> {
+    const status = await this.jsoneditorService.deleteItem(
+      req.user.userId,
+      key,
+    );
+    return {
+      message: status ? '成功' : '失败',
+      success: status,
     };
   }
 }
