@@ -1,9 +1,22 @@
 import { JsoneditorService } from './jsoneditor.service';
-import { Controller, Delete, Get, Param, Post, Request } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ResultDto } from '../../../../core/result.dto';
 import { JsoneditorModel } from './entities/jsoneditor.model';
 import { JsoneditorItemDto } from './dto/jsoneditor_item.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
+@ApiTags('ISZY Tools')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 @Controller('iszy_tools/jsoneditor')
 export class JsoneditorController {
   constructor(private readonly jsoneditorService: JsoneditorService) {}
