@@ -28,7 +28,7 @@ export class JsoneditorService {
   }
 
   async updateItem(
-    userId: string,
+    userId: number,
     key: string,
     name: string,
     text: string,
@@ -73,7 +73,7 @@ export class JsoneditorService {
     }
   }
 
-  async deleteItem(userId: string, key: string): Promise<boolean> {
+  async deleteItem(userId: number, key: string): Promise<boolean> {
     try {
       await this.sequelize.transaction(async (t) => {
         const data = await this.jsoneditorModel.findByPk(key);

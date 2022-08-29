@@ -24,5 +24,5 @@ export class JsoneditorModel extends Model {
 
   @ForeignKey(() => User)
   @Column
-  userId: string;
+  userId: number;
 }

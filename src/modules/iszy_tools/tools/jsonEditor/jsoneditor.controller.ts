@@ -7,6 +7,7 @@ import {
   Post,
   Request,
   UseGuards,
+  Body,
 } from '@nestjs/common';
 import { ResultDto } from '../../../../core/result.dto';
 import { JsoneditorModel } from './entities/jsoneditor.model';
@@ -34,7 +35,7 @@ export class JsoneditorController {
   async updateItem(
     @Request() req,
     @Param('key') key: string,
-    jsoneditorItemDto: JsoneditorItemDto,
+    @Body() jsoneditorItemDto: JsoneditorItemDto,
   ): Promise<ResultDto<null>> {
     if (jsoneditorItemDto != null) {
       const status = await this.jsoneditorService.updateItem(
