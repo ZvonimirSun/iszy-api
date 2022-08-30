@@ -1,4 +1,4 @@
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -8,12 +8,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { IszyToolsService } from './iszy_tools.service';
-import { AuthGuard } from '@nestjs/passport';
 import { ResultDto } from '../../core/result.dto';
+import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 
 @ApiTags('ISZY Tools')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+@ApiCookieAuth()
+@UseGuards(CustomAuthGuard)
 @Controller('iszy_tools')
 export class IszyToolsController {
   constructor(private readonly iszyToolsService: IszyToolsService) {}

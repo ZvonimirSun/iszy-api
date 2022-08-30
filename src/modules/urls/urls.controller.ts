@@ -1,4 +1,4 @@
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -17,19 +17,19 @@ import { UrlsService } from './urls.service';
 import { Request, Response } from 'express';
 import { CreateDto } from './dto/create.dto';
 import { ResultDto } from '../../core/result.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { PaginationQueryDto } from './dto/pagination_query.dto';
 import { UpdateDto } from './dto/update.dto';
 import { UrlModel } from './entities/url.model';
 import { PaginationDto } from '../../core/pagination.dto';
+import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 
 @ApiTags('Tools/Urls')
 @Controller('tools/urls')
 export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @ApiCookieAuth()
+  @UseGuards(CustomAuthGuard)
   @Post('admin/url')
   async createUrl(
     @Body() createDto: CreateDto,
@@ -73,8 +73,8 @@ export class UrlsController {
     }
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @ApiCookieAuth()
+  @UseGuards(CustomAuthGuard)
   @Put('admin/url/:keyword')
   async updateUrl(
     @Param('keyword') keyword: string,
@@ -91,8 +91,8 @@ export class UrlsController {
     };
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @ApiCookieAuth()
+  @UseGuards(CustomAuthGuard)
   @Delete('admin/url/:keyword')
   async deleteUrl(@Param('keyword') keyword: string): Promise<ResultDto<null>> {
     const status = await this.urlsService.deleteUrl(keyword);
@@ -102,8 +102,8 @@ export class UrlsController {
     };
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @ApiCookieAuth()
+  @UseGuards(CustomAuthGuard)
   @Get('admin/manage/getUrlList')
   async getUrlList(
     @Query() paginationQueryDto: PaginationQueryDto,

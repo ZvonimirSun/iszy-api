@@ -12,12 +12,12 @@ import {
 import { ResultDto } from '../../../../core/result.dto';
 import { JsoneditorModel } from './entities/jsoneditor.model';
 import { JsoneditorItemDto } from './dto/jsoneditor_item.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { CustomAuthGuard } from '../../../auth/guard/custom-auth.guard';
 
 @ApiTags('ISZY Tools')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+@ApiCookieAuth()
+@UseGuards(CustomAuthGuard)
 @Controller('iszy_tools/jsoneditor')
 export class JsoneditorController {
   constructor(private readonly jsoneditorService: JsoneditorService) {}

@@ -1,20 +1,14 @@
 // src/logical/auth/auth.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { JwtService } from '@nestjs/jwt';
 import { encryptPassword, makeSalt } from '../../utils/cryptogram';
 import { RegisterDto } from './dto/register.dto';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
 import { User } from '../user/entities/user.model';
-import { JwtPayload } from './dto/jwt.payload';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usersService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly usersService: UserService) {}
 
   private readonly logger = new Logger(AuthService.name);
 
@@ -27,31 +21,18 @@ export class AuthService {
       const hashPassword = encryptPassword(password, salt);
       if (hashedPassword === hashPassword) {
         // 密码正确
-        return user.get({ plain: true });
+        const { passwd, passwdSalt, ...result } = await user.get({
+          plain: true,
+        });
+        return result;
       } else {
         this.logger.error('密码错误');
-        throw new Error('密码错误');
+        return null;
       }
     }
     // 查无此人
     this.logger.error('用户不存在');
-    throw new Error('用户不存在');
-  }
-
-  certificate(user: User): string {
-    const payload: JwtPayload = {
-      userName: user.userName,
-      userId: user.userId,
-    };
-    return this.jwtService.sign(payload);
-  }
-
-  async login(loginDto: LoginDto): Promise<string> {
-    const authResult = await this.validateUser(
-      loginDto.userName,
-      loginDto.password,
-    );
-    return this.certificate(authResult);
+    return null;
   }
 
   async register(registerDto: RegisterDto): Promise<void> {

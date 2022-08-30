@@ -8,33 +8,23 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { User } from '../user/entities/user.model';
 import { ResultDto } from '../../core/result.dto';
+import { LocalAuthGuard } from './guard/local-auth.guard';
+import { CustomAuthGuard } from './guard/custom-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(LocalAuthGuard)
+  @ApiBody({ type: LoginDto })
   @Post('login')
-  async login(
-    @Body() loginDto: LoginDto,
-  ): Promise<ResultDto<{ token: string }>> {
-    try {
-      return {
-        success: true,
-        data: { token: await this.authService.login(loginDto) },
-        message: '登录成功',
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: `登录失败, ${e.message}`,
-      };
-    }
+  async login(@Request() req): Promise<ResultDto<{ token: string }>> {
+    return req.user;
   }
 
   @Post('register')
@@ -53,32 +43,8 @@ export class AuthController {
     }
   }
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @Post('token')
-  refreshToken(@Request() req): ResultDto<{ token: string }> {
-    try {
-      const { userName, userId } = req.user;
-      return {
-        success: true,
-        data: {
-          token: this.authService.certificate({
-            userId,
-            userName,
-          } as User),
-        },
-        message: '登录成功',
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: `登录失败, ${e.message}`,
-      };
-    }
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @ApiCookieAuth()
+  @UseGuards(CustomAuthGuard)
   @Get('profile')
   async getProfile(@Request() req): Promise<ResultDto<User>> {
     try {

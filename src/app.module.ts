@@ -1,7 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HolidayModule } from './modules/holiday/holiday.module';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -49,7 +48,6 @@ const logger = new Logger('Database');
       }),
       inject: [ConfigService],
     }),
-    UserModule,
     AuthModule,
     HolidayModule,
     IszyToolsModule,

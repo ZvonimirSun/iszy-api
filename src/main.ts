@@ -13,6 +13,23 @@ import { join } from 'path';
 import * as nunjucks from 'nunjucks';
 import getLogLevels from './core/getLogLevels';
 import info from '../package.json';
+import session, { SessionOptions } from 'express-session';
+import { createClient } from 'redis';
+import connectRedis from 'connect-redis';
+import { ConfigService } from '@nestjs/config';
+import passport from 'passport';
+
+const redisStore = connectRedis(session);
+let configService: ConfigService;
+
+// 设置passport序列化和反序列化user的方法，在将用户信息存储到session时使用
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+// 反序列化
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
 
 async function bootstrap() {
   dayjs.locale('zh-cn');
@@ -24,6 +41,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: getLogLevels(process.env.DEVELOPMENT === 'true'),
   });
+
+  configService = app.get(ConfigService);
+
   const express = app.getHttpAdapter().getInstance();
 
   app.use(json({ limit: '200mb' }));
@@ -41,20 +61,71 @@ async function bootstrap() {
   app.setViewEngine('njk');
   app.set('view cache', true);
 
-  const config = new DocumentBuilder()
-    .addBearerAuth()
-    .setTitle(process.env.APP_TITLE || 'ISZY API')
-    .setDescription(process.env.APP_DESCRIPTION || 'ISZY API description')
+  if (configService.get<boolean>('behindProxy')) {
+    app.set('trust proxy', 1);
+  }
+
+  const redisUrl =
+    'redis://' +
+    (configService.get<string>('redis.password')
+      ? `:${encodeURIComponent(configService.get<string>('redis.password'))}@`
+      : '') +
+    `${configService.get<number>('redis.host')}:${configService.get<string>(
+      'redis.port',
+    )}`;
+
+  const redisClient = createClient({
+    url: redisUrl,
+    legacyMode: true,
+  });
+
+  await redisClient.connect();
+
+  const sessionConfig: SessionOptions = {
+    secret: configService.get<string>('session.secret'),
+    resave: false,
+    saveUninitialized: false,
+    // 使用redis存储session
+    store: new redisStore({
+      client: redisClient,
+    }),
+  };
+
+  if (!configService.get<boolean>('development')) {
+    sessionConfig.cookie = {
+      sameSite: 'none',
+      secure: true,
+    };
+  }
+
+  app.use(session(sessionConfig));
+  // 设置passport，并启用session
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  const documentConfig = new DocumentBuilder()
+    .addCookieAuth()
+    .setTitle(configService.get<string>('app.title'))
+    .setDescription(configService.get<string>('app.description'))
     .setVersion(info.version)
     .build();
 
-  if (process.env.DEVELOPMENT === 'true') {
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
+  if (configService.get<boolean>('development')) {
+    const document = SwaggerModule.createDocument(app, documentConfig);
+    SwaggerModule.setup('api', app, document, {
+      swaggerOptions: {
+        requestInterceptor: (req) => {
+          req.credentials = 'include';
+          return req;
+        },
+      },
+    });
   }
 
-  await app.listen(process.env.PORT || 3000);
+  await app.listen(configService.get<number>('app.port'));
 }
 bootstrap().then(() =>
-  console.log(`Server is running on port ${process.env.PORT || 3000}`),
+  console.log(
+    `Server is running on port ${configService.get<number>('app.port')}`,
+  ),
 );

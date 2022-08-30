@@ -3,8 +3,8 @@
 export default () => ({
   database: {
     type: process.env.DATABASE_TYPE || 'postgres',
-    port: parseInt(process.env.DATABASE_PORT || '35432'),
-    host: process.env.DATABASE_HOST,
+    port: parseInt(process.env.DATABASE_PORT || '5432'),
+    host: process.env.DATABASE_HOST || '127.0.0.1',
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWD,
     database: process.env.DATABASE_DATABASE,
@@ -16,4 +16,19 @@ export default () => ({
     secret: process.env.JWT_SECRET,
     expireTime: process.env.JWT_EXPIRE_TIME || '8h',
   },
+  redis: {
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: parseInt(process.env.REDIS_PORT || '6379'),
+    password: process.env.REDIS_PASSWD,
+  },
+  session: {
+    secret: process.env.SESSION_SECRET,
+  },
+  app: {
+    port: parseInt(process.env.APP_PORT || process.env.PORT || '3000'),
+    title: process.env.APP_TITLE || 'ISZY API',
+    description: process.env.APP_DESCRIPTION || 'ISZY API description',
+  },
+  behindProxy: process.env.PROXY === 'true',
+  development: process.env.DEVELOPMENT === 'true',
 });
