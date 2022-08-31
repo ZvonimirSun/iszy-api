@@ -48,7 +48,11 @@ async function bootstrap() {
 
   app.use(json({ limit: '200mb' }));
   app.use(urlencoded({ limit: '200mb', extended: true }));
-  app.enableCors();
+  app.enableCors({
+    origin: function (requestOrigin, callback) {
+      callback(null, requestOrigin);
+    },
+  });
   app.useGlobalFilters(new HttpExceptionFilter());
 
   const assets = join(__dirname, '..', 'assets');
