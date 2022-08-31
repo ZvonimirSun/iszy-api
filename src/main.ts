@@ -52,6 +52,7 @@ async function bootstrap() {
     origin: function (requestOrigin, callback) {
       callback(null, requestOrigin);
     },
+    credentials: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
 
