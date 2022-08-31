@@ -23,8 +23,12 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })
   @Post('login')
-  async login(@Request() req): Promise<ResultDto<{ token: string }>> {
-    return req.user;
+  login(@Request() req): ResultDto<User> {
+    return {
+      success: true,
+      message: '登录成功',
+      data: req.user,
+    };
   }
 
   @Post('register')

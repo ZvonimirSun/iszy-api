@@ -80,7 +80,7 @@ export class AuthService {
     const user = await this.usersService.findOne(userName);
     if (user) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { passwd, passwdSalt, createdAt, updatedAt, ...result } = user.get({
+      const { passwd, passwdSalt, ...result } = user.get({
         plain: true,
       });
       return result as User;
