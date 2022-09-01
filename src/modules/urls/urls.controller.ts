@@ -8,7 +8,6 @@ import {
   Post,
   Put,
   Query,
-  Render,
   Req,
   Res,
   UseGuards,
@@ -124,12 +123,6 @@ export class UrlsController {
         message: '获取失败',
       };
     }
-  }
-
-  @Get('admin')
-  @Render('urls/admin')
-  adminPage() {
-    return;
   }
 
   @Get(':keyword')

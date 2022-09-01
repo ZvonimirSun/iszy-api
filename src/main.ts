@@ -9,8 +9,6 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { HttpExceptionFilter } from './core/filter/http-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { json, urlencoded } from 'body-parser';
-import { join } from 'path';
-import * as nunjucks from 'nunjucks';
 import getLogLevels from './core/getLogLevels';
 import info from '../package.json';
 import session, { SessionOptions } from 'express-session';
@@ -44,8 +42,6 @@ async function bootstrap() {
 
   configService = app.get(ConfigService);
 
-  const express = app.getHttpAdapter().getInstance();
-
   app.use(json({ limit: '200mb' }));
   app.use(urlencoded({ limit: '200mb', extended: true }));
   app.enableCors({
@@ -64,16 +60,6 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
-
-  const assets = join(__dirname, '..', 'assets');
-  const views = join(__dirname, '..', 'views');
-  const environment = nunjucks.configure(views, { express });
-
-  app.useStaticAssets(assets);
-  app.engine('njk', environment.render);
-  app.setBaseViewsDir(views);
-  app.setViewEngine('njk');
-  app.set('view cache', true);
 
   if (configService.get<boolean>('behindProxy')) {
     app.set('trust proxy', 1);
