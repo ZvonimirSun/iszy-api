@@ -50,7 +50,16 @@ async function bootstrap() {
   app.use(urlencoded({ limit: '200mb', extended: true }));
   app.enableCors({
     origin: function (requestOrigin, callback) {
-      callback(null, requestOrigin);
+      const origins = configService.get<string[]>('app.allowOrigins');
+      if (origins != null) {
+        if (requestOrigin.includes(requestOrigin)) {
+          callback(null, requestOrigin);
+        } else {
+          callback(new Error(`Not allow origin ${requestOrigin}`));
+        }
+      } else {
+        callback(null, requestOrigin);
+      }
     },
     credentials: true,
   });

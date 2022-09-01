@@ -28,6 +28,9 @@ export default () => ({
     port: parseInt(process.env.APP_PORT || process.env.PORT || '3000'),
     title: process.env.APP_TITLE || 'ISZY API',
     description: process.env.APP_DESCRIPTION || 'ISZY API description',
+    allowOrigins: process.env.APP_ALLOW_ORIGINS
+      ? process.env.APP_ALLOW_ORIGINS.split(',')
+      : null,
   },
   behindProxy: process.env.PROXY === 'true',
   development: process.env.DEVELOPMENT === 'true',
