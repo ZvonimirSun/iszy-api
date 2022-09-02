@@ -19,6 +19,10 @@ export default () => ({
   },
   session: {
     secret: process.env.SESSION_SECRET,
+    maxAge:
+      process.env.SESSION_MAXAGE != null
+        ? parseInt(process.env.SESSION_MAXAGE)
+        : undefined,
   },
   app: {
     port: parseInt(process.env.APP_PORT || process.env.PORT || '3000'),

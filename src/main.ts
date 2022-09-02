@@ -16,6 +16,7 @@ import { createClient } from 'redis';
 import connectRedis from 'connect-redis';
 import { ConfigService } from '@nestjs/config';
 import passport from 'passport';
+import { merge } from 'lodash';
 
 const redisStore = connectRedis(session);
 let configService: ConfigService;
@@ -89,13 +90,18 @@ async function bootstrap() {
     store: new redisStore({
       client: redisClient,
     }),
+    cookie: {},
   };
 
   if (!configService.get<boolean>('development')) {
-    sessionConfig.cookie = {
+    sessionConfig.cookie = merge({}, sessionConfig.cookie, {
       sameSite: 'none',
       secure: true,
-    };
+    });
+  }
+
+  if (configService.get<number>('session.maxAge') != null) {
+    sessionConfig.cookie.maxAge = configService.get<number>('session.maxAge');
   }
 
   app.use(session(sessionConfig));
