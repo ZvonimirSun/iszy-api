@@ -12,7 +12,7 @@ import { json, urlencoded } from 'body-parser';
 import getLogLevels from './core/getLogLevels';
 import info from '../package.json';
 import session, { SessionOptions } from 'express-session';
-import { createClient } from 'redis';
+import Redis from 'ioredis';
 import connectRedis from 'connect-redis';
 import { ConfigService } from '@nestjs/config';
 import passport from 'passport';
@@ -62,35 +62,28 @@ async function bootstrap() {
   });
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  if (configService.get<boolean>('behindProxy')) {
-    app.set('trust proxy', 1);
-  }
-
-  const redisUrl =
-    'redis://' +
-    (configService.get<string>('redis.password')
-      ? `:${encodeURIComponent(configService.get<string>('redis.password'))}@`
-      : '') +
-    `${configService.get<number>('redis.host')}:${configService.get<string>(
-      'redis.port',
-    )}`;
-
-  const redisClient = createClient({
-    url: redisUrl,
-    legacyMode: true,
-  });
-
-  await redisClient.connect();
+  const redisClient = new Redis(
+    configService.get<number>('redis.port'),
+    configService.get<string>('redis.host'),
+    {
+      password: configService.get<string>('redis.password'),
+    },
+  );
 
   const sessionConfig: SessionOptions = {
-    secret: configService.get<string>('session.secret'),
+    cookie: {
+      httpOnly: true,
+    },
+    name: 'iszy_api.connect.sid',
+    proxy: configService.get<boolean>('behindProxy'),
     resave: false,
+    rolling: true,
     saveUninitialized: false,
+    secret: configService.get<string>('session.secret'),
     // 使用redis存储session
     store: new redisStore({
       client: redisClient,
     }),
-    cookie: {},
   };
 
   if (!configService.get<boolean>('development')) {
@@ -101,7 +94,9 @@ async function bootstrap() {
   }
 
   if (configService.get<number>('session.maxAge') != null) {
-    sessionConfig.cookie.maxAge = configService.get<number>('session.maxAge');
+    sessionConfig.cookie = merge({}, sessionConfig.cookie, {
+      maxAge: configService.get<number>('session.maxAge'),
+    });
   }
 
   app.use(session(sessionConfig));
