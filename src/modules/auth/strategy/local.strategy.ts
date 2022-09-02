@@ -20,7 +20,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     const user = await this.authService.validateUser(username, password);
     if (!user) {
       // 如果用户名密码不匹配，清理session
-      req.logout();
+      await promisify(req.logout.bind(req))();
       throw new UnauthorizedException();
     }
     // 用户名密码匹配，设置session
