@@ -16,7 +16,7 @@ export class JsoneditorModel extends Model {
   @Column
   name: string;
 
-  @Column
+  @Column('text')
   text: string;
 
   @Column('jsonb')
