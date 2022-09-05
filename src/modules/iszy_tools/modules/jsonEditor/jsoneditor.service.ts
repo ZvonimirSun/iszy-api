@@ -34,12 +34,26 @@ export class JsoneditorService {
     text: string,
     json: any,
   ): Promise<boolean> {
+    if (!(name != null || text != null || json != null)) {
+      this.logger.warn('未更新');
+      return false;
+    }
     try {
       await this.sequelize.transaction(async (t) => {
         const data = await this.jsoneditorModel.findByPk(key);
         if (data) {
           if (data.userId !== userId) {
             return;
+          }
+          const updateData: { name?: string; text?: string; json?: string } =
+            {};
+          if (name != null) {
+            updateData.name = name;
+          }
+          if (text != null) {
+            updateData.text = text;
+          } else if (json != null) {
+            updateData.json = json;
           }
           await data.update(
             {
