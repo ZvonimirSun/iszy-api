@@ -52,8 +52,10 @@ export class JsoneditorService {
           }
           if (text != null) {
             updateData.text = text;
+            updateData.json = null;
           } else if (json != null) {
             updateData.json = json;
+            updateData.text = null;
           }
           await data.update(
             {
