@@ -57,16 +57,9 @@ export class JsoneditorService {
             updateData.json = json;
             updateData.text = null;
           }
-          await data.update(
-            {
-              name,
-              text,
-              json,
-            },
-            {
-              transaction: t,
-            },
-          );
+          await data.update(updateData, {
+            transaction: t,
+          });
         } else {
           await this.jsoneditorModel.create(
             {
