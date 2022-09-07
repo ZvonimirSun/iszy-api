@@ -18,7 +18,7 @@ import { CustomAuthGuard } from '../../../auth/guard/custom-auth.guard';
 @ApiTags('ISZY Tools')
 @ApiCookieAuth()
 @UseGuards(CustomAuthGuard)
-@Controller('iszy_tools/jsoneditor')
+@Controller('tools/jsoneditor')
 export class JsoneditorController {
   constructor(private readonly jsoneditorService: JsoneditorService) {}
 

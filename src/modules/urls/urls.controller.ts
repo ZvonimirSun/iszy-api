@@ -23,7 +23,7 @@ import { PaginationDto } from '../../core/pagination.dto';
 import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 
 @ApiTags('Tools/Urls')
-@Controller('tools/urls')
+@Controller('urls')
 export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}
 
@@ -103,7 +103,7 @@ export class UrlsController {
 
   @ApiCookieAuth()
   @UseGuards(CustomAuthGuard)
-  @Get('admin/manage/getUrlList')
+  @Get('admin/urls')
   async getUrlList(
     @Query() paginationQueryDto: PaginationQueryDto,
   ): Promise<ResultDto<PaginationDto<UrlModel>>> {

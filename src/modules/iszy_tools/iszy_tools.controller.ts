@@ -14,7 +14,7 @@ import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 @ApiTags('ISZY Tools')
 @ApiCookieAuth()
 @UseGuards(CustomAuthGuard)
-@Controller('iszy_tools')
+@Controller('tools')
 export class IszyToolsController {
   constructor(private readonly iszyToolsService: IszyToolsService) {}
 

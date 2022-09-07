@@ -4,7 +4,7 @@ import { IdiomService } from './Idiom.service';
 import { ResultDto } from '../../../../core/result.dto';
 
 @ApiTags('Idiom')
-@Controller('idiom')
+@Controller('tools/idiom')
 export class IdiomController {
   constructor(private readonly idiomService: IdiomService) {}
 

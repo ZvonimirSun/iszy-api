@@ -10,7 +10,7 @@ import { TransformGeometryDto } from './dto/transform_geometry.dto';
 export class GisController {
   constructor(private readonly gisService: GisService) {}
 
-  @Post('transformPoint')
+  @Post('transform-point')
   async transformPoint(
     @Body() transformPointDto: TransformPointDto,
   ): Promise<ResultDto<any>> {
@@ -30,7 +30,7 @@ export class GisController {
     }
   }
 
-  @Post('transformGeometry')
+  @Post('transform-geometry')
   async transformGeometry(
     @Body() transformGeometryDto: TransformGeometryDto,
   ): Promise<ResultDto<any>> {
