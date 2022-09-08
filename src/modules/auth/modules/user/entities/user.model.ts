@@ -9,6 +9,8 @@ import {
 } from 'sequelize-typescript';
 import { Role } from './role.model';
 import { UserRole } from './user_role.model';
+import { Group } from './group.model';
+import { UserGroup } from './user-group.model';
 
 @Table
 export class User extends Model {
@@ -40,6 +42,9 @@ export class User extends Model {
 
   @BelongsToMany(() => Role, () => UserRole)
   roles?: Role[];
+
+  @BelongsToMany(() => Group, () => UserGroup)
+  groups?: Group[];
 
   @Column
   userStatus!: number;

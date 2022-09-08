@@ -9,6 +9,10 @@ import {
 } from 'sequelize-typescript';
 import { User } from './user.model';
 import { UserRole } from './user_role.model';
+import { Group } from './group.model';
+import { RoleGroup } from './role-group.model';
+import { Privilege } from './privilege.model';
+import { RolePrivilege } from './role-privilege.model';
 
 @Table
 export class Role extends Model {
@@ -29,4 +33,10 @@ export class Role extends Model {
 
   @BelongsToMany(() => User, () => UserRole)
   users: User[];
+
+  @BelongsToMany(() => Group, () => RoleGroup)
+  groups: Group[];
+
+  @BelongsToMany(() => Privilege, () => RolePrivilege)
+  privileges: Privilege[];
 }

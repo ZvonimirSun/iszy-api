@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.model';
 import { InjectModel } from '@nestjs/sequelize';
+import { Role } from './entities/role.model';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,11 @@ export class UserService {
       where: {
         userName: key,
       },
+      include: [
+        {
+          model: Role,
+        },
+      ],
     });
   }
 

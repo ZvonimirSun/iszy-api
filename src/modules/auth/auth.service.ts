@@ -1,10 +1,10 @@
 // src/logical/auth/auth.service.ts
 import { Injectable, Logger } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UserService } from './modules/user/user.service';
 import { encryptPassword, makeSalt } from '../../utils/cryptogram';
 import { RegisterDto } from './dto/register.dto';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { User } from '../user/entities/user.model';
+import { CreateUserDto } from './modules/user/dto/create-user.dto';
+import { User } from './modules/user/entities/user.model';
 
 @Injectable()
 export class AuthService {

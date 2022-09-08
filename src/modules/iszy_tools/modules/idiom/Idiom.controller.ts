@@ -3,7 +3,7 @@ import { Controller, Get } from '@nestjs/common';
 import { IdiomService } from './Idiom.service';
 import { ResultDto } from '../../../../core/result.dto';
 
-@ApiTags('Idiom')
+@ApiTags('Tools/Idiom')
 @Controller('tools/idiom')
 export class IdiomController {
   constructor(private readonly idiomService: IdiomService) {}
