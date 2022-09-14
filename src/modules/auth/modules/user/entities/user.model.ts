@@ -47,7 +47,7 @@ export class User extends Model {
   groups?: Group[];
 
   @Column
-  userStatus!: number;
+  status!: number;
 
   @Column
   createBy!: number;

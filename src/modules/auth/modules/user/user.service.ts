@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { Role } from './entities/role.model';
+import { Privilege } from './entities/privilege.model';
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,13 @@ export class UserService {
       include: [
         {
           model: Role,
+          attributes: ['name', 'alias'],
+          include: [
+            {
+              model: Privilege,
+              attributes: ['type'],
+            },
+          ],
         },
       ],
     });
