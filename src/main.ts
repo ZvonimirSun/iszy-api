@@ -105,7 +105,6 @@ async function bootstrap() {
   app.use(passport.session());
 
   const documentConfig = new DocumentBuilder()
-    .addCookieAuth()
     .setTitle(configService.get<string>('app.title'))
     .setDescription(configService.get<string>('app.description'))
     .setVersion(info.version)

@@ -1,4 +1,4 @@
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -27,7 +27,6 @@ import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}
 
-  @ApiCookieAuth()
   @UseGuards(CustomAuthGuard)
   @Post('admin/url')
   async createUrl(
@@ -72,7 +71,6 @@ export class UrlsController {
     }
   }
 
-  @ApiCookieAuth()
   @UseGuards(CustomAuthGuard)
   @Put('admin/url/:keyword')
   async updateUrl(
@@ -90,7 +88,6 @@ export class UrlsController {
     };
   }
 
-  @ApiCookieAuth()
   @UseGuards(CustomAuthGuard)
   @Delete('admin/url/:keyword')
   async deleteUrl(@Param('keyword') keyword: string): Promise<ResultDto<null>> {
@@ -101,7 +98,6 @@ export class UrlsController {
     };
   }
 
-  @ApiCookieAuth()
   @UseGuards(CustomAuthGuard)
   @Get('admin/urls')
   async getUrlList(

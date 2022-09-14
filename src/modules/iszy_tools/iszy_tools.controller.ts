@@ -1,4 +1,4 @@
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -12,7 +12,6 @@ import { ResultDto } from '../../core/result.dto';
 import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 
 @ApiTags('ISZY Tools')
-@ApiCookieAuth()
 @UseGuards(CustomAuthGuard)
 @Controller('tools')
 export class IszyToolsController {

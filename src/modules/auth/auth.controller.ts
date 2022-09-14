@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { ApiBody, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { User } from './modules/user/entities/user.model';
 import { ResultDto } from '../../core/result.dto';
@@ -52,7 +52,6 @@ export class AuthController {
     }
   }
 
-  @ApiCookieAuth()
   @UseGuards(CustomAuthGuard)
   @Get('profile')
   async getProfile(@Request() req): Promise<ResultDto<User>> {
@@ -70,7 +69,6 @@ export class AuthController {
     }
   }
 
-  @ApiCookieAuth()
   @UseGuards(CustomAuthGuard)
   @Post('logout')
   async logout(@Request() req) {
