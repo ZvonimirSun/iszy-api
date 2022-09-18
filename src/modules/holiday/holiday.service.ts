@@ -58,7 +58,7 @@ export class HolidayService {
     desc: string;
     date?: string;
   }> {
-    let day = dayjs();
+    let day = dayjs().tz('PRC');
     if (date != null) {
       day = dayjs(date.toString(), 'YYYYMMDD');
     } else {
