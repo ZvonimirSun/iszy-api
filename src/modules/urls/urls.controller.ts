@@ -15,12 +15,13 @@ import {
 import { UrlsService } from './urls.service';
 import { Request, Response } from 'express';
 import { CreateDto } from './dto/create.dto';
-import { ResultDto } from '../../core/result.dto';
+import { ResultDto } from '../../core/dto/result.dto';
 import { PaginationQueryDto } from './dto/pagination_query.dto';
 import { UpdateDto } from './dto/update.dto';
 import { UrlModel } from './entities/url.model';
-import { PaginationDto } from '../../core/pagination.dto';
+import { PaginationDto } from '../../core/dto/pagination.dto';
 import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
+import { AuthRequest } from '../../core/types/AuthRequest';
 
 @ApiTags('Tools/Urls')
 @Controller('urls')
@@ -31,7 +32,7 @@ export class UrlsController {
   @Post('admin/url')
   async createUrl(
     @Body() createDto: CreateDto,
-    @Req() req: Request,
+    @Req() req: AuthRequest,
   ): Promise<ResultDto<null>> {
     if (createDto.keyword !== 'admin') {
       const status = await this.urlsService.createUrl(

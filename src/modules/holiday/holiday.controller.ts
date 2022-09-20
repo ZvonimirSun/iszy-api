@@ -2,7 +2,7 @@ import { Body, Controller, Get, Header, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HolidayService } from './holiday.service';
 import { ImportHolidayDto } from './dto/import_holiday.dto';
-import { ResultDto } from '../../core/result.dto';
+import { ResultDto } from '../../core/dto/result.dto';
 
 @ApiTags('Tools/Holiday')
 @Controller('tools/holiday')

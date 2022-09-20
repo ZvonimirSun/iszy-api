@@ -1,12 +1,13 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
-import { Injectable, UnauthorizedException, Request } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Req } from '@nestjs/common';
+import { AuthRequest } from '../../../core/types/AuthRequest';
 
 @Injectable()
 export class CustomStrategy extends PassportStrategy(Strategy) {
-  async validate(@Request() req): Promise<any> {
+  async validate(@Req() req: AuthRequest): Promise<any> {
     // 注意，passport的session数据结构，使用req.session.passport.user来访问 user session
-    const user = req.session.passport?.user;
+    const user = req.session?.passport?.user;
 
     if (!user) {
       throw new UnauthorizedException();

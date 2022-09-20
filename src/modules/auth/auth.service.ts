@@ -3,7 +3,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from './modules/user/user.service';
 import { encryptPassword, makeSalt } from '../../utils/cryptogram';
 import { RegisterDto } from './dto/register.dto';
-import { CreateUserDto } from './modules/user/dto/create-user.dto';
 import { User } from './modules/user/entities/user.model';
 
 @Injectable()
@@ -12,7 +11,10 @@ export class AuthService {
 
   private readonly logger = new Logger(AuthService.name);
 
-  async validateUser(username: string, password: string): Promise<User> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<Partial<User>> {
     const user = await this.usersService.findOne(username);
     if (user) {
       const hashedPassword = user.passwd;
@@ -21,7 +23,7 @@ export class AuthService {
       const hashPassword = encryptPassword(password, salt);
       if (hashedPassword === hashPassword) {
         // 密码正确
-        const { passwd, passwdSalt, ...result } = await user.get({
+        const { passwd, passwdSalt, ...result } = user.get({
           plain: true,
         });
         return result;
@@ -37,18 +39,15 @@ export class AuthService {
 
   async register(registerDto: RegisterDto): Promise<void> {
     try {
-      const createUserDto: CreateUserDto = new CreateUserDto();
-      createUserDto.userName = registerDto.userName;
-      createUserDto.nickName = registerDto.nickName;
-      createUserDto.passwdSalt = makeSalt();
-      createUserDto.passwd = encryptPassword(
-        registerDto.password,
-        createUserDto.passwdSalt,
-      );
-      createUserDto.mobile = registerDto.mobile || undefined;
-      createUserDto.email = registerDto.email || undefined;
-      createUserDto.userStatus = 0;
-      await this.usersService.create(createUserDto);
+      const user: Partial<User> = {};
+      user.userName = registerDto.userName;
+      user.nickName = registerDto.nickName;
+      user.passwdSalt = makeSalt();
+      user.passwd = encryptPassword(registerDto.password, user.passwdSalt);
+      user.mobile = registerDto.mobile || undefined;
+      user.email = registerDto.email || undefined;
+      user.status = 0;
+      await this.usersService.create(user);
     } catch (e) {
       if (e.name === 'SequelizeUniqueConstraintError') {
         const error = e.errors[0];
@@ -76,14 +75,13 @@ export class AuthService {
     }
   }
 
-  async getProfile(userName: string): Promise<User> {
+  async getProfile(userName: string): Promise<Partial<User>> {
     const user = await this.usersService.findOne(userName);
     if (user) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { passwd, passwdSalt, ...result } = user.get({
         plain: true,
       });
-      return result as User;
+      return result;
     }
     this.logger.error('用户不存在');
     throw new Error('用户不存在');

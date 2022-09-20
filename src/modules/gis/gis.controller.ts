@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GisService } from './gis.service';
 import { TransformPointDto } from './dto/transform_point.dto';
-import { ResultDto } from '../../core/result.dto';
+import { ResultDto } from '../../core/dto/result.dto';
 import { TransformGeometryDto } from './dto/transform_geometry.dto';
 
 @ApiTags('Gis')

@@ -5,7 +5,8 @@ import { UrlModel } from './entities/url.model';
 import { OptionsModel } from './entities/options.model';
 import { LogModel } from './entities/log.model';
 import { Request } from 'express';
-import { PaginationDto } from '../../core/pagination.dto';
+import { PaginationDto } from '../../core/dto/pagination.dto';
+import { AuthRequest } from '../../core/types/AuthRequest';
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -33,7 +34,7 @@ export class UrlsService {
   }
 
   async createUrl(
-    req: Request,
+    req: AuthRequest,
     url: string,
     title?: string,
     keyword?: string,

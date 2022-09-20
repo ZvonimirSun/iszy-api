@@ -4,7 +4,8 @@ import {
   Get,
   Logger,
   Post,
-  Request,
+  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -12,10 +13,12 @@ import { LoginDto } from './dto/login.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { User } from './modules/user/entities/user.model';
-import { ResultDto } from '../../core/result.dto';
+import { ResultDto } from '../../core/dto/result.dto';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { CustomAuthGuard } from './guard/custom-auth.guard';
 import { promisify } from 'util';
+import { LogoutDto } from './dto/logout.dto';
+import { AuthRequest } from '../../core/types/AuthRequest';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -27,7 +30,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })
   @Post('login')
-  login(@Request() req): ResultDto<User> {
+  login(@Req() req: AuthRequest): ResultDto<Partial<User>> {
     this.logger.log(`${req.user.userName} 登陆成功`);
     return {
       success: true,
@@ -54,7 +57,7 @@ export class AuthController {
 
   @UseGuards(CustomAuthGuard)
   @Get('profile')
-  async getProfile(@Request() req): Promise<ResultDto<User>> {
+  async getProfile(@Req() req: AuthRequest): Promise<ResultDto<Partial<User>>> {
     try {
       return {
         success: true,
@@ -70,8 +73,8 @@ export class AuthController {
   }
 
   @UseGuards(CustomAuthGuard)
-  @Post('logout')
-  async logout(@Request() req) {
+  @Get('logout')
+  async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
       const userName = req.user.userName;
       await promisify(req.logout.bind(req))();
