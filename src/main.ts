@@ -76,7 +76,7 @@ async function bootstrap() {
     },
     name: 'iszy_api.connect.sid',
     proxy: configService.get<boolean>('behindProxy'),
-    resave: false,
+    resave: true,
     rolling: true,
     saveUninitialized: false,
     secret: configService.get<string>('session.secret'),

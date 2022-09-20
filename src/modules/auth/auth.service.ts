@@ -86,4 +86,13 @@ export class AuthService {
     this.logger.error('用户不存在');
     throw new Error('用户不存在');
   }
+
+  logout(userId: number, sid?: string) {
+    if (userId == null) {
+      return;
+    }
+    if (!sid) {
+    }
+    return;
+  }
 }

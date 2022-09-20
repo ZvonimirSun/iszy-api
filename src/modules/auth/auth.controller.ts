@@ -73,11 +73,26 @@ export class AuthController {
   }
 
   @UseGuards(CustomAuthGuard)
-  @Get('logout')
+  @Post('logout')
   async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
       const userName = req.user.userName;
-      await promisify(req.logout.bind(req))();
+      const userId = req.user.userId;
+      const session = req.session;
+      if (logoutDto.all) {
+        await promisify(req.logout.bind(req))();
+        session.destroy(() => {
+          return;
+        });
+        await this.authService.logout(userId);
+      } else if (logoutDto.other) {
+        await this.authService.logout(userId, session.id);
+      } else {
+        await promisify(req.logout.bind(req))();
+        session.destroy(() => {
+          return;
+        });
+      }
       this.logger.log(`${userName} 登出成功`);
       return {
         success: true,
