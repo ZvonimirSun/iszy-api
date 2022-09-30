@@ -37,12 +37,12 @@ export class AuthService {
         return result;
       } else {
         this.logger.error('密码错误');
-        throw new Error('密码错误');
+        throw new Error('用户名或密码错误');
       }
     }
     // 查无此人
     this.logger.error('用户不存在');
-    throw new Error('用户不存在');
+    throw new Error('用户名或密码错误');
   }
 
   async register(registerDto: RegisterDto): Promise<void> {
