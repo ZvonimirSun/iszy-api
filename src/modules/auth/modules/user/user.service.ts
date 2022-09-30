@@ -4,6 +4,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Role } from './entities/role.model';
 import { Privilege } from './entities/privilege.model';
 import { Sequelize } from 'sequelize-typescript';
+import { UserStatus } from './variables/user.status';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserService {
@@ -34,6 +36,9 @@ export class UserService {
     return this.userModel.findOne({
       where: {
         userName: key,
+        status: {
+          [Op.ne]: UserStatus.DELETED,
+        },
       },
       include: [
         {

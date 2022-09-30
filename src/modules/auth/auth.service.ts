@@ -4,6 +4,7 @@ import { UserService } from './modules/user/user.service';
 import { encryptPassword, makeSalt } from '../../utils/cryptogram';
 import { RegisterDto } from './dto/register.dto';
 import { User } from './modules/user/entities/user.model';
+import { UserStatus } from './modules/user/variables/user.status';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,13 @@ export class AuthService {
       // 通过密码盐，加密传参，再与数据库里的比较，判断是否相等
       const hashPassword = encryptPassword(password, salt);
       if (hashedPassword === hashPassword) {
+        if (user.status === UserStatus.DEACTIVATED) {
+          this.logger.error('用户未激活');
+          throw new Error('用户未激活');
+        } else if (user.status === UserStatus.DISABLED) {
+          this.logger.error('用户已停用');
+          throw new Error('用户已停用');
+        }
         // 密码正确
         const { passwd, passwdSalt, ...result } = user.get({
           plain: true,
@@ -29,12 +37,12 @@ export class AuthService {
         return result;
       } else {
         this.logger.error('密码错误');
-        return null;
+        throw new Error('密码错误');
       }
     }
     // 查无此人
     this.logger.error('用户不存在');
-    return null;
+    throw new Error('用户不存在');
   }
 
   async register(registerDto: RegisterDto): Promise<void> {
@@ -46,7 +54,7 @@ export class AuthService {
       user.passwd = encryptPassword(registerDto.password, user.passwdSalt);
       user.mobile = registerDto.mobile || undefined;
       user.email = registerDto.email || undefined;
-      user.status = 0;
+      user.status = UserStatus.DEACTIVATED;
       await this.usersService.create(user);
     } catch (e) {
       if (e.name === 'SequelizeUniqueConstraintError') {
