@@ -4,5 +4,6 @@ import { ConnectionService } from './connection.service';
 @Global()
 @Module({
   providers: [ConnectionService],
+  exports: [ConnectionService],
 })
 export class ConnectionModule {}
