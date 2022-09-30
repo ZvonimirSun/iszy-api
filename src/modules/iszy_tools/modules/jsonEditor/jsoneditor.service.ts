@@ -13,7 +13,7 @@ export class JsoneditorService {
 
   private readonly logger = new Logger(JsoneditorService.name);
 
-  async getList(userId: string): Promise<JsoneditorModel[]> {
+  async getList(userId: number): Promise<JsoneditorModel[]> {
     try {
       return await this.jsoneditorModel.findAll({
         where: {

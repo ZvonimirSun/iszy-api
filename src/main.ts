@@ -12,14 +12,13 @@ import { json, urlencoded } from 'body-parser';
 import getLogLevels from './core/getLogLevels';
 import info from '../package.json';
 import session, { SessionOptions } from 'express-session';
-import Redis from 'ioredis';
 import connectRedis from 'connect-redis';
 import { ConfigService } from '@nestjs/config';
 import passport from 'passport';
 import { merge } from 'lodash';
+import { ConnectionService } from './modules/connection/connection.service';
 
 const redisStore = connectRedis(session);
-let configService: ConfigService;
 
 // 设置passport序列化和反序列化user的方法，在将用户信息存储到session时使用
 passport.serializeUser(function (user, done) {
@@ -41,7 +40,8 @@ async function bootstrap() {
     logger: getLogLevels(process.env.DEVELOPMENT === 'true'),
   });
 
-  configService = app.get(ConfigService);
+  const configService: ConfigService = app.get(ConfigService);
+  const connectionService: ConnectionService = app.get(ConnectionService);
 
   app.use(json({ limit: '200mb' }));
   app.use(urlencoded({ limit: '200mb', extended: true }));
@@ -62,13 +62,7 @@ async function bootstrap() {
   });
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const redisClient = new Redis(
-    configService.get<number>('redis.port'),
-    configService.get<string>('redis.host'),
-    {
-      password: configService.get<string>('redis.password'),
-    },
-  );
+  const redisClient = connectionService.getRedis();
 
   const sessionConfig: SessionOptions = {
     cookie: {
@@ -76,7 +70,7 @@ async function bootstrap() {
     },
     name: 'iszy_api.connect.sid',
     proxy: configService.get<boolean>('behindProxy'),
-    resave: false,
+    resave: true,
     rolling: true,
     saveUninitialized: false,
     secret: configService.get<string>('session.secret'),
@@ -123,8 +117,10 @@ async function bootstrap() {
   }
 
   await app.listen(configService.get<number>('app.port'));
+
+  return configService;
 }
-bootstrap().then(() =>
+bootstrap().then((configService: ConfigService) =>
   console.log(
     `Server is running on port ${configService.get<number>('app.port')}`,
   ),

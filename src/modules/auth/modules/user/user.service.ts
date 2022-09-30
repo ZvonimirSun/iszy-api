@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { Role } from './entities/role.model';
@@ -13,8 +11,8 @@ export class UserService {
     private userModel: typeof User,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    return this.userModel.create(createUserDto as any);
+  async create(user: Partial<User>) {
+    return this.userModel.create(user);
   }
 
   async findOne(key: string): Promise<User> {
@@ -26,10 +24,16 @@ export class UserService {
         {
           model: Role,
           attributes: ['name', 'alias'],
+          through: {
+            attributes: [],
+          },
           include: [
             {
               model: Privilege,
               attributes: ['type'],
+              through: {
+                attributes: [],
+              },
             },
           ],
         },
@@ -37,9 +41,9 @@ export class UserService {
     });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
-    return `This action updates a #${id} user`;
+  update(user: Partial<User>) {
+    console.log(user);
+    return `This action updates a #${user.userId} user`;
   }
 
   remove(id: number) {

@@ -1,15 +1,9 @@
 import { ApiTags } from '@nestjs/swagger';
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { IszyToolsService } from './iszy_tools.service';
-import { ResultDto } from '../../core/result.dto';
+import { ResultDto } from '../../core/dto/result.dto';
 import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
+import { AuthRequest } from '../../core/types/AuthRequest';
 
 @ApiTags('ISZY Tools')
 @UseGuards(CustomAuthGuard)
@@ -19,7 +13,7 @@ export class IszyToolsController {
 
   @Post('settings')
   async uploadSettings(
-    @Request() req,
+    @Req() req: AuthRequest,
     @Body() settingDto: any,
   ): Promise<ResultDto<any>> {
     const result = await this.iszyToolsService.uploadSettings(
@@ -34,7 +28,7 @@ export class IszyToolsController {
   }
 
   @Get('settings')
-  async downloadSettings(@Request() req) {
+  async downloadSettings(@Req() req: AuthRequest) {
     const result = await this.iszyToolsService.downloadSettings(
       req.user.userId,
     );
