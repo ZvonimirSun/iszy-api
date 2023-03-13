@@ -710,7 +710,7 @@
 
 "@nestjs/core@^9.0.5":
   version "9.0.5"
-  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-9.0.5.tgz#b4cb8f8b0c1d234a840f06e265717d4a24f8d224"
+  resolved "https://registry.npmmirror.com/@nestjs/core/-/core-9.0.5.tgz#b4cb8f8b0c1d234a840f06e265717d4a24f8d224"
   integrity sha512-41BBJlsquasVrGeRWNYb74Fwsc+oB5EmKC/hioQJAhGqIw5Kr5AcdEoEFaMKFzNLAPbU6c/nVW8T8CrvtQbQww==
   dependencies:
     "@nuxtjs/opencollective" "0.3.2"
@@ -2069,13 +2069,14 @@ class-transformer@0.4.0:
   resolved "https://registry.npmmirror.com/class-transformer/-/class-transformer-0.4.0.tgz#b52144117b423c516afb44cc1c76dbad31c2165b"
   integrity sha512-ETWD/H2TbWbKEi7m9N4Km5+cw1hNcqJSxlSYhsLsNjQzWWiZIYA1zafxpK9PwVfaZ6AqR5rrjPVUBGESm5tQUA==
 
-class-validator@0.13.0:
-  version "0.13.0"
-  resolved "https://registry.npmmirror.com/class-validator/-/class-validator-0.13.0.tgz#87770a90e4f9ac1a928631ae58dc6920299052ff"
-  integrity sha512-PNu14GiCXGqVKrCa7VJbDkA3wgB7ORdVwiK+DexcV0Dbk3UKLeHuD2Pn/BbhiFCcIf7GqChapnpZKaGFfdfVCQ==
+class-validator@0.14.0:
+  version "0.14.0"
+  resolved "https://registry.npmmirror.com/class-validator/-/class-validator-0.14.0.tgz#40ed0ecf3c83b2a8a6a320f4edb607be0f0df159"
+  integrity sha512-ct3ltplN8I9fOwUd8GrP8UQixwff129BkEtuWDKL5W45cQuLd19xqmTLu5ge78YDm/fdje6FMt0hGOhl0lii3A==
   dependencies:
-    libphonenumber-js "^1.7.57"
-    validator "^13.1.1"
+    "@types/validator" "^13.7.10"
+    libphonenumber-js "^1.10.14"
+    validator "^13.7.0"
 
 clean-stack@^2.0.0:
   version "2.2.0"
