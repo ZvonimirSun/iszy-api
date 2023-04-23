@@ -94,7 +94,7 @@ export class HolidayService {
         return item.get({ plain: true });
       });
       let ics =
-        'BEGIN:VCALENDAR\r\n' + 'VERSION:2.0\r\n' + 'X-WR-CALNAME:家庭\r\n';
+        'BEGIN:VCALENDAR\r\n' + 'VERSION:2.0\r\n' + 'X-WR-CALNAME:中国节假日调休日历\r\n';
       let tmpEvent = undefined;
       let tmpDate = undefined;
       for (const day of tmp) {
