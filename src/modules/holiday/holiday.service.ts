@@ -93,7 +93,8 @@ export class HolidayService {
       const tmp = list.map((item) => {
         return item.get({ plain: true });
       });
-      let ics = 'BEGIN:VCALENDAR\n' + 'VERSION:2.0\n' + 'X-WR-CALNAME:家庭\n';
+      let ics =
+        'BEGIN:VCALENDAR\r\n' + 'VERSION:2.0\r\n' + 'X-WR-CALNAME:家庭\r\n';
       let tmpEvent = undefined;
       let tmpDate = undefined;
       for (const day of tmp) {
@@ -104,24 +105,24 @@ export class HolidayService {
             tmpEvent.last
         ) {
           tmpEvent = day;
-          ics += 'BEGIN:VEVENT\n';
-          ics += `SUMMARY:${day.desc}\n`;
+          ics += 'BEGIN:VEVENT\r\n';
+          ics += `SUMMARY:${day.desc}\r\n`;
           tmpDate = dayjs(day.id.toString(), 'YYYYMMDD');
           if (day.last) {
-            ics += `DTSTART;VALUE=DATE:${tmpDate.format('YYYYMMDD')}\n`;
+            ics += `DTSTART;VALUE=DATE:${tmpDate.format('YYYYMMDD')}\r\n`;
             ics += `DTEND;VALUE=DATE:${tmpDate
               .add(day.last, 'day')
-              .format('YYYYMMDD')}\n`;
+              .format('YYYYMMDD')}\r\n`;
           } else {
-            ics += `DTSTART;VALUE=DATE:${tmpDate.format('YYYYMMDD')}\n`;
+            ics += `DTSTART;VALUE=DATE:${tmpDate.format('YYYYMMDD')}\r\n`;
             ics += `DTEND;VALUE=DATE:${tmpDate
               .add(1, 'day')
-              .format('YYYYMMDD')}\n`;
+              .format('YYYYMMDD')}\r\n`;
           }
-          ics += 'END:VEVENT\n';
+          ics += 'END:VEVENT\r\n';
         }
       }
-      ics += 'END:VCALENDAR\n';
+      ics += 'END:VCALENDAR\r\n';
       return ics;
     } catch (e) {
       return '';
