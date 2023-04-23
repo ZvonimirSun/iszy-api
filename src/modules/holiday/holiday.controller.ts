@@ -45,6 +45,7 @@ export class HolidayController {
 
   @Get('holiday.ics')
   @Header('content-type', 'text/calendar')
+  @Header('content-disposition', 'attachment; filename=holiday.ics')
   async getHolidayICS(): Promise<string> {
     return await this.holidayService.getHolidayICS();
   }
