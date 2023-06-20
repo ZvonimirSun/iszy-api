@@ -23,7 +23,7 @@ import { PaginationDto } from '../../core/dto/pagination.dto';
 import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 import { AuthRequest } from '../../core/types/AuthRequest';
 
-@ApiTags('Tools/Urls')
+@ApiTags('Urls')
 @Controller('urls')
 export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}

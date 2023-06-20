@@ -11,7 +11,9 @@ import { MockPrj } from './mock_prj.model';
 @Table
 export class MockData extends Model {
   @PrimaryKey
-  @Column
+  @Column({
+    autoIncrement: true,
+  })
   id?: number;
 
   @Column({
@@ -31,6 +33,7 @@ export class MockData extends Model {
 
   @Column({
     allowNull: false,
+    unique: true,
   })
   path!: string;
 
@@ -42,12 +45,17 @@ export class MockData extends Model {
   @Column
   delay?: number;
 
+  @Column({
+    type: DataType.TEXT,
+  })
+  response?: string;
+
   @ForeignKey(() => MockPrj)
   @Column({
     allowNull: false,
     type: DataType.UUID,
   })
-  projectId: string;
+  projectId!: string;
 
   @BelongsTo(() => MockPrj)
   project: MockPrj;

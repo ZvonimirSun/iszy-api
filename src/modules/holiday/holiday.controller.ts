@@ -4,7 +4,7 @@ import { HolidayService } from './holiday.service';
 import { ImportHolidayDto } from './dto/import_holiday.dto';
 import { ResultDto } from '../../core/dto/result.dto';
 
-@ApiTags('Tools/Holiday')
+@ApiTags('Holiday')
 @Controller('tools/holiday')
 export class HolidayController {
   constructor(private readonly holidayService: HolidayService) {}
