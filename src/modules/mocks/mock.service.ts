@@ -39,7 +39,7 @@ export class MockService {
         throw new Error('mock project not found');
       } else {
         await this.mockDataModel.destroy({
-          where: { projectId: mockPrjId },
+          where: { userId, projectId: mockPrjId },
           ...transactionHost,
         });
         await this.mockPrjModel.destroy({
@@ -88,7 +88,7 @@ export class MockService {
           (!mockDataDto.delay || mockDataDto.delay < 60)
         ) {
           return await this.mockDataModel.create(
-            { ...mockDataDto, id: undefined },
+            { ...mockDataDto, userId, id: undefined },
             transactionHost,
           );
         } else {
@@ -102,22 +102,15 @@ export class MockService {
     await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t };
       const mockData = await this.mockDataModel.findOne({
-        where: { id: mockDataId },
+        where: { id: mockDataId, userId },
       });
       if (!mockData) {
         throw new Error('mock data not found');
       } else {
-        const mockPrj = await this.mockPrjModel.findOne({
-          where: { userId, id: mockData.projectId },
+        await this.mockDataModel.destroy({
+          where: { id: mockDataId, userId },
+          ...transactionHost,
         });
-        if (!mockPrj) {
-          throw new Error('mock data not found');
-        } else {
-          await this.mockDataModel.destroy({
-            where: { id: mockDataId },
-            ...transactionHost,
-          });
-        }
       }
     });
   }
@@ -130,32 +123,27 @@ export class MockService {
     await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t };
       const mockData = await this.mockDataModel.findOne({
-        where: { id: mockDataId },
+        where: { id: mockDataId, userId },
       });
       if (!mockData) {
         throw new Error('mock data not found');
       } else {
-        const mockPrj = await this.mockPrjModel.findOne({
-          where: { userId, id: mockData.projectId },
-        });
-        if (!mockPrj) {
-          throw new Error('mock data not found');
+        if (!mockDataDto.delay || mockDataDto.delay < 60) {
+          await this.mockDataModel.update(mockDataDto, {
+            where: { id: mockDataId, userId },
+            ...transactionHost,
+          });
         } else {
-          if (!mockDataDto.delay || mockDataDto.delay < 60) {
-            await this.mockDataModel.update(mockDataDto, {
-              where: { id: mockDataId },
-              ...transactionHost,
-            });
-          } else {
-            throw new Error('mock data invalid');
-          }
+          throw new Error('mock data invalid');
         }
       }
     });
   }
 
-  async getMockData(mockDataId: string): Promise<MockData> {
-    return await this.mockDataModel.findOne({ where: { id: mockDataId } });
+  async getMockData(userId: number, mockDataId: string): Promise<MockData> {
+    return await this.mockDataModel.findOne({
+      where: { id: mockDataId, userId },
+    });
   }
 
   async getMockDataByPath(
@@ -176,15 +164,8 @@ export class MockService {
   }
 
   async getMockDatas(userId: number, mockPrjId: string): Promise<MockData[]> {
-    const mockPrj = await this.mockPrjModel.findOne({
-      where: { userId, id: mockPrjId },
+    return this.mockDataModel.findAll({
+      where: { projectId: mockPrjId, userId },
     });
-    if (!mockPrj) {
-      throw new Error('mock project not found');
-    } else {
-      return this.mockDataModel.findAll({
-        where: { projectId: mockPrjId },
-      });
-    }
   }
 }

@@ -8,6 +8,7 @@ import {
   DataType,
 } from 'sequelize-typescript';
 import { MockPrj } from './mock_prj.model';
+import { User } from '../../auth/modules/user/entities/user.model';
 @Table
 export class MockData extends Model {
   @PrimaryKey
@@ -59,4 +60,13 @@ export class MockData extends Model {
 
   @BelongsTo(() => MockPrj)
   project: MockPrj;
+
+  @ForeignKey(() => User)
+  @Column({
+    allowNull: false,
+  })
+  userId!: number;
+
+  @BelongsTo(() => User)
+  user!: User;
 }

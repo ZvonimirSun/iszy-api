@@ -117,11 +117,22 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockPrj>> {
     try {
-      return {
-        success: true,
-        message: '获取mock项目成功',
-        data: await this.mockService.getMockPrj(req.user.userId, mockPrjId),
-      };
+      const data = await this.mockService.getMockPrj(
+        req.user.userId,
+        mockPrjId,
+      );
+      if (data) {
+        return {
+          success: true,
+          message: '获取mock项目成功',
+          data,
+        };
+      } else {
+        return {
+          success: false,
+          message: '获取mock项目失败',
+        };
+      }
     } catch (e) {
       return {
         success: false,
@@ -208,11 +219,22 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
     try {
-      return {
-        success: true,
-        message: '获取mock数据成功',
-        data: await this.mockService.getMockData(mockDataId),
-      };
+      const data = await this.mockService.getMockData(
+        req.user.userId,
+        mockDataId,
+      );
+      if (data) {
+        return {
+          success: true,
+          message: '获取mock数据成功',
+          data: data,
+        };
+      } else {
+        return {
+          success: false,
+          message: '获取mock数据失败',
+        };
+      }
     } catch (e) {
       return {
         success: false,
