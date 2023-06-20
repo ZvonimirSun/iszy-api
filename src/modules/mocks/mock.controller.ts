@@ -73,7 +73,7 @@ export class MockController {
     @Param('mockPrjId') mockPrjId: string,
     @Body() mockPrjDto: MockProjDto,
     @Req() req: AuthRequest,
-  ): Promise<ResultDto<void>> {
+  ): Promise<ResultDto<MockPrj>> {
     try {
       await this.mockService.updateMockPrj(
         req.user.userId,
@@ -83,6 +83,11 @@ export class MockController {
       return {
         success: true,
         message: '更新mock项目成功',
+        data: await this.mockService.updateMockPrj(
+          req.user.userId,
+          mockPrjId,
+          mockPrjDto,
+        ),
       };
     } catch (e) {
       return {
@@ -193,16 +198,19 @@ export class MockController {
     @Param('mockDataId') mockDataId: string,
     @Body() mockDataDto: MockDataDto,
     @Req() req: AuthRequest,
-  ): Promise<ResultDto<void>> {
+  ): Promise<ResultDto<MockData>> {
     try {
-      await this.mockService.updateMockData(
-        req.user.userId,
-        mockDataId,
-        mockDataDto,
-      );
+      if (typeof mockDataDto.response !== 'string') {
+        mockDataDto.response = JSON.stringify(mockDataDto.response);
+      }
       return {
         success: true,
         message: '更新mock数据成功',
+        data: await this.mockService.updateMockData(
+          req.user.userId,
+          mockDataId,
+          mockDataDto,
+        ),
       };
     } catch (e) {
       return {

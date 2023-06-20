@@ -54,9 +54,17 @@ export class MockService {
     userId: number,
     mockPrjId: string,
     mockPrjDto: Partial<MockProjDto>,
-  ): Promise<void> {
-    await this.mockPrjModel.update(mockPrjDto, {
-      where: { userId, id: mockPrjId },
+  ): Promise<MockPrj> {
+    return await this.sequelize.transaction(async (t) => {
+      const transactionHost = { transaction: t };
+      const mockPrj = await this.mockPrjModel.findOne({
+        where: { userId, id: mockPrjId },
+      });
+      if (mockPrj) {
+        return await mockPrj.update(mockPrjDto, transactionHost);
+      } else {
+        throw new Error('mock project not found');
+      }
     });
   }
 
@@ -119,8 +127,8 @@ export class MockService {
     userId: number,
     mockDataId: string,
     mockDataDto: Partial<MockDataDto>,
-  ): Promise<void> {
-    await this.sequelize.transaction(async (t) => {
+  ): Promise<MockData> {
+    return await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t };
       const mockData = await this.mockDataModel.findOne({
         where: { id: mockDataId, userId },
@@ -129,10 +137,7 @@ export class MockService {
         throw new Error('mock data not found');
       } else {
         if (!mockDataDto.delay || mockDataDto.delay < 60) {
-          await this.mockDataModel.update(mockDataDto, {
-            where: { id: mockDataId, userId },
-            ...transactionHost,
-          });
+          return await mockData.update(mockDataDto, transactionHost);
         } else {
           throw new Error('mock data invalid');
         }
