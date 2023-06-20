@@ -32,12 +32,12 @@ export class MockController {
   async createMockPrj(
     @Body() mockPrjDto: MockProjDto,
     @Req() req: AuthRequest,
-  ): Promise<ResultDto<void>> {
+  ): Promise<ResultDto<MockPrj>> {
     try {
-      await this.mockService.createMockPrj(req.user.userId, mockPrjDto);
       return {
         success: true,
         message: '创建mock项目成功',
+        data: await this.mockService.createMockPrj(req.user.userId, mockPrjDto),
       };
     } catch (e) {
       return {
@@ -135,12 +135,15 @@ export class MockController {
   async createMockData(
     @Body() mockDataDto: MockDataDto,
     @Req() req: AuthRequest,
-  ): Promise<ResultDto<void>> {
+  ): Promise<ResultDto<MockData>> {
     try {
-      await this.mockService.createMockData(req.user.userId, mockDataDto);
       return {
         success: true,
         message: '创建mock数据成功',
+        data: await this.mockService.createMockData(
+          req.user.userId,
+          mockDataDto,
+        ),
       };
     } catch (e) {
       return {
