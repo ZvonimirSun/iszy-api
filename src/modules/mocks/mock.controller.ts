@@ -137,6 +137,9 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
     try {
+      if (typeof mockDataDto.response !== 'string') {
+        mockDataDto.response = JSON.stringify(mockDataDto.response);
+      }
       return {
         success: true,
         message: '创建mock数据成功',
@@ -260,10 +263,14 @@ export class MockController {
         res.status(405);
         return;
       }
+      let json: string | unknown = mockData.response;
+      try {
+        json = JSON.parse(mockData.response);
+      } catch (e) {}
       if (mockData.delay) {
         await _sleep(mockData.delay);
       }
-      return mockData.response;
+      return json;
     } else {
       res.status(404);
       return;

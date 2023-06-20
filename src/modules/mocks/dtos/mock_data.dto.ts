@@ -34,7 +34,7 @@ export class MockDataDto {
   @ApiPropertyOptional({
     description: '响应数据',
   })
-  readonly response?: string;
+  response?: string | unknown;
 
   @ApiProperty({
     description: '项目id',
