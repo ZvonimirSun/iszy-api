@@ -8,9 +8,11 @@ import {
   Post,
   Put,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 import { MockService } from './mock.service';
 import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 import { AuthRequest } from '../../core/types/AuthRequest';
@@ -238,6 +240,8 @@ export class MockController {
     @Param('mockPrjId') mockPrjId: string,
     @Param('prjPath') prjPath: string,
     @Param('dataPath') dataPath: string,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const mockData = await this.mockService.getMockDataByPath(
       mockPrjId,
@@ -245,9 +249,27 @@ export class MockController {
       dataPath,
     );
     if (mockData) {
+      if (!mockData.enabled) {
+        res.status(404);
+        return;
+      }
+      if (mockData.type.toLowerCase() !== req.method.toLowerCase()) {
+        res.status(405);
+        return;
+      }
+      if (mockData.delay) {
+        await _sleep(mockData.delay);
+      }
       return mockData.response;
     } else {
-      return null;
+      res.status(404);
+      return;
     }
   }
+}
+
+function _sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

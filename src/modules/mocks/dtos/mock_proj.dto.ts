@@ -1,11 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class MockProjDto {
-  @ApiPropertyOptional({
-    description: '项目id',
-  })
-  id?: string;
-
   @ApiProperty({
     description: '项目名称',
   })

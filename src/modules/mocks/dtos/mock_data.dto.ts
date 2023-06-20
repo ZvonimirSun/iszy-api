@@ -1,11 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class MockDataDto {
-  @ApiPropertyOptional({
-    description: '数据id',
-  })
-  id?: string;
-
   @ApiProperty({
     description: '数据名称',
   })

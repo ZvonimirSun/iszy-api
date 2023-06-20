@@ -126,18 +126,20 @@ export class UrlsController {
   async visitUrl(
     @Param('keyword') keyword: string,
     @Req() req: Request,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const url = await this.urlsService.visitUrl(keyword, req);
     if (url) {
       res.redirect(302, url);
+      return;
     } else {
-      res.sendStatus(403);
+      res.status(403);
+      return;
     }
   }
 
   @Get()
-  rootPage(@Res() res: Response) {
-    res.sendStatus(403);
+  rootPage(@Res({ passthrough: true }) res: Response) {
+    res.status(403);
   }
 }

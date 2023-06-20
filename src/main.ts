@@ -43,6 +43,7 @@ async function bootstrap() {
   const configService: ConfigService = app.get(ConfigService);
   const connectionService: ConnectionService = app.get(ConnectionService);
 
+  app.disable('x-powered-by');
   app.use(json({ limit: '200mb' }));
   app.use(urlencoded({ limit: '200mb', extended: true }));
   app.enableCors({

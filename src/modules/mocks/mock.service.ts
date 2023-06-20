@@ -5,7 +5,6 @@ import { MockData } from './entities/mock_data.model';
 import { Sequelize } from 'sequelize-typescript';
 import { MockProjDto } from './dtos/mock_proj.dto';
 import { MockDataDto } from './dtos/mock_data.dto';
-import mock = jest.mock;
 
 @Injectable()
 export class MockService {
@@ -51,7 +50,7 @@ export class MockService {
   async updateMockPrj(
     userId: number,
     mockPrjId: string,
-    mockPrjDto: MockProjDto,
+    mockPrjDto: Partial<MockProjDto>,
   ) {
     await this.mockPrjModel.update(mockPrjDto, {
       where: { userId, id: mockPrjId },
@@ -77,10 +76,18 @@ export class MockService {
       if (!mockPrj) {
         throw new Error('mock project not found');
       } else {
-        await this.mockDataModel.create(
-          { ...mockDataDto, id: undefined },
-          transactionHost,
-        );
+        if (
+          mockDataDto.path &&
+          mockDataDto.name &&
+          (!mockDataDto.delay || mockDataDto.delay < 60)
+        ) {
+          await this.mockDataModel.create(
+            { ...mockDataDto, id: undefined },
+            transactionHost,
+          );
+        } else {
+          throw new Error('mock data invalid');
+        }
       }
     });
   }
@@ -112,7 +119,7 @@ export class MockService {
   async updateMockData(
     userId: number,
     mockDataId: string,
-    mockDataDto: MockDataDto,
+    mockDataDto: Partial<MockDataDto>,
   ) {
     await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t };
@@ -128,10 +135,14 @@ export class MockService {
         if (!mockPrj) {
           throw new Error('mock data not found');
         } else {
-          await this.mockDataModel.update(mockDataDto, {
-            where: { id: mockDataId },
-            ...transactionHost,
-          });
+          if (!mockDataDto.delay || mockDataDto.delay < 60) {
+            await this.mockDataModel.update(mockDataDto, {
+              where: { id: mockDataId },
+              ...transactionHost,
+            });
+          } else {
+            throw new Error('mock data invalid');
+          }
         }
       }
     });
