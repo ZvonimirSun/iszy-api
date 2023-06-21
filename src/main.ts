@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import passport from 'passport';
 import { merge } from 'lodash';
 import { ConnectionService } from './modules/connection/connection.service';
+import SwaggerPublic from './swagger.public';
 
 const redisStore = connectRedis(session);
 
@@ -107,6 +108,18 @@ async function bootstrap() {
 
   if (configService.get<boolean>('development')) {
     const document = SwaggerModule.createDocument(app, documentConfig);
+    SwaggerModule.setup('api', app, document, {
+      swaggerOptions: {
+        requestInterceptor: (req) => {
+          req.credentials = 'include';
+          return req;
+        },
+      },
+    });
+  } else {
+    const document = SwaggerModule.createDocument(app, documentConfig, {
+      include: SwaggerPublic,
+    });
     SwaggerModule.setup('api', app, document, {
       swaggerOptions: {
         requestInterceptor: (req) => {

@@ -21,6 +21,7 @@ import { MockDataDto } from './dtos/mock_data.dto';
 import { ResultDto } from '../../core/dto/result.dto';
 import { MockData } from './entities/mock_data.model';
 import { MockPrj } from './entities/mock_prj.model';
+import Mock from 'mockjs';
 
 @ApiTags('Mock')
 @Controller('mock')
@@ -279,11 +280,17 @@ export class MockController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const mockData = await this.mockService.getMockDataByPath(
-      mockPrjId,
-      prjPath,
-      dataPath,
-    );
+    let mockData;
+    try {
+      mockData = await this.mockService.getMockDataByPath(
+        mockPrjId,
+        prjPath,
+        dataPath,
+      );
+    } catch (e) {
+      res.status(404);
+      return;
+    }
     if (mockData) {
       if (!mockData.enabled) {
         res.status(404);
@@ -296,6 +303,7 @@ export class MockController {
       let json: string | unknown = mockData.response;
       try {
         json = JSON.parse(mockData.response);
+        json = Mock.mock(json);
       } catch (e) {}
       if (mockData.delay) {
         await _sleep(mockData.delay);
