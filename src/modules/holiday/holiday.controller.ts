@@ -1,14 +1,24 @@
-import { Body, Controller, Get, Header, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Header,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { HolidayService } from './holiday.service';
 import { ImportHolidayDto } from './dto/import_holiday.dto';
 import { ResultDto } from '../../core/dto/result.dto';
+import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
 
 @ApiTags('Holiday')
 @Controller('tools/holiday')
 export class HolidayController {
   constructor(private readonly holidayService: HolidayService) {}
 
+  @UseGuards(CustomAuthGuard)
   @Post()
   async importHoliday(
     @Body() importHolidayDto: ImportHolidayDto,
