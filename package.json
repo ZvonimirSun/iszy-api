@@ -1,8 +1,8 @@
 {
   "name": "iszy-api",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "",
-  "author": "",
+  "author": "ZvonimirSun",
   "private": true,
   "license": "MIT",
   "scripts": {

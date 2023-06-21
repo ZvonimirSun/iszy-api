@@ -41,6 +41,11 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Read package.json
+        uses: tyankatsu0105/read-package-version-actions@v1
+        with:
+          path: './package/vitevui'
+        id: package-version
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -48,7 +53,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=0.0.1
+            type=semver,pattern={{version}},value=${{ steps.package-version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.package-version.outputs.version }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
