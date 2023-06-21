@@ -26,7 +26,6 @@ export class MockPrj extends Model {
 
   @Column({
     allowNull: false,
-    unique: true,
   })
   path!: string;
 

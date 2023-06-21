@@ -76,11 +76,6 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockPrj>> {
     try {
-      await this.mockService.updateMockPrj(
-        req.user.userId,
-        mockPrjId,
-        mockPrjDto,
-      );
       return {
         success: true,
         message: '更新mock项目成功',
@@ -102,11 +97,10 @@ export class MockController {
   @Get('api/prj/list')
   async getMockPrjs(@Req() req: AuthRequest): Promise<ResultDto<MockPrj[]>> {
     try {
-      const mockPrjs = await this.mockService.getMockPrjs(req.user.userId);
       return {
         success: true,
         message: '获取mock项目列表成功',
-        data: mockPrjs,
+        data: await this.mockService.getMockPrjs(req.user.userId),
       };
     } catch (e) {
       return {
@@ -123,22 +117,11 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockPrj>> {
     try {
-      const data = await this.mockService.getMockPrj(
-        req.user.userId,
-        mockPrjId,
-      );
-      if (data) {
-        return {
-          success: true,
-          message: '获取mock项目成功',
-          data,
-        };
-      } else {
-        return {
-          success: false,
-          message: '获取mock项目失败',
-        };
-      }
+      return {
+        success: true,
+        message: '获取mock项目成功',
+        data: await this.mockService.getMockPrj(req.user.userId, mockPrjId),
+      };
     } catch (e) {
       return {
         success: false,
@@ -176,7 +159,7 @@ export class MockController {
   @UseGuards(CustomAuthGuard)
   @Delete('api/data/:mockDataId')
   async deleteMockData(
-    @Param('mockDataId') mockDataId: string,
+    @Param('mockDataId') mockDataId: number,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<void>> {
     try {
@@ -196,7 +179,7 @@ export class MockController {
   @UseGuards(CustomAuthGuard)
   @Put('api/data/:mockDataId')
   async updateMockData(
-    @Param('mockDataId') mockDataId: string,
+    @Param('mockDataId') mockDataId: number,
     @Body() mockDataDto: MockDataDto,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
@@ -224,26 +207,15 @@ export class MockController {
   @UseGuards(CustomAuthGuard)
   @Get('api/data/:mockDataId')
   async getMockData(
-    @Param('mockDataId') mockDataId: string,
+    @Param('mockDataId') mockDataId: number,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
     try {
-      const data = await this.mockService.getMockData(
-        req.user.userId,
-        mockDataId,
-      );
-      if (data) {
-        return {
-          success: true,
-          message: '获取mock数据成功',
-          data: data,
-        };
-      } else {
-        return {
-          success: false,
-          message: '获取mock数据失败',
-        };
-      }
+      return {
+        success: true,
+        message: '获取mock数据成功',
+        data: await this.mockService.getMockData(req.user.userId, mockDataId),
+      };
     } catch (e) {
       return {
         success: false,
@@ -272,17 +244,65 @@ export class MockController {
     }
   }
 
-  @All('/:mockPrjId/:prjPath/:dataPath')
+  @UseGuards(CustomAuthGuard)
+  @Get('api/path/:prjPath')
+  async getMockPrjByPath(
+    @Param('prjPath') prjPath: string,
+    @Req() req: AuthRequest,
+  ): Promise<ResultDto<MockPrj>> {
+    try {
+      return {
+        success: true,
+        message: '获取mock项目成功',
+        data: await this.mockService.getMockPrjByPath(req.user.userId, prjPath),
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
+  }
+  @UseGuards(CustomAuthGuard)
+  @Get('api/path/:prjPath/:dataPath')
+  async getMockDataByPath(
+    @Param('prjPath') prjPath: string,
+    @Param('dataPath') dataPath: string,
+    @Req() req: AuthRequest,
+  ): Promise<ResultDto<MockData>> {
+    try {
+      return {
+        success: true,
+        message: '获取mock项目成功',
+        data: await this.mockService.getMockDataByPath(
+          req.user.userId,
+          prjPath,
+          dataPath,
+        ),
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
+  }
+
+  @All('/:mockPrjId/:prjPath/*')
   async mock(
     @Param('mockPrjId') mockPrjId: string,
     @Param('prjPath') prjPath: string,
-    @Param('dataPath') dataPath: string,
+    @Param('0') dataPath: string,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
+    if (!dataPath) {
+      res.status(404);
+      return;
+    }
     let mockData;
     try {
-      mockData = await this.mockService.getMockDataByPath(
+      mockData = await this.mockService.getMockDataByPathNoAuth(
         mockPrjId,
         prjPath,
         dataPath,
@@ -291,28 +311,58 @@ export class MockController {
       res.status(404);
       return;
     }
-    if (mockData) {
-      if (!mockData.enabled) {
-        res.status(404);
-        return;
-      }
-      if (mockData.type.toLowerCase() !== req.method.toLowerCase()) {
-        res.status(405);
-        return;
-      }
-      let json: string | unknown = mockData.response;
-      try {
-        json = JSON.parse(mockData.response);
-        json = Mock.mock(json);
-      } catch (e) {}
-      if (mockData.delay) {
-        await _sleep(mockData.delay);
-      }
-      return json;
-    } else {
+    if (!mockData.enabled) {
       res.status(404);
       return;
     }
+    if (mockData.type.toLowerCase() !== req.method.toLowerCase()) {
+      res.status(405);
+      return;
+    }
+    let json: any = mockData.response;
+    try {
+      const _req = {
+        url: req.url,
+        method: req.method,
+        params: req.params,
+        query: req.query,
+        body: req.body,
+        path: req.path,
+        headers: req.headers,
+        originalUrl: req.originalUrl,
+        hostname: req.hostname,
+        protocol: req.protocol,
+        ip: req.ip,
+        cookies: req.cookies,
+        signedCookies: req.signedCookies,
+        header: req.header,
+      };
+      const tmp: unknown = new Function('return ' + mockData.response)();
+      const tmp1 = JSON.stringify(tmp, function (key, value) {
+        if (typeof value === 'function') {
+          try {
+            return value.call(undefined, {
+              _req: _req,
+              Mock,
+            });
+          } catch (e) {
+            return undefined;
+          }
+        }
+        return value;
+      });
+      json = Mock.mock(JSON.parse(tmp1));
+    } catch (e) {
+      console.log(e);
+    }
+    if (mockData.delay) {
+      await _sleep(mockData.delay);
+    }
+    const responseStatus = req.header('response-status');
+    if (responseStatus != null) {
+      res.status(parseInt(responseStatus));
+    }
+    return json;
   }
 }
 

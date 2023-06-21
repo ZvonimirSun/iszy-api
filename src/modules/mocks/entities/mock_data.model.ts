@@ -34,7 +34,6 @@ export class MockData extends Model {
 
   @Column({
     allowNull: false,
-    unique: true,
   })
   path!: string;
 

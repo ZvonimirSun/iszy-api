@@ -19,11 +19,18 @@ export class MockService {
     mockPrjDto: MockProjDto,
   ): Promise<MockPrj> {
     if (mockPrjDto.name && mockPrjDto.path) {
-      return await this.mockPrjModel.create({
-        ...mockPrjDto,
-        userId,
-        id: undefined,
+      const mockPrj = await this.mockPrjModel.findOne({
+        where: { userId, path: mockPrjDto.path },
       });
+      if (!mockPrj) {
+        return await this.mockPrjModel.create({
+          ...mockPrjDto,
+          userId,
+          id: undefined,
+        });
+      } else {
+        throw new Error('mock project path already exists');
+      }
     } else {
       throw new Error('name and path are required');
     }
@@ -61,6 +68,14 @@ export class MockService {
         where: { userId, id: mockPrjId },
       });
       if (mockPrj) {
+        if (mockPrjDto.path) {
+          const mockPrj2 = await this.mockPrjModel.findOne({
+            where: { userId, path: mockPrjDto.path },
+          });
+          if (mockPrj2 && mockPrj2.id !== mockPrjId) {
+            throw new Error('mock project path already exists');
+          }
+        }
         return await mockPrj.update(mockPrjDto, transactionHost);
       } else {
         throw new Error('mock project not found');
@@ -69,9 +84,25 @@ export class MockService {
   }
 
   async getMockPrj(userId: number, mockPrjId: string): Promise<MockPrj> {
-    return this.mockPrjModel.findOne({
+    const mockPrj = await this.mockPrjModel.findOne({
       where: { userId, id: mockPrjId },
     });
+    if (mockPrj) {
+      return mockPrj;
+    } else {
+      throw new Error('mock project not found');
+    }
+  }
+
+  async getMockPrjByPath(userId: number, path: string): Promise<MockPrj> {
+    const mockPrj = await this.mockPrjModel.findOne({
+      where: { userId, path: '/' + path },
+    });
+    if (mockPrj) {
+      return mockPrj;
+    } else {
+      throw new Error('mock project not found');
+    }
   }
 
   async getMockPrjs(userId: number): Promise<MockPrj[]> {
@@ -95,10 +126,17 @@ export class MockService {
           mockDataDto.name &&
           (!mockDataDto.delay || mockDataDto.delay < 60)
         ) {
-          return await this.mockDataModel.create(
-            { ...mockDataDto, userId, id: undefined },
-            transactionHost,
-          );
+          const mockData = await this.mockDataModel.findOne({
+            where: { userId, path: mockDataDto.path },
+          });
+          if (!mockData) {
+            return await this.mockDataModel.create(
+              { ...mockDataDto, userId, id: undefined },
+              transactionHost,
+            );
+          } else {
+            throw new Error('mock data path already exists');
+          }
         } else {
           throw new Error('mock data invalid');
         }
@@ -106,7 +144,7 @@ export class MockService {
     });
   }
 
-  async deleteMockData(userId: number, mockDataId: string): Promise<void> {
+  async deleteMockData(userId: number, mockDataId: number): Promise<void> {
     await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t };
       const mockData = await this.mockDataModel.findOne({
@@ -125,7 +163,7 @@ export class MockService {
 
   async updateMockData(
     userId: number,
-    mockDataId: string,
+    mockDataId: number,
     mockDataDto: Partial<MockDataDto>,
   ): Promise<MockData> {
     return await this.sequelize.transaction(async (t) => {
@@ -137,6 +175,14 @@ export class MockService {
         throw new Error('mock data not found');
       } else {
         if (!mockDataDto.delay || mockDataDto.delay < 60) {
+          if (mockDataDto.path) {
+            const mockData2 = await this.mockDataModel.findOne({
+              where: { userId, path: mockDataDto.path },
+            });
+            if (mockData2 && mockData2.id !== mockDataId) {
+              throw new Error('mock data path already exists');
+            }
+          }
           return await mockData.update(mockDataDto, transactionHost);
         } else {
           throw new Error('mock data invalid');
@@ -145,13 +191,40 @@ export class MockService {
     });
   }
 
-  async getMockData(userId: number, mockDataId: string): Promise<MockData> {
-    return await this.mockDataModel.findOne({
+  async getMockData(userId: number, mockDataId: number): Promise<MockData> {
+    const mockData = await this.mockDataModel.findOne({
       where: { id: mockDataId, userId },
     });
+    if (mockData) {
+      return mockData;
+    } else {
+      throw new Error('mock data not found');
+    }
   }
 
   async getMockDataByPath(
+    userId: number,
+    mockPath: string,
+    dataPath: string,
+  ): Promise<MockData> {
+    const mockPrj = await this.mockPrjModel.findOne({
+      where: { userId, path: '/' + mockPath },
+    });
+    if (!mockPrj) {
+      throw new Error('mock project not found');
+    } else {
+      const mockData = await this.mockDataModel.findOne({
+        where: { projectId: mockPrj.id, path: '/' + dataPath },
+      });
+      if (mockData) {
+        return mockData;
+      } else {
+        throw new Error('mock data not found');
+      }
+    }
+  }
+
+  async getMockDataByPathNoAuth(
     mockPrjId: string,
     mockPath: string,
     dataPath: string,
@@ -162,9 +235,14 @@ export class MockService {
     if (!mockPrj) {
       throw new Error('mock project not found');
     } else {
-      return this.mockDataModel.findOne({
+      const mockData = await this.mockDataModel.findOne({
         where: { projectId: mockPrjId, path: '/' + dataPath },
       });
+      if (mockData) {
+        return mockData;
+      } else {
+        throw new Error('mock data not found');
+      }
     }
   }
 
