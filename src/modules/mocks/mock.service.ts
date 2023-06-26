@@ -194,28 +194,6 @@ export class MockService {
   }
 
   async getMockDataByPath(
-    userId: number,
-    mockPath: string,
-    dataPath: string,
-  ): Promise<MockData> {
-    const mockPrj = await this.mockPrjModel.findOne({
-      where: { userId, path: '/' + mockPath },
-    });
-    if (!mockPrj) {
-      throw new Error('mock project not found');
-    } else {
-      const mockData = await this.mockDataModel.findOne({
-        where: { projectId: mockPrj.id, path: '/' + dataPath },
-      });
-      if (mockData) {
-        return mockData;
-      } else {
-        throw new Error('mock data not found');
-      }
-    }
-  }
-
-  async getMockDataByPathNoAuth(
     mockPrjId: string,
     mockPath: string,
     dataPath: string,

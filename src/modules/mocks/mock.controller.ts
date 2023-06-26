@@ -263,30 +263,6 @@ export class MockController {
       };
     }
   }
-  @UseGuards(CustomAuthGuard)
-  @Get('api/path/:prjPath/:dataPath')
-  async getMockDataByPath(
-    @Param('prjPath') prjPath: string,
-    @Param('dataPath') dataPath: string,
-    @Req() req: AuthRequest,
-  ): Promise<ResultDto<MockData>> {
-    try {
-      return {
-        success: true,
-        message: '获取mock项目成功',
-        data: await this.mockService.getMockDataByPath(
-          req.user.userId,
-          prjPath,
-          dataPath,
-        ),
-      };
-    } catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      };
-    }
-  }
 
   @ApiParam({
     name: '0',
@@ -318,7 +294,7 @@ export class MockController {
     }
     let mockData;
     try {
-      mockData = await this.mockService.getMockDataByPathNoAuth(
+      mockData = await this.mockService.getMockDataByPath(
         mockPrjId,
         prjPath,
         dataPath,
