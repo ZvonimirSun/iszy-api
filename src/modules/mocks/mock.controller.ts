@@ -11,7 +11,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { MockService } from './mock.service';
 import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
@@ -288,14 +288,30 @@ export class MockController {
     }
   }
 
+  @ApiParam({
+    name: '0',
+    description: 'mock数据路径',
+  })
+  @ApiParam({
+    name: 'prjPath',
+    description: 'mock项目路径',
+  })
+  @ApiParam({
+    name: 'mockPrjId',
+    description: 'mock项目id',
+  })
   @All('/:mockPrjId/:prjPath/*')
   async mock(
-    @Param('mockPrjId') mockPrjId: string,
-    @Param('prjPath') prjPath: string,
-    @Param('0') dataPath: string,
+    @Param()
+    params: {
+      mockPrjId: string;
+      prjPath: string;
+      '0': string;
+    },
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const { mockPrjId, prjPath, '0': dataPath } = params;
     if (!dataPath) {
       res.status(404);
       return;

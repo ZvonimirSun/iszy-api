@@ -19,18 +19,14 @@ export class MockService {
     mockPrjDto: MockProjDto,
   ): Promise<MockPrj> {
     if (mockPrjDto.name && mockPrjDto.path) {
-      const mockPrj = await this.mockPrjModel.findOne({
-        where: { userId, path: mockPrjDto.path },
-      });
-      if (!mockPrj) {
-        return await this.mockPrjModel.create({
-          ...mockPrjDto,
-          userId,
-          id: undefined,
-        });
-      } else {
-        throw new Error('mock project path already exists');
+      if (mockPrjDto.path === '/') {
+        throw new Error('path can not be /');
       }
+      return await this.mockPrjModel.create({
+        ...mockPrjDto,
+        userId,
+        id: undefined,
+      });
     } else {
       throw new Error('name and path are required');
     }
@@ -68,13 +64,8 @@ export class MockService {
         where: { userId, id: mockPrjId },
       });
       if (mockPrj) {
-        if (mockPrjDto.path) {
-          const mockPrj2 = await this.mockPrjModel.findOne({
-            where: { userId, path: mockPrjDto.path },
-          });
-          if (mockPrj2 && mockPrj2.id !== mockPrjId) {
-            throw new Error('mock project path already exists');
-          }
+        if (mockPrjDto.path && mockPrjDto.path === '/') {
+          throw new Error('path can not be /');
         }
         return await mockPrj.update(mockPrjDto, transactionHost);
       } else {
