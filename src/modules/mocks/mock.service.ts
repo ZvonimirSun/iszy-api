@@ -115,7 +115,7 @@ export class MockService {
         if (
           mockDataDto.path &&
           mockDataDto.name &&
-          (!mockDataDto.delay || mockDataDto.delay < 60)
+          (!mockDataDto.delay || mockDataDto.delay < 60 * 1000)
         ) {
           const mockData = await this.mockDataModel.findOne({
             where: { userId, path: mockDataDto.path },
