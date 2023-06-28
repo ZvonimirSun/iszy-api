@@ -4,6 +4,7 @@ import {
   Get,
   Header,
   Param,
+  ParseIntPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -61,7 +62,7 @@ export class HolidayController {
   }
 
   @Get(':date')
-  async isHolidayByDate(@Param('date') date?: number): Promise<
+  async isHolidayByDate(@Param('date', ParseIntPipe) date?: number): Promise<
     ResultDto<{
       isHoliday: boolean;
       desc: string;
