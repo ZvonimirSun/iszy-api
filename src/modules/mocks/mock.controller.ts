@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Req,
@@ -159,7 +160,7 @@ export class MockController {
   @UseGuards(CustomAuthGuard)
   @Delete('api/data/:mockDataId')
   async deleteMockData(
-    @Param('mockDataId') mockDataId: number,
+    @Param('mockDataId', ParseIntPipe) mockDataId: number,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<void>> {
     try {
@@ -179,7 +180,7 @@ export class MockController {
   @UseGuards(CustomAuthGuard)
   @Put('api/data/:mockDataId')
   async updateMockData(
-    @Param('mockDataId') mockDataId: number,
+    @Param('mockDataId', ParseIntPipe) mockDataId: number,
     @Body() mockDataDto: MockDataDto,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
@@ -207,7 +208,7 @@ export class MockController {
   @UseGuards(CustomAuthGuard)
   @Get('api/data/:mockDataId')
   async getMockData(
-    @Param('mockDataId') mockDataId: number,
+    @Param('mockDataId', ParseIntPipe) mockDataId: number,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
     try {
