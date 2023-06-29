@@ -22,6 +22,9 @@ export class MockService {
       if (mockPrjDto.path === '/') {
         throw new Error('path can not be /');
       }
+      if (!mockPrjDto.path.startsWith('/')) {
+        throw new Error('path must start with /');
+      }
       return await this.mockPrjModel.create({
         ...mockPrjDto,
         userId,
@@ -64,8 +67,13 @@ export class MockService {
         where: { userId, id: mockPrjId },
       });
       if (mockPrj) {
-        if (mockPrjDto.path && mockPrjDto.path === '/') {
-          throw new Error('path can not be /');
+        if (mockPrjDto.path) {
+          if (mockPrjDto.path === '/') {
+            throw new Error('path can not be /');
+          }
+          if (!mockPrjDto.path.startsWith('/')) {
+            throw new Error('path must start with /');
+          }
         }
         return await mockPrj.update(mockPrjDto, transactionHost);
       } else {
@@ -117,10 +125,20 @@ export class MockService {
           mockDataDto.name &&
           (!mockDataDto.delay || mockDataDto.delay <= 60 * 1000)
         ) {
+          if (mockDataDto.path === '/') {
+            throw new Error('path can not be /');
+          }
+          if (!mockDataDto.path.startsWith('/')) {
+            throw new Error('path must start with /');
+          }
           const mockData = await this.mockDataModel.findOne({
-            where: { userId, path: mockDataDto.path },
+            where: {
+              userId,
+              path: mockDataDto.path,
+              projectId: mockDataDto.projectId,
+            },
           });
-          if (!mockData) {
+          if (!mockData || mockData.projectId !== mockDataDto.projectId) {
             return await this.mockDataModel.create(
               { ...mockDataDto, userId, id: undefined },
               transactionHost,
@@ -167,14 +185,25 @@ export class MockService {
       } else {
         if (!mockDataDto.delay || mockDataDto.delay < 60) {
           if (mockDataDto.path) {
+            if (mockDataDto.path === '/') {
+              throw new Error('path can not be /');
+            }
+            if (!mockDataDto.path.startsWith('/')) {
+              throw new Error('path must start with /');
+            }
             const mockData2 = await this.mockDataModel.findOne({
-              where: { userId, path: mockDataDto.path },
+              where: {
+                userId,
+                path: mockDataDto.path,
+                projectId: mockData.projectId,
+              },
             });
             if (mockData2 && mockData2.id !== mockDataId) {
               throw new Error('mock data path already exists');
             }
           }
-          return await mockData.update(mockDataDto, transactionHost);
+          const { projectId, ...other } = mockDataDto;
+          return await mockData.update(other, transactionHost);
         } else {
           throw new Error('mock data invalid');
         }
