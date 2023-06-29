@@ -16,7 +16,7 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<Partial<User>> {
-    const user = await this.usersService.findOne(username);
+    const user = await this.usersService.findOne(username.toLowerCase());
     if (user) {
       const hashedPassword = user.passwd;
       const salt = user.passwdSalt;
@@ -48,7 +48,7 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<void> {
     try {
       const user: Partial<User> = {};
-      user.userName = registerDto.userName;
+      user.userName = registerDto.userName.toLowerCase();
       user.nickName = registerDto.nickName;
       user.passwdSalt = makeSalt();
       user.passwd = encryptPassword(registerDto.password, user.passwdSalt);
