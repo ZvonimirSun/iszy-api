@@ -73,7 +73,7 @@ export class AuthController {
   }
 
   @UseGuards(CustomAuthGuard)
-  @Get('updateProfile')
+  @Post('profile')
   async updateProfile(
     @Req() req: AuthRequest,
     @Body() updateProfileDto: Partial<User> & { oldPasswd?: string },
