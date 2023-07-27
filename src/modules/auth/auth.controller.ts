@@ -73,6 +73,29 @@ export class AuthController {
   }
 
   @UseGuards(CustomAuthGuard)
+  @Get('updateProfile')
+  async updateProfile(
+    @Req() req: AuthRequest,
+    @Body() updateProfileDto: Partial<User> & { oldPasswd?: string },
+  ): Promise<ResultDto<Partial<User>>> {
+    try {
+      return {
+        success: true,
+        data: await this.authService.updateProfile(
+          req.user.userName,
+          updateProfileDto,
+        ),
+        message: '获取成功',
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
+  }
+
+  @UseGuards(CustomAuthGuard)
   @Post('logout')
   async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
