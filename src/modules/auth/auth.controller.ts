@@ -4,6 +4,7 @@ import {
   Get,
   Logger,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -73,7 +74,7 @@ export class AuthController {
   }
 
   @UseGuards(CustomAuthGuard)
-  @Post('profile')
+  @Put('profile')
   async updateProfile(
     @Req() req: AuthRequest,
     @Body() updateProfileDto: Partial<User> & { oldPasswd?: string },
@@ -85,7 +86,7 @@ export class AuthController {
           req.user.userName,
           updateProfileDto,
         ),
-        message: '获取成功',
+        message: '更新成功',
       };
     } catch (e) {
       return {
@@ -107,9 +108,9 @@ export class AuthController {
         session.destroy(() => {
           return;
         });
-        await this.authService.logout(userId);
+        this.authService.logout(userId);
       } else if (logoutDto.other) {
-        await this.authService.logout(userId, session.id);
+        this.authService.logout(userId, session.id);
       } else {
         await promisify(req.logout.bind(req))();
         session.destroy(() => {
