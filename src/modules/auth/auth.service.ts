@@ -114,6 +114,7 @@ export class AuthService {
           if (userProfile.email) {
             newProfile.email = userProfile.email;
           }
+          newProfile.updateBy = user.userId;
           let newUser: User;
           if (!userProfile.oldPasswd && !userProfile.passwd) {
             newUser = await user.update(newProfile, { transaction: t });
