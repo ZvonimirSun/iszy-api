@@ -63,6 +63,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.set('trust proxy', configService.get<boolean>('behindProxy'))
 
   const redisClient = connectionService.getRedis();
 

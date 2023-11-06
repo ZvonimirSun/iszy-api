@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
     paths-ignore:
       - '.github/**'
   workflow_dispatch:
@@ -20,7 +21,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
       - name: Restore cached ./node_modules
         uses: actions/cache@v3
         with:
@@ -46,6 +52,7 @@ jobs:
         id: package-version
 
       - name: Extract metadata (tags, labels) for Docker
+        if: ${{ github.ref_name == 'main' }}
         id: meta
         uses: docker/metadata-action@v4
         with:
@@ -54,10 +61,29 @@ jobs:
             type=semver,pattern={{version}},value=${{ steps.package-version.outputs.version }}
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.package-version.outputs.version }}
 
+      - name: Extract metadata (tags, labels) for Docker (DEV)
+        if: ${{ github.ref_name != 'main' }}
+        id: meta-dev
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+
       - name: Build and push Docker image
+        if: ${{ github.ref_name == 'main' }}
         uses: docker/build-push-action@v4
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker image (DEV)
+        if: ${{ github.ref_name != 'main' }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-dev.outputs.tags }}
+          labels: ${{ steps.meta-dev.outputs.labels }}
