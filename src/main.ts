@@ -63,7 +63,11 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.set('trust proxy', configService.get<boolean>('behindProxy'))
+  if (configService.get<boolean>('behindProxy')) {
+    const defaultTrustProxy = ['loopback', 'linklocal', 'uniquelocal'];
+    const trustProxy = configService.get<string[]>('trustProxy');
+    app.set('trust proxy', defaultTrustProxy.concat(trustProxy));
+  }
 
   const redisClient = connectionService.getRedis();
 
