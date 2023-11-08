@@ -7,6 +7,7 @@ import { LogModel } from './entities/log.model';
 import { Request } from 'express';
 import { PaginationDto } from '../../core/dto/pagination.dto';
 import { AuthRequest } from '../../core/types/AuthRequest';
+import geoip from 'geoip-lite'
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -133,13 +134,22 @@ export class UrlsService {
               },
               transactionHost,
             );
+            const options = {
+              shortUrl: data.keyword,
+              referrer: req.get('Referrer') || 'direct',
+              user_agent: req.get('user-agent'),
+              ip: req.ip,
+              code: ''
+            }
+            try {
+              const geo = geoip.lookup(req.ip);
+              if (geo.country) {
+                options.code = geo.country;
+              }
+            } catch (e) {
+            }
             await this.logModel.create(
-              {
-                shortUrl: data.keyword,
-                referrer: req.get('Referrer') || 'direct',
-                user_agent: req.get('user-agent'),
-                ip: req.ip,
-              },
+              options,
               transactionHost,
             );
           });
