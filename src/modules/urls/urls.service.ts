@@ -193,7 +193,7 @@ export class UrlsService {
     return null;
   }
 
-  async _getNextKeyword(): Promise<string> {
+  private async _getNextKeyword(): Promise<string> {
     const data = await this.optionsModel.findOne({
       where: {
         key: OPTIONS.NEXT_KEYWORD,
@@ -219,7 +219,7 @@ export class UrlsService {
     return keyword;
   }
 
-  async _setNextKeyword(keyword: string): Promise<boolean> {
+  private async _setNextKeyword(keyword: string): Promise<boolean> {
     try {
       await this.sequelize.transaction(async (t) => {
         const data = await this.optionsModel.findOne({
@@ -248,7 +248,7 @@ export class UrlsService {
     }
   }
 
-  _computeNextKeyword(keyword: string): string {
+  private _computeNextKeyword(keyword: string): string {
     if (!keyword) {
       return '0';
     } else {
@@ -276,7 +276,7 @@ export class UrlsService {
     }
   }
 
-  async _clearLog(keyword: string): Promise<boolean> {
+  private async _clearLog(keyword: string): Promise<boolean> {
     try {
       await this.sequelize.transaction(async (t) => {
         const data = await this.logModel.findAll({
