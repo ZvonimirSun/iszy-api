@@ -7,7 +7,7 @@ import { LogModel } from './entities/log.model';
 import { Request } from 'express';
 import { PaginationDto } from '../../core/dto/pagination.dto';
 import { AuthRequest } from '../../core/types/AuthRequest';
-import geoip from 'geoip-lite'
+import geoip from 'geoip-lite';
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -24,7 +24,7 @@ export class UrlsService {
 
   private readonly logger = new Logger(UrlsService.name);
 
-  async getUrl(keyword: string): Promise<string> {
+  private async getUrl(keyword: string): Promise<string> {
     try {
       const data = await this.urlModel.findByPk(keyword, { raw: true });
       return data.url;
@@ -35,7 +35,8 @@ export class UrlsService {
   }
 
   async createUrl(
-    req: AuthRequest,
+    userId: number,
+    ip: string,
     url: string,
     title?: string,
     keyword?: string,
@@ -51,7 +52,8 @@ export class UrlsService {
             keyword: key,
             url,
             title,
-            ip: req.ip,
+            ip,
+            userId,
           },
           { transaction: t },
         );
@@ -63,11 +65,17 @@ export class UrlsService {
     return false;
   }
 
-  async readUrl(keyword: string): Promise<UrlModel> {
-    return await this.urlModel.findByPk(keyword);
+  async readUrl(userId: number, keyword: string): Promise<UrlModel> {
+    const res = await this.urlModel.findByPk(keyword);
+    if (res.userId === userId) {
+      return res;
+    } else {
+      return null;
+    }
   }
 
   async updateUrl(
+    userId: number,
     keyword: string,
     url?: string,
     title?: string,
@@ -83,7 +91,7 @@ export class UrlsService {
       options.title = title;
     }
     const data = await this.urlModel.findByPk(keyword);
-    if (!data) {
+    if (!data || data.userId !== userId) {
       return false;
     }
     try {
@@ -97,7 +105,7 @@ export class UrlsService {
     }
   }
 
-  async deleteUrl(keyword: string): Promise<boolean> {
+  async deleteUrl(userId: number, keyword: string): Promise<boolean> {
     if (!keyword) {
       return false;
     }
@@ -139,19 +147,15 @@ export class UrlsService {
               referrer: req.get('Referrer') || 'direct',
               user_agent: req.get('user-agent'),
               ip: req.ip,
-              code: ''
-            }
+              code: '',
+            };
             try {
               const geo = geoip.lookup(req.ip);
               if (geo.country) {
                 options.code = geo.country;
               }
-            } catch (e) {
-            }
-            await this.logModel.create(
-              options,
-              transactionHost,
-            );
+            } catch (e) {}
+            await this.logModel.create(options, transactionHost);
           });
         } catch (e) {
           this.logger.error(e);
@@ -162,6 +166,7 @@ export class UrlsService {
   }
 
   async getUrlList(
+    userId: number,
     pageIndex = 0,
     pageSize = 10,
   ): Promise<PaginationDto<UrlModel>> {
@@ -172,6 +177,9 @@ export class UrlsService {
         limit: pageSize,
         offset: pageIndex * pageSize,
         raw: true,
+        where: {
+          userId,
+        },
       });
       return {
         count,

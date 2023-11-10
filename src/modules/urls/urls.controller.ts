@@ -36,7 +36,8 @@ export class UrlsController {
   ): Promise<ResultDto<null>> {
     if (createDto.keyword !== 'admin') {
       const status = await this.urlsService.createUrl(
-        req,
+        req.user.userId,
+        req.ip,
         createDto.url,
         createDto.title,
         createDto.keyword,
@@ -53,11 +54,13 @@ export class UrlsController {
     }
   }
 
+  @UseGuards(CustomAuthGuard)
   @Get('admin/url/:keyword')
   async readUrl(
     @Param('keyword') keyword: string,
+    @Req() req: AuthRequest,
   ): Promise<ResultDto<UrlModel>> {
-    const data = await this.urlsService.readUrl(keyword);
+    const data = await this.urlsService.readUrl(req.user.userId, keyword);
     if (data) {
       return {
         success: true,
@@ -76,9 +79,11 @@ export class UrlsController {
   @Put('admin/url/:keyword')
   async updateUrl(
     @Param('keyword') keyword: string,
+    @Req() req: AuthRequest,
     @Body() updateDto: UpdateDto,
   ): Promise<ResultDto<null>> {
     const status = await this.urlsService.updateUrl(
+      req.user.userId,
       keyword,
       updateDto.url,
       updateDto.title,
@@ -91,8 +96,11 @@ export class UrlsController {
 
   @UseGuards(CustomAuthGuard)
   @Delete('admin/url/:keyword')
-  async deleteUrl(@Param('keyword') keyword: string): Promise<ResultDto<null>> {
-    const status = await this.urlsService.deleteUrl(keyword);
+  async deleteUrl(
+    @Param('keyword') keyword: string,
+    @Req() req: AuthRequest,
+  ): Promise<ResultDto<null>> {
+    const status = await this.urlsService.deleteUrl(req.user.userId, keyword);
     return {
       success: status,
       message: status ? '删除成功' : '删除失败',
@@ -103,8 +111,10 @@ export class UrlsController {
   @Get('admin/urls')
   async getUrlList(
     @Query() paginationQueryDto: PaginationQueryDto,
+    @Req() req: AuthRequest,
   ): Promise<ResultDto<PaginationDto<UrlModel>>> {
     const data = await this.urlsService.getUrlList(
+      req.user.userId,
       paginationQueryDto.pageIndex,
       paginationQueryDto.pageSize,
     );

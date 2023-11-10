@@ -1,10 +1,12 @@
 import {
   Column,
   Default,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { User } from '../../auth/modules/user/entities/user.model';
 
 @Table({
   tableName: 'ShortUrlUrl',
@@ -26,4 +28,8 @@ export class UrlModel extends Model {
   @Default(0)
   @Column
   clicks: number;
+
+  @ForeignKey(() => User)
+  @Column
+  userId: number;
 }
