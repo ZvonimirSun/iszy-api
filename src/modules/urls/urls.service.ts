@@ -172,7 +172,6 @@ export class UrlsService {
   ): Promise<PaginationDto<UrlModel>> {
     try {
       const { rows, count } = await this.urlModel.findAndCountAll({
-        attributes: ['keyword', 'url', 'title', 'createdAt', 'updatedAt'],
         order: [['createdAt', 'desc']],
         limit: pageSize,
         offset: pageIndex * pageSize,
