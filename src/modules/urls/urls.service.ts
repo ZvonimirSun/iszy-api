@@ -43,6 +43,9 @@ export class UrlsService {
   ): Promise<boolean> {
     try {
       let key = keyword;
+      if (!url) {
+        return false;
+      }
       if (!keyword) {
         key = await this._getNextKeyword();
       }
