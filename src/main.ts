@@ -18,6 +18,7 @@ import passport from 'passport';
 import { merge } from 'lodash';
 import { ConnectionService } from './modules/connection/connection.service';
 import SwaggerPublic from './swagger.public';
+import { ValidationPipe } from '@nestjs/common';
 
 const redisStore = connectRedis(session);
 
@@ -63,6 +64,13 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
   if (configService.get<boolean>('behindProxy')) {
     const defaultTrustProxy = ['loopback', 'linklocal', 'uniquelocal'];
     const trustProxy = configService.get<string[]>('trustProxy');
