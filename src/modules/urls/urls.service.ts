@@ -152,7 +152,6 @@ export class UrlsService {
               ip: req.ip,
               code: '',
             };
-            this.logger.log(JSON.stringify(options));
             try {
               const geo = geoip.lookup(req.ip);
               if (geo.country) {
