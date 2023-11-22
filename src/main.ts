@@ -71,9 +71,7 @@ async function bootstrap() {
     }),
   );
   if (configService.get<boolean>('behindProxy')) {
-    const defaultTrustProxy = ['loopback', 'linklocal', 'uniquelocal'];
-    const trustProxy = configService.get<string[]>('trustProxy');
-    app.set('trust proxy', defaultTrustProxy.concat(trustProxy));
+    app.set('trust proxy', true);
   }
 
   const redisClient = connectionService.getRedis();

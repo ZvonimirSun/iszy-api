@@ -33,6 +33,5 @@ export default () => ({
       : null,
   },
   behindProxy: process.env.PROXY === 'true',
-  trustProxy: process.env.TRUST_PROXY ? process.env.TRUST_PROXY.split(',') : [],
   development: process.env.DEVELOPMENT === 'true',
 });
