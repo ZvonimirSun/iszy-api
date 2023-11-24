@@ -7,6 +7,8 @@ import { LogModel } from './entities/log.model';
 import { Request } from 'express';
 import { PaginationDto } from '../../core/dto/pagination.dto';
 import geoip from 'geoip-lite';
+import { load } from 'cheerio';
+import axios from 'axios';
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -287,7 +289,22 @@ export class UrlsService {
       .map((index) => base[index])
       .join('');
   }
-  private async _getUrlTitle(data: UrlModel): Promise<void> {}
+  private async _getUrlTitle(data: UrlModel): Promise<void> {
+    try {
+      const res = await axios.get(data.url, {
+        timeout: 5000,
+      });
+      if (typeof res.data === 'string') {
+        const $ = load(res.data);
+        const title = $('title').text();
+        await data.update({
+          title,
+        });
+      }
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
 
   private async _clearLog(keyword: string): Promise<boolean> {
     try {
