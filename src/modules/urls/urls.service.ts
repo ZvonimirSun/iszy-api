@@ -6,7 +6,6 @@ import { OptionsModel } from './entities/options.model';
 import { LogModel } from './entities/log.model';
 import { Request } from 'express';
 import { PaginationDto } from '../../core/dto/pagination.dto';
-import { AuthRequest } from '../../core/types/AuthRequest';
 import geoip from 'geoip-lite';
 
 export enum OPTIONS {
@@ -38,96 +37,101 @@ export class UrlsService {
     userId: number,
     ip: string,
     url: string,
-    title?: string,
     keyword?: string,
-  ): Promise<boolean> {
+  ): Promise<void> {
+    if (!url) {
+      throw new Error('URL不能为空');
+    }
+    if (keyword === 'admin') {
+      throw new Error('禁止使用保留关键字');
+    }
     try {
       let key = keyword;
-      if (!url) {
-        return false;
-      }
       if (!keyword) {
         key = await this._getNextKeyword();
+        if (key === 'admin') {
+          key = await this._getNextKeyword();
+        }
       }
-      await this.sequelize.transaction(async (t) => {
-        await this.urlModel.create(
+      const data = await this.sequelize.transaction(async (t) => {
+        return await this.urlModel.create(
           {
             keyword: key,
             url,
-            title,
+            title: '',
             ip,
             userId,
           },
           { transaction: t },
         );
       });
-      return true;
+      setImmediate(() => {
+        this._getUrlTitle(data);
+      });
     } catch (e) {
-      this.logger.error(e);
+      let message: string;
+      if (e.name === 'SequelizeUniqueConstraintError') {
+        message = '关键字已存在';
+      } else if (e.name === 'SequelizeValidationError') {
+        message = '关键字不合法';
+      } else {
+        message = e.message;
+      }
+      this.logger.error(message);
+      throw new Error(message);
     }
-    return false;
   }
 
   async readUrl(userId: number, keyword: string): Promise<UrlModel> {
     const res = await this.urlModel.findByPk(keyword);
-    if (res.userId === userId) {
+    if (res?.userId === userId) {
       return res;
     } else {
       return null;
     }
   }
 
-  async updateUrl(
-    userId: number,
-    keyword: string,
-    url?: string,
-    title?: string,
-  ): Promise<boolean> {
-    if (!keyword || !(url != null || title != null)) {
-      return false;
-    }
-    const options = { keyword, url: undefined, title: undefined };
-    if (url != null) {
-      options.url = url;
-    }
-    if (title != null) {
-      options.title = title;
+  async updateUrl(userId: number, keyword: string, url: string): Promise<void> {
+    if (!keyword || url == null) {
+      throw new Error('参数错误');
     }
     const data = await this.urlModel.findByPk(keyword);
     if (!data || data.userId !== userId) {
-      return false;
+      throw new Error('关键字不存在');
     }
     try {
       await this.sequelize.transaction(async (t) => {
-        await data.update(options, { transaction: t });
+        await data.update(
+          {
+            url,
+          },
+          { transaction: t },
+        );
       });
-      return true;
     } catch (e) {
       this.logger.error(e);
-      return false;
+      throw new Error(e.message);
     }
   }
 
-  async deleteUrl(userId: number, keyword: string): Promise<boolean> {
+  async deleteUrl(userId: number, keyword: string): Promise<void> {
     if (!keyword) {
-      return false;
+      throw new Error('参数错误');
     }
     const data = await this.urlModel.findByPk(keyword);
-    if (data) {
-      try {
-        await this.sequelize.transaction(async (t) => {
-          await data.destroy({ transaction: t });
-        });
-        setImmediate(() => {
-          this._clearLog(keyword);
-        });
-        return true;
-      } catch (e) {
-        this.logger.log(e);
-        return false;
-      }
-    } else {
-      return false;
+    if (!data || data.userId !== userId) {
+      throw new Error('关键字不存在');
+    }
+    try {
+      await this.sequelize.transaction(async (t) => {
+        await data.destroy({ transaction: t });
+      });
+      setImmediate(() => {
+        this._clearLog(keyword);
+      });
+    } catch (e) {
+      this.logger.log(e);
+      throw new Error(e.message);
     }
   }
 
@@ -253,30 +257,37 @@ export class UrlsService {
   private _computeNextKeyword(keyword: string): string {
     if (!keyword) {
       return '0';
-    } else {
-      const base =
-        '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const tmp = keyword.split('');
-      const indexList = tmp
-        .map((c) => {
-          return base.indexOf(c);
-        })
-        .reverse();
-      let i = 0;
-      indexList[i]++;
-      while (indexList[i] > 61) {
-        indexList[i] = 0;
-        i++;
-        indexList[i]++;
-      }
-      indexList.reverse();
-      let result = '';
-      indexList.forEach((index) => {
-        result += base[index];
-      });
-      return result;
     }
+
+    const base =
+      '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const baseLength = base.length;
+
+    const indexList = keyword
+      .split('')
+      .reverse()
+      .map((c) => {
+        return base.indexOf(c);
+      });
+    let carry = true;
+    for (let i = 0; i < indexList.length && carry; i++) {
+      const sum = (indexList[i] || 0) + 1;
+      if (sum >= baseLength) {
+        indexList[i] = 0;
+      } else {
+        indexList[i] = sum;
+        carry = false;
+      }
+    }
+    if (carry) {
+      indexList.push(0);
+    }
+    return indexList
+      .reverse()
+      .map((index) => base[index])
+      .join('');
   }
+  private async _getUrlTitle(data: UrlModel): Promise<void> {}
 
   private async _clearLog(keyword: string): Promise<boolean> {
     try {

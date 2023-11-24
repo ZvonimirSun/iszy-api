@@ -34,22 +34,21 @@ export class UrlsController {
     @Body() createDto: CreateDto,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<null>> {
-    if (createDto.keyword !== 'admin') {
-      const status = await this.urlsService.createUrl(
+    try {
+      await this.urlsService.createUrl(
         req.user.userId,
         req.ip,
         createDto.url,
-        createDto.title,
         createDto.keyword,
       );
       return {
-        success: status,
-        message: status ? '创建成功' : '创建失败',
+        success: true,
+        message: '创建成功',
       };
-    } else {
+    } catch (e) {
       return {
         success: false,
-        message: '创建失败',
+        message: '创建失败，' + e.message,
       };
     }
   }
@@ -82,16 +81,18 @@ export class UrlsController {
     @Req() req: AuthRequest,
     @Body() updateDto: UpdateDto,
   ): Promise<ResultDto<null>> {
-    const status = await this.urlsService.updateUrl(
-      req.user.userId,
-      keyword,
-      updateDto.url,
-      updateDto.title,
-    );
-    return {
-      success: status,
-      message: status ? '更新成功' : '更新失败',
-    };
+    try {
+      await this.urlsService.updateUrl(req.user.userId, keyword, updateDto.url);
+      return {
+        success: true,
+        message: '更新成功',
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: '更新失败，' + e.message,
+      };
+    }
   }
 
   @UseGuards(CustomAuthGuard)
@@ -100,11 +101,18 @@ export class UrlsController {
     @Param('keyword') keyword: string,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<null>> {
-    const status = await this.urlsService.deleteUrl(req.user.userId, keyword);
-    return {
-      success: status,
-      message: status ? '删除成功' : '删除失败',
-    };
+    try {
+      await this.urlsService.deleteUrl(req.user.userId, keyword);
+      return {
+        success: true,
+        message: '删除成功',
+      };
+    } catch (e) {
+      return {
+        success: false,
+        message: '删除失败，' + e.message,
+      };
+    }
   }
 
   @UseGuards(CustomAuthGuard)

@@ -1,9 +1,6 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateDto {
-  @ApiPropertyOptional()
-  readonly url?: string;
-
-  @ApiPropertyOptional()
-  readonly title?: string;
+  @ApiProperty()
+  readonly url: string;
 }

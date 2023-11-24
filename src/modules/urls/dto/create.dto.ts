@@ -6,7 +6,4 @@ export class CreateDto {
 
   @ApiPropertyOptional()
   readonly keyword?: string;
-
-  @ApiPropertyOptional()
-  readonly title?: string;
 }
