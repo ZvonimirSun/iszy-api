@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UrlsService } from './urls.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { CreateDto } from './dto/create.dto';
 import { ResultDto } from '../../core/dto/result.dto';
 import { PaginationQueryDto } from './dto/pagination_query.dto';
@@ -143,16 +143,25 @@ export class UrlsController {
   @Get(':keyword')
   async visitUrl(
     @Param('keyword') keyword: string,
-    @Req() req: Request,
+    @Req() req: AuthRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const url = await this.urlsService.visitUrl(keyword, req);
-    if (url) {
-      res.redirect(302, url);
-      return;
+    if (keyword.endsWith('+')) {
+      if (!req.user) {
+        res.status(403);
+        return;
+      }
+      keyword = keyword.slice(0, -1);
+      return await this.urlsService.staticUrl(req.user.userId, keyword);
     } else {
-      res.status(403);
-      return;
+      const url = await this.urlsService.visitUrl(keyword, req);
+      if (url) {
+        res.redirect(302, url);
+        return;
+      } else {
+        res.status(403);
+        return;
+      }
     }
   }
 

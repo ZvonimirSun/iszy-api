@@ -4,11 +4,11 @@ import { Sequelize } from 'sequelize-typescript';
 import { UrlModel } from './entities/url.model';
 import { OptionsModel } from './entities/options.model';
 import { LogModel } from './entities/log.model';
-import { Request } from 'express';
 import { PaginationDto } from '../../core/dto/pagination.dto';
 import geoip from 'geoip-lite';
 import { load } from 'cheerio';
 import axios from 'axios';
+import { AuthRequest } from '../../core/types/AuthRequest';
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -137,7 +137,7 @@ export class UrlsService {
     }
   }
 
-  async visitUrl(keyword: string, req: Request): Promise<string> {
+  async visitUrl(keyword: string, req: AuthRequest): Promise<string> {
     const url = await this.getUrl(keyword);
     if (url) {
       setImmediate(async () => {
@@ -200,6 +200,8 @@ export class UrlsService {
     }
     return null;
   }
+
+  async staticUrl(userId: number, keyword: string): Promise<void> {}
 
   private async _getNextKeyword(): Promise<string> {
     const data = await this.optionsModel.findOne({
