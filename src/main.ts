@@ -74,7 +74,7 @@ async function bootstrap() {
     app.set('trust proxy', true);
   }
 
-  const redisClient = connectionService.getRedis();
+  const redisClient = connectionService.getRedisClient();
 
   const sessionConfig: SessionOptions = {
     cookie: {

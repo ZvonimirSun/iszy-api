@@ -14,14 +14,26 @@ import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
 import { GisModule } from './modules/gis/gis.module';
 import { UrlsModule } from './modules/urls/urls.module';
 import { MockModule } from './modules/mocks/mock.module';
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-ioredis-yet';
 
 const logger = new Logger('Database');
 
 @Module({
   imports: [
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService): CacheModuleOptions => {
+        return {
+          store: redisStore,
+          host: configService.get<string>('redis.host'),
+          port: configService.get<number>('redis.port'),
+          password: configService.get<string>('redis.password'),
+          no_ready_check: true,
+        };
+      },
+      inject: [ConfigService],
     }),
     ConfigModule.forRoot({
       isGlobal: true,
