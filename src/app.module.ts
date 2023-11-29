@@ -14,11 +14,15 @@ import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
 import { GisModule } from './modules/gis/gis.module';
 import { UrlsModule } from './modules/urls/urls.module';
 import { MockModule } from './modules/mocks/mock.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 const logger = new Logger('Database');
 
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configs],

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { UrlModel } from './entities/url.model';
@@ -9,6 +9,8 @@ import { PaginationDto } from '../../core/dto/pagination.dto';
 import geoip from 'geoip-lite';
 import { load } from 'cheerio';
 import axios from 'axios';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -21,14 +23,26 @@ export class UrlsService {
     @InjectModel(OptionsModel) private optionsModel: typeof OptionsModel,
     @InjectModel(LogModel) private logModel: typeof LogModel,
     private sequelize: Sequelize,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   private readonly logger = new Logger(UrlsService.name);
 
   private async getUrl(keyword: string): Promise<string> {
     try {
-      const data = await this.urlModel.findByPk(keyword, { raw: true });
-      return data.url;
+      const cacheKey = `url_${keyword}`;
+      const cached = await this.cacheManager.get<string>(cacheKey);
+      if (cached) {
+        return cached;
+      } else {
+        const data = await this.urlModel.findByPk(keyword, { raw: true });
+        if (!data) {
+          return null;
+        } else {
+          await this.cacheManager.set(cacheKey, data.url, 60 * 60 * 1000);
+          return data.url;
+        }
+      }
     } catch (e) {
       this.logger.error(e);
     }
@@ -93,7 +107,11 @@ export class UrlsService {
     }
   }
 
-  async updateUrl(userId: number, keyword: string, url: string): Promise<void> {
+  async updateUrl(
+    userId: number,
+    keyword: string,
+    url: string,
+  ): Promise<UrlModel> {
     if (!keyword || url == null) {
       throw new Error('参数错误');
     }
@@ -102,14 +120,16 @@ export class UrlsService {
       throw new Error('关键字不存在');
     }
     try {
-      await this.sequelize.transaction(async (t) => {
-        await data.update(
+      const urlModel = await this.sequelize.transaction(async (t) => {
+        return await data.update(
           {
             url,
           },
           { transaction: t },
         );
       });
+      await this.cacheManager.del(`url_${keyword}`);
+      return urlModel;
     } catch (e) {
       this.logger.error(e);
       throw new Error(e.message);
@@ -128,6 +148,7 @@ export class UrlsService {
       await this.sequelize.transaction(async (t) => {
         await data.destroy({ transaction: t });
       });
+      await this.cacheManager.del(`url_${keyword}`);
       setImmediate(() => {
         this._clearLog(keyword);
       });
