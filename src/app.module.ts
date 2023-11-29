@@ -16,6 +16,7 @@ import { UrlsModule } from './modules/urls/urls.module';
 import { MockModule } from './modules/mocks/mock.module';
 import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-ioredis-yet';
+import { RedisOptions } from 'ioredis';
 
 const logger = new Logger('Database');
 
@@ -24,13 +25,14 @@ const logger = new Logger('Database');
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService): CacheModuleOptions => {
+      useFactory: (
+        configService: ConfigService,
+      ): CacheModuleOptions<RedisOptions> => {
         return {
           store: redisStore,
           host: configService.get<string>('redis.host'),
           port: configService.get<number>('redis.port'),
           password: configService.get<string>('redis.password'),
-          no_ready_check: true,
         };
       },
       inject: [ConfigService],

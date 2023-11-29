@@ -33,6 +33,9 @@ export class UrlsService {
       const cacheKey = `url_${keyword}`;
       const cached = await this.cacheManager.get<string>(cacheKey);
       if (cached) {
+        setImmediate(() => {
+          this.cacheManager.set(cacheKey, cached, 60 * 60 * 1000);
+        });
         return cached;
       } else {
         const data = await this.urlModel.findByPk(keyword, { raw: true });
