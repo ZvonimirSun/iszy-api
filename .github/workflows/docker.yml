@@ -65,8 +65,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Read package.json
-        uses: zvonimirsun/read-package-version-actions@v2
         id: package-version
+        run: echo "version=$(node -p -e "require('./package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Extract metadata (tags, labels) for Docker
         if: ${{ github.ref_name == 'main' }}
