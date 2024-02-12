@@ -24,7 +24,7 @@ export class IszyToolsService {
           });
           let tmp: Settings;
           if (setting) {
-            tmp = await setting[0].update(
+            tmp = await setting.update(
               { settings: settingDto },
               transactionHost,
             );
