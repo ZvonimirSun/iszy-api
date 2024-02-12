@@ -1,4 +1,5 @@
 import {
+  AutoIncrement,
   Column,
   ForeignKey,
   Model,
@@ -9,11 +10,18 @@ import { User } from '../../auth/modules/user/entities/user.model';
 
 @Table
 export class Settings extends Model {
-  @ForeignKey(() => User)
+  @AutoIncrement
   @PrimaryKey
+  @Column
+  id: number;
+
+  @ForeignKey(() => User)
   @Column
   userId: number;
 
   @Column('jsonb')
   settings: any;
+
+  @Column
+  key: string;
 }
