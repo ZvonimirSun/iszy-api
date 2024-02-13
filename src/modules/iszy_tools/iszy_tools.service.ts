@@ -50,28 +50,18 @@ export class IszyToolsService {
     return null;
   }
 
-  async downloadSettings(userId: number) {
+  async downloadSettings(userId: number, key?: string) {
     try {
-      const setting = await this.settingModel.findAll({
+      const setting = await this.settingModel.findOne({
         where: {
           userId,
+          key: key ? key : { [Op.eq]: null },
         },
       });
-      const result = {};
-      let tmp: any;
-      let flag = true;
-      for (const item of setting) {
-        if (item.key) {
-          result[item.key] = item.settings;
-          flag = false;
-        } else {
-          tmp = item.settings;
-        }
-      }
-      if (flag) {
-        return tmp;
+      if (setting) {
+        return setting.get({ plain: true }).settings;
       } else {
-        return result;
+        return null;
       }
     } catch (e) {
       this.logger.error(e);

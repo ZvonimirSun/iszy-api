@@ -64,4 +64,20 @@ export class IszyToolsController {
       message: result ? '获取成功' : '数据不存在',
     };
   }
+
+  @Get('settings/:key')
+  async downloadSettingsByKey(
+    @Req() req: AuthRequest,
+    @Param('key') key: string,
+  ) {
+    const result = await this.iszyToolsService.downloadSettings(
+      req.user.userId,
+      key,
+    );
+    return {
+      success: true,
+      data: result,
+      message: result ? '获取成功' : '数据不存在',
+    };
+  }
 }
