@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { User } from '../../modules/auth/modules/user/entities/user.model';
+import { User } from '../../modules/user/entities/user.model';
 import { Session } from 'express-session';
 
 interface CallbackFunc {

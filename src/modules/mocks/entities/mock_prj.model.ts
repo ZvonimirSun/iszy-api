@@ -8,7 +8,7 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
-import { User } from '../../auth/modules/user/entities/user.model';
+import { User } from '../../user/entities/user.model';
 
 @Table
 export class MockPrj extends Model {

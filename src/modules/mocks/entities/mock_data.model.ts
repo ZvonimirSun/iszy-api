@@ -8,7 +8,7 @@ import {
   DataType,
 } from 'sequelize-typescript';
 import { MockPrj } from './mock_prj.model';
-import { User } from '../../auth/modules/user/entities/user.model';
+import { User } from '../../user/entities/user.model';
 @Table
 export class MockData extends Model {
   @PrimaryKey
