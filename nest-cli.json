@@ -2,5 +2,9 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "assets": ["**/*.njk"],
-  "watchAssets": true
+  "watchAssets": true,
+  "compilerOptions": {
+    "builder": "swc",
+    "typeCheck": true
+  }
 }
