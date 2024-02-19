@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { UrlModel } from './entities/url.model';
+import { UrlModel } from '~entities/urls/url.model';
 import { UrlsService } from './urls.service';
-import { OptionsModel } from './entities/options.model';
-import { LogModel } from './entities/log.model';
+import { OptionsModel } from '~entities/urls/options.model';
+import { LogModel } from '~entities/urls/log.model';
 import { UrlsController } from './urls.controller';
 
 @Module({

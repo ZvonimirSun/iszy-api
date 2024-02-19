@@ -9,12 +9,12 @@ import {
   Body,
   Req,
 } from '@nestjs/common';
-import { ResultDto } from '../../../../core/dto/result.dto';
-import { JsoneditorModel } from './entities/jsoneditor.model';
+import { ResultDto } from '~core/dto/result.dto';
+import { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model';
 import { JsoneditorItemDto } from './dto/jsoneditor_item.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { CustomAuthGuard } from '../../../auth/guard/custom-auth.guard';
-import { AuthRequest } from '../../../../core/types/AuthRequest';
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
+import { AuthRequest } from '~types/AuthRequest';
 
 @ApiTags('ISZY Tools')
 @UseGuards(CustomAuthGuard)

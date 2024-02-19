@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Holiday } from './entities/holiday.model';
+import { Holiday } from '~entities/holiday/holiday.model';
 import { HolidayController } from './holiday.controller';
 import { HolidayService } from './holiday.service';
 

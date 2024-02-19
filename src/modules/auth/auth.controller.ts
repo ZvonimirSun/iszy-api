@@ -13,13 +13,13 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
-import { User } from '../user/entities/user.model';
-import { ResultDto } from '../../core/dto/result.dto';
+import { User } from '~entities/user/user.model';
+import { ResultDto } from '~core/dto/result.dto';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { CustomAuthGuard } from './guard/custom-auth.guard';
 import { promisify } from 'util';
 import { LogoutDto } from './dto/logout.dto';
-import { AuthRequest } from '../../core/types/AuthRequest';
+import { AuthRequest } from '~types/AuthRequest';
 
 @ApiTags('Auth')
 @Controller('auth')

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { JsoneditorModel } from './entities/jsoneditor.model';
+import { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model';
 import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()

@@ -15,13 +15,13 @@ import {
 import { UrlsService } from './urls.service';
 import { Request, Response } from 'express';
 import { CreateDto } from './dto/create.dto';
-import { ResultDto } from '../../core/dto/result.dto';
+import { ResultDto } from '~core/dto/result.dto';
 import { PaginationQueryDto } from './dto/pagination_query.dto';
 import { UpdateDto } from './dto/update.dto';
-import { UrlModel } from './entities/url.model';
-import { PaginationDto } from '../../core/dto/pagination.dto';
-import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
-import { AuthRequest } from '../../core/types/AuthRequest';
+import { UrlModel } from '~entities/urls/url.model';
+import { PaginationDto } from '~core/dto/pagination.dto';
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
+import { AuthRequest } from '~types/AuthRequest';
 
 @ApiTags('Urls')
 @Controller('urls')

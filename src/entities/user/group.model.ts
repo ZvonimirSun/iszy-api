@@ -1,6 +1,5 @@
 import {
   AutoIncrement,
-  BelongsTo,
   BelongsToMany,
   Column,
   ForeignKey,

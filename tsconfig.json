@@ -13,6 +13,14 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "~/*": ["src/*"],
+      "~types/*": ["src/types/*"],
+      "~core/*": ["src/core/*"],
+      "~modules/*": ["src/modules/*"],
+      "~entities/*": ["src/entities/*"],
+      "~utils/*": ["src/utils/*"]
+    }
   }
 }

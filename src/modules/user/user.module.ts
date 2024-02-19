@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { User } from './entities/user.model';
-import { Role } from './entities/role.model';
-import { UserRole } from './entities/user_role.model';
-import { Group } from './entities/group.model';
-import { RoleGroup } from './entities/role-group.model';
-import { UserGroup } from './entities/user-group.model';
-import { Privilege } from './entities/privilege.model';
-import { RolePrivilege } from './entities/role-privilege.model';
+import { User } from '~entities/user/user.model';
+import { Role } from '~entities/user/role.model';
+import { UserRole } from '~entities/user/user_role.model';
+import { Group } from '~entities/user/group.model';
+import { RoleGroup } from '~entities/user/role-group.model';
+import { UserGroup } from '~entities/user/user-group.model';
+import { Privilege } from '~entities/user/privilege.model';
+import { RolePrivilege } from '~entities/user/role-privilege.model';
 
 @Module({
   imports: [

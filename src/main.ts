@@ -16,7 +16,7 @@ import connectRedis from 'connect-redis';
 import { ConfigService } from '@nestjs/config';
 import passport from 'passport';
 import { merge } from 'lodash';
-import { ConnectionService } from './modules/connection/connection.service';
+import { ConnectionService } from '~modules/connection/connection.service';
 import SwaggerPublic from './swagger.public';
 import { ValidationPipe } from '@nestjs/common';
 

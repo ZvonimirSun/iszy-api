@@ -14,13 +14,13 @@ import {
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { MockService } from './mock.service';
-import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
-import { AuthRequest } from '../../core/types/AuthRequest';
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
+import { AuthRequest } from '~types/AuthRequest';
 import { MockProjDto } from './dtos/mock_proj.dto';
 import { MockDataDto } from './dtos/mock_data.dto';
-import { ResultDto } from '../../core/dto/result.dto';
-import { MockData } from './entities/mock_data.model';
-import { MockPrj } from './entities/mock_prj.model';
+import { ResultDto } from '~core/dto/result.dto';
+import { MockData } from '~entities/mocks/mock_data.model';
+import { MockPrj } from '~entities/mocks/mock_prj.model';
 import Mock from 'mockjs';
 
 @ApiTags('Mock')

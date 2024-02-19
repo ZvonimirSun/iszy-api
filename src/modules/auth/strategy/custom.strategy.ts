@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
 import { Injectable, UnauthorizedException, Req } from '@nestjs/common';
-import { AuthRequest } from '../../../core/types/AuthRequest';
+import { AuthRequest } from '~types/AuthRequest';
 
 @Injectable()
 export class CustomStrategy extends PassportStrategy(Strategy) {

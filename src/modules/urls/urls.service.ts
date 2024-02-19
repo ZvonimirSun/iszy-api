@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { UrlModel } from './entities/url.model';
-import { OptionsModel } from './entities/options.model';
-import { LogModel } from './entities/log.model';
+import { UrlModel } from '~entities/urls/url.model';
+import { OptionsModel } from '~entities/urls/options.model';
+import { LogModel } from '~entities/urls/log.model';
 import { Request } from 'express';
 import { PaginationDto } from '../../core/dto/pagination.dto';
 import geoip from 'geoip-lite';

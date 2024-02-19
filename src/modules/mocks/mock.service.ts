@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { MockPrj } from './entities/mock_prj.model';
-import { MockData } from './entities/mock_data.model';
+import { MockPrj } from '~entities/mocks/mock_prj.model';
+import { MockData } from '~entities/mocks/mock_data.model';
 import { Sequelize } from 'sequelize-typescript';
 import { MockProjDto } from './dtos/mock_proj.dto';
 import { MockDataDto } from './dtos/mock_data.dto';

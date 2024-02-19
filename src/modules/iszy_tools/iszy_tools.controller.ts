@@ -9,9 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { IszyToolsService } from './iszy_tools.service';
-import { ResultDto } from '../../core/dto/result.dto';
-import { CustomAuthGuard } from '../auth/guard/custom-auth.guard';
-import { AuthRequest } from '../../core/types/AuthRequest';
+import { ResultDto } from '~core/dto/result.dto';
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
+import { AuthRequest } from '~types/AuthRequest';
 
 @ApiTags('ISZY Tools')
 @UseGuards(CustomAuthGuard)

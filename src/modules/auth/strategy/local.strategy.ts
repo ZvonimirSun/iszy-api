@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException, Req } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { promisify } from 'util';
-import type { AuthRequest } from '../../../core/types/AuthRequest';
-import type { User } from '../../user/entities/user.model';
+import type { AuthRequest } from '~types/AuthRequest';
+import type { User } from '~entities/user/user.model';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

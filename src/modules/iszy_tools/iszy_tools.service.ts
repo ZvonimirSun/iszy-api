@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Settings } from './entities/settings.model';
+import { Settings } from '~entities/iszy_tools/settings.model';
 import { Sequelize } from 'sequelize-typescript';
 import { Op } from 'sequelize';
 

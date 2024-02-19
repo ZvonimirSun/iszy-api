@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './entities/user.model';
+import { User } from '~entities/user/user.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { Role } from './entities/role.model';
-import { Privilege } from './entities/privilege.model';
+import { Role } from '~entities/user/role.model';
+import { Privilege } from '~entities/user/privilege.model';
 import { Sequelize } from 'sequelize-typescript';
 import { UserStatus } from './variables/user.status';
 import { Op } from 'sequelize';

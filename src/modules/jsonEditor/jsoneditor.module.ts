@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { JsoneditorModel } from './entities/jsoneditor.model';
+import { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model';
 import { JsoneditorService } from './jsoneditor.service';
 import { JsoneditorController } from './jsoneditor.controller';
 

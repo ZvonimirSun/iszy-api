@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { IdiomHandle } from './entities/IdiomHandle.model';
+import { IdiomHandle } from '~entities/idiom/IdiomHandle.model';
 import dayjs from 'dayjs';
-import { Idiom } from './entities/Idiom.model';
+import { Idiom } from '~entities/idiom/Idiom.model';
 import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()

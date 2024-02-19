@@ -2,18 +2,18 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Dialect } from 'sequelize/types';
-import configs from './core/configs';
+import configs from '~core/configs';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { ConnectionModule } from './modules/connection/connection.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { HolidayModule } from './modules/holiday/holiday.module';
-import { IszyToolsModule } from './modules/iszy_tools/iszy_tools.module';
-import { GisModule } from './modules/gis/gis.module';
-import { UrlsModule } from './modules/urls/urls.module';
-import { MockModule } from './modules/mocks/mock.module';
+import { ConnectionModule } from '~modules/connection/connection.module';
+import { AuthModule } from '~modules/auth/auth.module';
+import { HolidayModule } from '~modules/holiday/holiday.module';
+import { IszyToolsModule } from '~modules/iszy_tools/iszy_tools.module';
+import { GisModule } from '~modules/gis/gis.module';
+import { UrlsModule } from '~modules/urls/urls.module';
+import { MockModule } from '~modules/mocks/mock.module';
 import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { RedisOptions } from 'ioredis';
