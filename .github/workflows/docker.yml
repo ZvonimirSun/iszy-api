@@ -52,7 +52,7 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker
         if: ${{ github.ref_name == 'main' }}
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -62,7 +62,7 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker (DEV)
         if: ${{ github.ref_name != 'main' }}
         id: meta-dev
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
