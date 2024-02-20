@@ -4,7 +4,7 @@ import {
   Model,
   PrimaryKey,
   Table,
-} from 'sequelize-typescript';
+} from 'sequelize-typescript'
 
 @Table({
   tableName: 'ShortUrlLog',
@@ -13,20 +13,20 @@ export class LogModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number;
+  id: number
 
   @Column
-  shortUrl: string;
+  shortUrl: string
 
   @Column
-  referrer: string;
+  referrer: string
 
   @Column
-  user_agent: string;
+  user_agent: string
 
   @Column
-  ip: string;
+  ip: string
 
   @Column
-  code: string;
+  code: string
 }

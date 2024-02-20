@@ -1,9 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { GisService } from './gis.service';
-import { TransformPointDto } from './dto/transform_point.dto';
-import { ResultDto } from '../../core/dto/result.dto';
-import { TransformGeometryDto } from './dto/transform_geometry.dto';
+import { Body, Controller, Post } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
+import type { GisService } from './gis.service'
+import type { TransformPointDto } from './dto/transform_point.dto'
+import type { TransformGeometryDto } from './dto/transform_geometry.dto'
+import type { ResultDto } from '~core/dto/result.dto'
 
 @ApiTags('Gis')
 @Controller('gis')
@@ -14,19 +14,20 @@ export class GisController {
   async transformPoint(
     @Body() transformPointDto: TransformPointDto,
   ): Promise<ResultDto<any>> {
-    const res = await this.gisService.transformPoint(transformPointDto);
+    const res = await this.gisService.transformPoint(transformPointDto)
     if (res) {
       return {
         success: true,
         data: res,
         message: '转换成功',
-      };
-    } else {
+      }
+    }
+    else {
       return {
         success: false,
         data: res,
         message: '转换失败',
-      };
+      }
     }
   }
 
@@ -34,19 +35,20 @@ export class GisController {
   async transformGeometry(
     @Body() transformGeometryDto: TransformGeometryDto,
   ): Promise<ResultDto<any>> {
-    const res = await this.gisService.transformGeometry(transformGeometryDto);
+    const res = await this.gisService.transformGeometry(transformGeometryDto)
     if (res) {
       return {
         success: true,
         data: res,
         message: '转换成功',
-      };
-    } else {
+      }
+    }
+    else {
       return {
         success: false,
         data: res,
         message: '转换失败',
-      };
+      }
     }
   }
 }

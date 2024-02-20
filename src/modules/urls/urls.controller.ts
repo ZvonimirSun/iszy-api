@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger'
 import {
   Body,
   Controller,
@@ -11,17 +11,17 @@ import {
   Req,
   Res,
   UseGuards,
-} from '@nestjs/common';
-import { UrlsService } from './urls.service';
-import { Request, Response } from 'express';
-import { CreateDto } from './dto/create.dto';
-import { ResultDto } from '~core/dto/result.dto';
-import { PaginationQueryDto } from './dto/pagination_query.dto';
-import { UpdateDto } from './dto/update.dto';
-import { UrlModel } from '~entities/urls/url.model';
-import { PaginationDto } from '~core/dto/pagination.dto';
-import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
-import { AuthRequest } from '~types/AuthRequest';
+} from '@nestjs/common'
+import type { Request, Response } from 'express'
+import type { UrlsService } from './urls.service'
+import type { CreateDto } from './dto/create.dto'
+import type { PaginationQueryDto } from './dto/pagination_query.dto'
+import type { UpdateDto } from './dto/update.dto'
+import type { ResultDto } from '~core/dto/result.dto'
+import type { UrlModel } from '~entities/urls/url.model'
+import type { PaginationDto } from '~core/dto/pagination.dto'
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
+import type { AuthRequest } from '~types/AuthRequest'
 
 @ApiTags('Urls')
 @Controller('urls')
@@ -40,16 +40,17 @@ export class UrlsController {
         req.ip,
         createDto.url,
         createDto.keyword,
-      );
+      )
       return {
         success: true,
         message: '创建成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
-        message: '创建失败，' + e.message,
-      };
+        message: `创建失败，${e.message}`,
+      }
     }
   }
 
@@ -59,18 +60,19 @@ export class UrlsController {
     @Param('keyword') keyword: string,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<UrlModel>> {
-    const data = await this.urlsService.readUrl(req.user.userId, keyword);
+    const data = await this.urlsService.readUrl(req.user.userId, keyword)
     if (data) {
       return {
         success: true,
         message: '获取成功',
         data,
-      };
-    } else {
+      }
+    }
+    else {
       return {
         success: false,
         message: '获取失败',
-      };
+      }
     }
   }
 
@@ -82,16 +84,17 @@ export class UrlsController {
     @Body() updateDto: UpdateDto,
   ): Promise<ResultDto<null>> {
     try {
-      await this.urlsService.updateUrl(req.user.userId, keyword, updateDto.url);
+      await this.urlsService.updateUrl(req.user.userId, keyword, updateDto.url)
       return {
         success: true,
         message: '更新成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
-        message: '更新失败，' + e.message,
-      };
+        message: `更新失败，${e.message}`,
+      }
     }
   }
 
@@ -102,16 +105,17 @@ export class UrlsController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<null>> {
     try {
-      await this.urlsService.deleteUrl(req.user.userId, keyword);
+      await this.urlsService.deleteUrl(req.user.userId, keyword)
       return {
         success: true,
         message: '删除成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
-        message: '删除失败，' + e.message,
-      };
+        message: `删除失败，${e.message}`,
+      }
     }
   }
 
@@ -125,18 +129,19 @@ export class UrlsController {
       req.user.userId,
       paginationQueryDto.pageIndex,
       paginationQueryDto.pageSize,
-    );
+    )
     if (data) {
       return {
         success: true,
         message: '获取成功',
         data,
-      };
-    } else {
+      }
+    }
+    else {
       return {
         success: false,
         message: '获取失败',
-      };
+      }
     }
   }
 
@@ -146,18 +151,16 @@ export class UrlsController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const url = await this.urlsService.visitUrl(keyword, req);
-    if (url) {
-      res.redirect(302, url);
-      return;
-    } else {
-      res.status(403);
-      return;
-    }
+    const url = await this.urlsService.visitUrl(keyword, req)
+    if (url)
+      res.redirect(302, url)
+
+    else
+      res.status(403)
   }
 
   @Get()
   rootPage(@Res({ passthrough: true }) res: Response) {
-    res.status(403);
+    res.status(403)
   }
 }

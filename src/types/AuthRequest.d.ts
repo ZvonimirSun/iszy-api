@@ -1,43 +1,43 @@
-import { Request } from 'express';
-import { User } from '../../modules/user/entities/user.model';
-import { Session } from 'express-session';
+import type { Request } from 'express'
+import type { Session } from 'express-session'
+import type { User } from '../../modules/user/entities/user.model'
 
 interface CallbackFunc {
-  (err?): any;
+  (err?): any
 }
 
 interface LogInFunc {
-  (user?: Partial<User>, options?: any, done?: CallbackFunc): void;
+  (user?: Partial<User>, options?: any, done?: CallbackFunc): void
 }
 
 interface LogOutFunc {
-  (options?: any, done?: CallbackFunc): void;
+  (options?: any, done?: CallbackFunc): void
 }
 
 interface AuthSession extends Session {
   passport?: {
-    user?: Partial<User>;
-  };
+    user?: Partial<User>
+  }
 }
 
 export interface AuthRequest extends Request {
-  user?: Partial<User>;
+  user?: Partial<User>
 
-  login?: LogInFunc;
+  login?: LogInFunc
 
-  logIn?: LogInFunc;
+  logIn?: LogInFunc
 
-  logout?: LogOutFunc;
+  logout?: LogOutFunc
 
-  logOut?: LogOutFunc;
+  logOut?: LogOutFunc
 
   isAuthenticated?: {
-    (): boolean;
-  };
+    (): boolean
+  }
 
   isUnauthenticated?: {
-    (): boolean;
-  };
+    (): boolean
+  }
 
-  session?: AuthSession;
+  session?: AuthSession
 }

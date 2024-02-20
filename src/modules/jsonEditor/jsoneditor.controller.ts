@@ -1,20 +1,20 @@
-import { JsoneditorService } from './jsoneditor.service';
 import {
+  Body,
   Controller,
   Delete,
   Get,
   Param,
   Post,
-  UseGuards,
-  Body,
   Req,
-} from '@nestjs/common';
-import { ResultDto } from '~core/dto/result.dto';
-import { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model';
-import { JsoneditorItemDto } from './dto/jsoneditor_item.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
-import { AuthRequest } from '~types/AuthRequest';
+  UseGuards,
+} from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
+import type { JsoneditorService } from './jsoneditor.service'
+import type { JsoneditorItemDto } from './dto/jsoneditor_item.dto'
+import type { ResultDto } from '~core/dto/result.dto'
+import type { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
+import type { AuthRequest } from '~types/AuthRequest'
 
 @ApiTags('ISZY Tools')
 @UseGuards(CustomAuthGuard)
@@ -30,7 +30,7 @@ export class JsoneditorController {
       success: true,
       message: '获取成功',
       data: await this.jsoneditorService.getList(req.user.userId),
-    };
+    }
   }
 
   @Post(':key')
@@ -46,16 +46,16 @@ export class JsoneditorController {
         jsoneditorItemDto.name,
         jsoneditorItemDto.text,
         jsoneditorItemDto.json,
-      );
+      )
       return {
         message: status ? '成功' : '失败',
         success: status,
-      };
+      }
     }
     return {
       message: '失败',
       success: false,
-    };
+    }
   }
 
   @Delete(':key')
@@ -66,10 +66,10 @@ export class JsoneditorController {
     const status = await this.jsoneditorService.deleteItem(
       req.user.userId,
       key,
-    );
+    )
     return {
       message: status ? '成功' : '失败',
       success: status,
-    };
+    }
   }
 }

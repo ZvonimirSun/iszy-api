@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { Settings } from '~entities/iszy_tools/settings.model';
-import { Sequelize } from 'sequelize-typescript';
-import { Op } from 'sequelize';
+import { Injectable, Logger } from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
+import type { Sequelize } from 'sequelize-typescript'
+import { Op } from 'sequelize'
+import { Settings } from '~entities/iszy_tools/settings.model'
 
 @Injectable()
 export class IszyToolsService {
@@ -11,24 +11,25 @@ export class IszyToolsService {
     private sequelize: Sequelize,
   ) {}
 
-  private readonly logger = new Logger(IszyToolsService.name);
+  private readonly logger = new Logger(IszyToolsService.name)
 
   async uploadSettings(userId: number, settingDto: any, key?: string) {
     if (settingDto != null && Object.keys(settingDto).length > 0) {
       try {
         const result = await this.sequelize.transaction(async (t) => {
-          const transactionHost = { transaction: t };
+          const transactionHost = { transaction: t }
           const setting = await this.settingModel.findOne({
-            where: { userId, key: key ? key : { [Op.eq]: null } },
+            where: { userId, key: key || { [Op.eq]: null } },
             transaction: t,
-          });
-          let tmp: Settings;
+          })
+          let tmp: Settings
           if (setting) {
             tmp = await setting.update(
               { settings: settingDto },
               transactionHost,
-            );
-          } else {
+            )
+          }
+          else {
             tmp = await this.settingModel.create(
               {
                 userId,
@@ -36,18 +37,18 @@ export class IszyToolsService {
                 settings: settingDto,
               },
               transactionHost,
-            );
+            )
           }
-          return tmp;
-        });
-        if (result) {
-          return result.get({ plain: true }).settings;
-        }
-      } catch (e) {
-        this.logger.error(e);
+          return tmp
+        })
+        if (result)
+          return result.get({ plain: true }).settings
+      }
+      catch (e) {
+        this.logger.error(e)
       }
     }
-    return null;
+    return null
   }
 
   async downloadSettings(userId: number, key?: string) {
@@ -55,17 +56,17 @@ export class IszyToolsService {
       const setting = await this.settingModel.findOne({
         where: {
           userId,
-          key: key ? key : { [Op.eq]: null },
+          key: key || { [Op.eq]: null },
         },
-      });
-      if (setting) {
-        return setting.get({ plain: true }).settings;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      this.logger.error(e);
+      })
+      if (setting)
+        return setting.get({ plain: true }).settings
+      else
+        return null
     }
-    return null;
+    catch (e) {
+      this.logger.error(e)
+    }
+    return null
   }
 }

@@ -1,5 +1,5 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger'
+import { IsInt } from 'class-validator'
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({
@@ -7,12 +7,12 @@ export class PaginationQueryDto {
     default: 0,
   })
   @IsInt()
-  readonly pageIndex?: number = 1;
+  readonly pageIndex?: number = 1
 
   @ApiPropertyOptional({
     type: Number,
     default: 10,
   })
   @IsInt()
-  readonly pageSize?: number = 10;
+  readonly pageSize?: number = 10
 }

@@ -10,18 +10,18 @@ import {
   Req,
   Res,
   UseGuards,
-} from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
-import { MockService } from './mock.service';
-import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
-import { AuthRequest } from '~types/AuthRequest';
-import { MockProjDto } from './dtos/mock_proj.dto';
-import { MockDataDto } from './dtos/mock_data.dto';
-import { ResultDto } from '~core/dto/result.dto';
-import { MockData } from '~entities/mocks/mock_data.model';
-import { MockPrj } from '~entities/mocks/mock_prj.model';
-import Mock from 'mockjs';
+} from '@nestjs/common'
+import { ApiParam, ApiTags } from '@nestjs/swagger'
+import type { Request, Response } from 'express'
+import Mock from 'mockjs'
+import type { MockService } from './mock.service'
+import type { MockProjDto } from './dtos/mock_proj.dto'
+import type { MockDataDto } from './dtos/mock_data.dto'
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
+import type { AuthRequest } from '~types/AuthRequest'
+import type { ResultDto } from '~core/dto/result.dto'
+import type { MockData } from '~entities/mocks/mock_data.model'
+import type { MockPrj } from '~entities/mocks/mock_prj.model'
 
 @ApiTags('Mock')
 @Controller('mock')
@@ -39,12 +39,13 @@ export class MockController {
         success: true,
         message: '创建mock项目成功',
         data: await this.mockService.createMockPrj(req.user.userId, mockPrjDto),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -55,16 +56,17 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<void>> {
     try {
-      await this.mockService.deleteMockPrj(req.user.userId, mockPrjId);
+      await this.mockService.deleteMockPrj(req.user.userId, mockPrjId)
       return {
         success: true,
         message: '删除mock项目成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -84,12 +86,13 @@ export class MockController {
           mockPrjId,
           mockPrjDto,
         ),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -101,12 +104,13 @@ export class MockController {
         success: true,
         message: '获取mock项目列表成功',
         data: await this.mockService.getMockPrjs(req.user.userId),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -121,12 +125,13 @@ export class MockController {
         success: true,
         message: '获取mock项目成功',
         data: await this.mockService.getMockPrj(req.user.userId, mockPrjId),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -137,9 +142,9 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
     try {
-      if (typeof mockDataDto.response !== 'string') {
-        mockDataDto.response = JSON.stringify(mockDataDto.response);
-      }
+      if (typeof mockDataDto.response !== 'string')
+        mockDataDto.response = JSON.stringify(mockDataDto.response)
+
       return {
         success: true,
         message: '创建mock数据成功',
@@ -147,12 +152,13 @@ export class MockController {
           req.user.userId,
           mockDataDto,
         ),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -163,16 +169,17 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<void>> {
     try {
-      await this.mockService.deleteMockData(req.user.userId, mockDataId);
+      await this.mockService.deleteMockData(req.user.userId, mockDataId)
       return {
         success: true,
         message: '删除mock数据成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -184,9 +191,9 @@ export class MockController {
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
     try {
-      if (typeof mockDataDto.response !== 'string') {
-        mockDataDto.response = JSON.stringify(mockDataDto.response);
-      }
+      if (typeof mockDataDto.response !== 'string')
+        mockDataDto.response = JSON.stringify(mockDataDto.response)
+
       return {
         success: true,
         message: '更新mock数据成功',
@@ -195,12 +202,13 @@ export class MockController {
           mockDataId,
           mockDataDto,
         ),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -215,12 +223,13 @@ export class MockController {
         success: true,
         message: '获取mock数据成功',
         data: await this.mockService.getMockData(req.user.userId, mockDataId),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -235,12 +244,13 @@ export class MockController {
         success: true,
         message: '获取mock数据列表成功',
         data: await this.mockService.getMockDatas(req.user.userId, mockPrjId),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -255,12 +265,13 @@ export class MockController {
         success: true,
         message: '获取mock项目成功',
         data: await this.mockService.getMockPrjByPath(req.user.userId, prjPath),
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: e.message,
-      };
+      }
     }
   }
 
@@ -280,38 +291,39 @@ export class MockController {
   async mock(
     @Param()
     params: {
-      mockPrjId: string;
-      prjPath: string;
-      '0': string;
+      mockPrjId: string
+      prjPath: string
+      0: string
     },
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { mockPrjId, prjPath, '0': dataPath } = params;
+    const { mockPrjId, prjPath, '0': dataPath } = params
     if (!dataPath) {
-      res.status(404);
-      return;
+      res.status(404)
+      return
     }
-    let mockData;
+    let mockData
     try {
       mockData = await this.mockService.getMockDataByPath(
         mockPrjId,
         prjPath,
         dataPath,
-      );
-    } catch (e) {
-      res.status(404);
-      return;
+      )
+    }
+    catch (e) {
+      res.status(404)
+      return
     }
     if (!mockData.enabled) {
-      res.status(404);
-      return;
+      res.status(404)
+      return
     }
     if (mockData.type.toLowerCase() !== req.method.toLowerCase()) {
-      res.status(405);
-      return;
+      res.status(405)
+      return
     }
-    let json: any = mockData.response;
+    let json: any = mockData.response
     try {
       const _req = {
         url: req.url,
@@ -328,38 +340,40 @@ export class MockController {
         cookies: req.cookies,
         signedCookies: req.signedCookies,
         header: req.header,
-      };
-      const tmp: unknown = new Function('return ' + mockData.response)();
-      const tmp1 = JSON.stringify(tmp, function (key, value) {
+      }
+      const tmp: unknown = new Function(`return ${mockData.response}`)()
+      const tmp1 = JSON.stringify(tmp, (key, value) => {
         if (typeof value === 'function') {
           try {
             return value.call(undefined, {
-              _req: _req,
+              _req,
               Mock,
-            });
-          } catch (e) {
-            return undefined;
+            })
+          }
+          catch (e) {
+            return undefined
           }
         }
-        return value;
-      });
-      json = Mock.mock(JSON.parse(tmp1));
-    } catch (e) {
-      console.log(e);
+        return value
+      })
+      json = Mock.mock(JSON.parse(tmp1))
     }
-    if (mockData.delay) {
-      await _sleep(mockData.delay);
+    catch (e) {
+      console.log(e)
     }
-    const responseStatus = req.header('response-status');
-    if (responseStatus != null) {
-      res.status(parseInt(responseStatus));
-    }
-    return json;
+    if (mockData.delay)
+      await _sleep(mockData.delay)
+
+    const responseStatus = req.header('response-status')
+    if (responseStatus != null)
+      res.status(Number.parseInt(responseStatus))
+
+    return json
   }
 }
 
 function _sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+    setTimeout(resolve, ms)
+  })
 }

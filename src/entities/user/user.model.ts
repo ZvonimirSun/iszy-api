@@ -1,57 +1,57 @@
 import {
-  Model,
-  Table,
-  Column,
-  BelongsToMany,
-  PrimaryKey,
   AutoIncrement,
+  BelongsToMany,
+  Column,
+  Model,
+  PrimaryKey,
+  Table,
   Unique,
-} from 'sequelize-typescript';
-import { Role } from './role.model';
-import { UserRole } from './user_role.model';
-import { Group } from './group.model';
-import { UserGroup } from './user-group.model';
+} from 'sequelize-typescript'
+import { Role } from './role.model'
+import { UserRole } from './user_role.model'
+import { Group } from './group.model'
+import { UserGroup } from './user-group.model'
 
 @Table
 export class User extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
-  userId?: number;
+  userId?: number
 
   @Unique
   @Column
-  userName!: string;
+  userName!: string
 
   @Column
-  nickName!: string;
+  nickName!: string
 
   @Column
-  passwd!: string;
+  passwd!: string
 
   @Column
-  passwdSalt!: string;
-
-  @Unique
-  @Column
-  mobile?: string;
+  passwdSalt!: string
 
   @Unique
   @Column
-  email?: string;
+  mobile?: string
+
+  @Unique
+  @Column
+  email?: string
 
   @BelongsToMany(() => Role, () => UserRole)
-  roles?: Role[];
+  roles?: Role[]
 
   @BelongsToMany(() => Group, () => UserGroup)
-  groups?: Group[];
+  groups?: Group[]
 
   @Column
-  status!: number;
+  status!: number
 
   @Column
-  createBy!: number;
+  createBy!: number
 
   @Column
-  updateBy!: number;
+  updateBy!: number
 }

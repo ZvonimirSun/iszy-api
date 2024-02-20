@@ -1,14 +1,13 @@
 import {
-  Model,
-  Table,
+  BelongsTo,
   Column,
-  PrimaryKey,
-  NotNull,
   DataType,
   ForeignKey,
-  BelongsTo,
-} from 'sequelize-typescript';
-import { User } from '~entities/user/user.model';
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript'
+import { User } from '~entities/user/user.model'
 
 @Table
 export class MockPrj extends Model {
@@ -17,27 +16,27 @@ export class MockPrj extends Model {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
   })
-  id?: string;
+  id?: string
 
   @Column({
     allowNull: false,
   })
-  name!: string;
+  name!: string
 
   @Column({
     allowNull: false,
   })
-  path!: string;
+  path!: string
 
   @Column
-  description?: string;
+  description?: string
 
   @ForeignKey(() => User)
   @Column({
     allowNull: false,
   })
-  userId!: number;
+  userId!: number
 
   @BelongsTo(() => User)
-  user!: User;
+  user!: User
 }

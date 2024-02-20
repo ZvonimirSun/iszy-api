@@ -1,37 +1,37 @@
 import {
-  Table,
+  AutoIncrement,
+  Column,
   Model,
   PrimaryKey,
-  Column,
+  Table,
   Unique,
-  AutoIncrement,
-} from 'sequelize-typescript';
+} from 'sequelize-typescript'
 
 @Table({
   timestamps: false,
 })
 export class Idiom extends Model {
   @Column
-  derivation: string;
+  derivation: string
 
   @Column
-  example: string;
+  example: string
 
   @Column
-  explanation: string;
+  explanation: string
 
   @Column
-  pinyin: string;
+  pinyin: string
 
   @Unique
   @Column
-  word: string;
+  word: string
 
   @Column
-  abbreviation: string;
+  abbreviation: string
 
   @AutoIncrement
   @PrimaryKey
   @Column
-  id: number;
+  id: number
 }

@@ -5,7 +5,7 @@ import {
   PrimaryKey,
   Table,
   Unique,
-} from 'sequelize-typescript';
+} from 'sequelize-typescript'
 
 @Table({
   tableName: 'ShortUrlOptions',
@@ -15,12 +15,12 @@ export class OptionsModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number;
+  id: number
 
   @Unique
   @Column
-  key: string;
+  key: string
 
   @Column
-  value: string;
+  value: string
 }

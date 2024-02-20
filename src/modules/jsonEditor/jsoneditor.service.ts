@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model';
-import { Sequelize } from 'sequelize-typescript';
+import { Injectable, Logger } from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
+import type { Sequelize } from 'sequelize-typescript'
+import { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'
 
 @Injectable()
 export class JsoneditorService {
@@ -11,7 +11,7 @@ export class JsoneditorService {
     private sequelize: Sequelize,
   ) {}
 
-  private readonly logger = new Logger(JsoneditorService.name);
+  private readonly logger = new Logger(JsoneditorService.name)
 
   async getList(userId: number): Promise<JsoneditorModel[]> {
     try {
@@ -20,10 +20,11 @@ export class JsoneditorService {
           userId,
         },
         raw: true,
-      });
-    } catch (e) {
-      this.logger.error(e);
-      return [];
+      })
+    }
+    catch (e) {
+      this.logger.error(e)
+      return []
     }
   }
 
@@ -35,32 +36,34 @@ export class JsoneditorService {
     json: any,
   ): Promise<boolean> {
     if (!(name != null || text != null || json != null)) {
-      this.logger.warn('未更新');
-      return false;
+      this.logger.warn('未更新')
+      return false
     }
     try {
       await this.sequelize.transaction(async (t) => {
-        const data = await this.jsoneditorModel.findByPk(key);
+        const data = await this.jsoneditorModel.findByPk(key)
         if (data) {
-          if (data.userId !== userId) {
-            return;
-          }
-          const updateData: { name?: string; text?: string; json?: string } =
-            {};
-          if (name != null) {
-            updateData.name = name;
-          }
+          if (data.userId !== userId)
+            return
+
+          const updateData: { name?: string, text?: string, json?: string }
+            = {}
+          if (name != null)
+            updateData.name = name
+
           if (text != null) {
-            updateData.text = text;
-            updateData.json = null;
-          } else if (json != null) {
-            updateData.json = json;
-            updateData.text = null;
+            updateData.text = text
+            updateData.json = null
+          }
+          else if (json != null) {
+            updateData.json = json
+            updateData.text = null
           }
           await data.update(updateData, {
             transaction: t,
-          });
-        } else {
+          })
+        }
+        else {
           await this.jsoneditorModel.create(
             {
               key,
@@ -72,30 +75,32 @@ export class JsoneditorService {
             {
               transaction: t,
             },
-          );
+          )
         }
-      });
-      return true;
-    } catch (e) {
-      this.logger.error(e);
-      return false;
+      })
+      return true
+    }
+    catch (e) {
+      this.logger.error(e)
+      return false
     }
   }
 
   async deleteItem(userId: number, key: string): Promise<boolean> {
     try {
       await this.sequelize.transaction(async (t) => {
-        const data = await this.jsoneditorModel.findByPk(key);
+        const data = await this.jsoneditorModel.findByPk(key)
         if (data && data.userId === userId) {
           await data.destroy({
             transaction: t,
-          });
+          })
         }
-      });
-      return true;
-    } catch (e) {
-      this.logger.error(e);
-      return false;
+      })
+      return true
+    }
+    catch (e) {
+      this.logger.error(e)
+      return false
     }
   }
 }

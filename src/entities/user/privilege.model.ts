@@ -5,20 +5,20 @@ import {
   Model,
   PrimaryKey,
   Table,
-} from 'sequelize-typescript';
-import { Role } from './role.model';
-import { RolePrivilege } from './role-privilege.model';
+} from 'sequelize-typescript'
+import { Role } from './role.model'
+import { RolePrivilege } from './role-privilege.model'
 
 @Table
 export class Privilege extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id?: number;
+  id?: number
 
   @Column
-  type: string;
+  type: string
 
   @BelongsToMany(() => Role, () => RolePrivilege)
-  roles?: [];
+  roles?: []
 }

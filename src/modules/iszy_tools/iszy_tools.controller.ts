@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger'
 import {
   Body,
   Controller,
@@ -7,11 +7,11 @@ import {
   Post,
   Req,
   UseGuards,
-} from '@nestjs/common';
-import { IszyToolsService } from './iszy_tools.service';
-import { ResultDto } from '~core/dto/result.dto';
-import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
-import { AuthRequest } from '~types/AuthRequest';
+} from '@nestjs/common'
+import type { IszyToolsService } from './iszy_tools.service'
+import type { ResultDto } from '~core/dto/result.dto'
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
+import type { AuthRequest } from '~types/AuthRequest'
 
 @ApiTags('ISZY Tools')
 @UseGuards(CustomAuthGuard)
@@ -27,12 +27,12 @@ export class IszyToolsController {
     const result = await this.iszyToolsService.uploadSettings(
       req.user.userId,
       settingDto,
-    );
+    )
     return {
       success: true,
       data: result,
       message: result ? '更新成功' : '更新失败',
-    };
+    }
   }
 
   @Post('settings/:key')
@@ -45,24 +45,24 @@ export class IszyToolsController {
       req.user.userId,
       settingDto,
       key,
-    );
+    )
     return {
       success: true,
       data: result,
       message: result ? '更新成功' : '更新失败',
-    };
+    }
   }
 
   @Get('settings')
   async downloadSettings(@Req() req: AuthRequest) {
     const result = await this.iszyToolsService.downloadSettings(
       req.user.userId,
-    );
+    )
     return {
       success: true,
       data: result,
       message: result ? '获取成功' : '数据不存在',
-    };
+    }
   }
 
   @Get('settings/:key')
@@ -73,11 +73,11 @@ export class IszyToolsController {
     const result = await this.iszyToolsService.downloadSettings(
       req.user.userId,
       key,
-    );
+    )
     return {
       success: true,
       data: result,
       message: result ? '获取成功' : '数据不存在',
-    };
+    }
   }
 }

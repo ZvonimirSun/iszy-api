@@ -5,8 +5,8 @@ import {
   Model,
   PrimaryKey,
   Table,
-} from 'sequelize-typescript';
-import { User } from '~entities/user/user.model';
+} from 'sequelize-typescript'
+import { User } from '~entities/user/user.model'
 
 @Table({
   tableName: 'ShortUrlUrl',
@@ -14,22 +14,22 @@ import { User } from '~entities/user/user.model';
 export class UrlModel extends Model {
   @PrimaryKey
   @Column
-  keyword: string;
+  keyword: string
 
   @Column
-  url: string;
+  url: string
 
   @Column
-  title: string;
+  title: string
 
   @Column
-  ip: string;
+  ip: string
 
   @Default(0)
   @Column
-  clicks: number;
+  clicks: number
 
   @ForeignKey(() => User)
   @Column
-  userId: number;
+  userId: number
 }

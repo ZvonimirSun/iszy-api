@@ -1,12 +1,12 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger'
 
 export class JsoneditorItemDto {
   @ApiPropertyOptional()
-  name?: string;
+  name?: string
 
   @ApiPropertyOptional()
-  text?: string;
+  text?: string
 
   @ApiPropertyOptional()
-  json?: string;
+  json?: string
 }

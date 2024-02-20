@@ -1,9 +1,9 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class CreateDto {
   @ApiProperty()
-  readonly url: string;
+  readonly url: string
 
   @ApiPropertyOptional()
-  readonly keyword?: string;
+  readonly keyword?: string
 }

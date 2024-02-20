@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '~entities/user/user.model';
-import { InjectModel } from '@nestjs/sequelize';
-import { Role } from '~entities/user/role.model';
-import { Privilege } from '~entities/user/privilege.model';
-import { Sequelize } from 'sequelize-typescript';
-import { UserStatus } from './variables/user.status';
-import { Op } from 'sequelize';
+import { Injectable } from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
+import type { Sequelize } from 'sequelize-typescript'
+import { Op } from 'sequelize'
+import { UserStatus } from './variables/user.status'
+import { User } from '~entities/user/user.model'
+import { Role } from '~entities/user/role.model'
+import { Privilege } from '~entities/user/privilege.model'
 
 @Injectable()
 export class UserService {
@@ -16,20 +16,21 @@ export class UserService {
 
   async create(user: Partial<User>, userId?: number): Promise<User> {
     return await this.sequelize.transaction(async (t) => {
-      const transactionHost = { transaction: t };
+      const transactionHost = { transaction: t }
       if (userId != null) {
         return await this.userModel.create(
           { ...user, userId },
           transactionHost,
-        );
-      } else {
-        const userEntity = await this.userModel.create(user, transactionHost);
+        )
+      }
+      else {
+        const userEntity = await this.userModel.create(user, transactionHost)
         return await userEntity.update({
           createBy: userEntity.id,
           updateBy: userEntity.id,
-        });
+        })
       }
-    });
+    })
   }
 
   async findOne(key: string): Promise<User> {
@@ -58,15 +59,15 @@ export class UserService {
           ],
         },
       ],
-    });
+    })
   }
 
   update(user: Partial<User>) {
-    console.log(user);
-    return `This action updates a #${user.userId} user`;
+    console.log(user)
+    return `This action updates a #${user.userId} user`
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    return `This action removes a #${id} user`
   }
 }

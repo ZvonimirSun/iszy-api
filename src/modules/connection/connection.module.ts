@@ -1,5 +1,5 @@
-import { Global, Module } from '@nestjs/common';
-import { ConnectionService } from './connection.service';
+import { Global, Module } from '@nestjs/common'
+import { ConnectionService } from './connection.service'
 
 @Global()
 @Module({

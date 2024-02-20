@@ -1,42 +1,42 @@
 import {
-  Model,
-  Table,
-  Column,
-  PrimaryKey,
   AutoIncrement,
   BelongsToMany,
+  Column,
+  Model,
+  PrimaryKey,
+  Table,
   Unique,
-} from 'sequelize-typescript';
-import { User } from './user.model';
-import { UserRole } from './user_role.model';
-import { Group } from './group.model';
-import { RoleGroup } from './role-group.model';
-import { Privilege } from './privilege.model';
-import { RolePrivilege } from './role-privilege.model';
+} from 'sequelize-typescript'
+import { User } from './user.model'
+import { UserRole } from './user_role.model'
+import { Group } from './group.model'
+import { RoleGroup } from './role-group.model'
+import { Privilege } from './privilege.model'
+import { RolePrivilege } from './role-privilege.model'
 
 @Table
 export class Role extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id?: number;
+  id?: number
 
   @Column
-  desc: string;
+  desc: string
 
   @Unique
   @Column
-  name!: string;
+  name!: string
 
   @Column
-  alias: string;
+  alias: string
 
   @BelongsToMany(() => User, () => UserRole)
-  users: User[];
+  users: User[]
 
   @BelongsToMany(() => Group, () => RoleGroup)
-  groups: Group[];
+  groups: Group[]
 
   @BelongsToMany(() => Privilege, () => RolePrivilege)
-  privileges: Privilege[];
+  privileges: Privilege[]
 }

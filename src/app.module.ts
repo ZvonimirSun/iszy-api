@@ -1,24 +1,24 @@
-import { Logger, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { Dialect } from 'sequelize/types';
-import configs from '~core/configs';
+import { Logger, Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { SequelizeModule } from '@nestjs/sequelize'
+import type { Dialect } from 'sequelize/types'
+import type { CacheModuleOptions } from '@nestjs/cache-manager'
+import { CacheModule } from '@nestjs/cache-manager'
+import { redisStore } from 'cache-manager-ioredis-yet'
+import type { RedisOptions } from 'ioredis'
+import { AppController } from './app.controller'
+import { AppService } from './app.service'
+import configs from '~core/configs'
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConnectionModule } from '~modules/connection/connection.module'
+import { AuthModule } from '~modules/auth/auth.module'
+import { HolidayModule } from '~modules/holiday/holiday.module'
+import { IszyToolsModule } from '~modules/iszy_tools/iszy_tools.module'
+import { GisModule } from '~modules/gis/gis.module'
+import { UrlsModule } from '~modules/urls/urls.module'
+import { MockModule } from '~modules/mocks/mock.module'
 
-import { ConnectionModule } from '~modules/connection/connection.module';
-import { AuthModule } from '~modules/auth/auth.module';
-import { HolidayModule } from '~modules/holiday/holiday.module';
-import { IszyToolsModule } from '~modules/iszy_tools/iszy_tools.module';
-import { GisModule } from '~modules/gis/gis.module';
-import { UrlsModule } from '~modules/urls/urls.module';
-import { MockModule } from '~modules/mocks/mock.module';
-import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-ioredis-yet';
-import { RedisOptions } from 'ioredis';
-
-const logger = new Logger('Database');
+const logger = new Logger('Database')
 
 @Module({
   imports: [
@@ -33,7 +33,7 @@ const logger = new Logger('Database');
           host: configService.get<string>('redis.host'),
           port: configService.get<number>('redis.port'),
           password: configService.get<string>('redis.password'),
-        };
+        }
       },
       inject: [ConfigService],
     }),
@@ -64,8 +64,8 @@ const logger = new Logger('Database');
         synchronize: true,
         logging: configService.get<boolean>('database.logging')
           ? function (str) {
-              logger.log(str);
-            }
+            logger.log(str)
+          }
           : false,
       }),
       inject: [ConfigService],

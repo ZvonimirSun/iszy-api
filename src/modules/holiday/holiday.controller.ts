@@ -6,12 +6,12 @@ import {
   Param,
   Post,
   UseGuards,
-} from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { HolidayService } from './holiday.service';
-import { ImportHolidayDto } from './dto/import_holiday.dto';
-import { ResultDto } from '~core/dto/result.dto';
-import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard';
+} from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
+import type { HolidayService } from './holiday.service'
+import type { ImportHolidayDto } from './dto/import_holiday.dto'
+import type { ResultDto } from '~core/dto/result.dto'
+import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
 
 @ApiTags('Holiday')
 @Controller('tools/holiday')
@@ -24,16 +24,17 @@ export class HolidayController {
     @Body() importHolidayDto: ImportHolidayDto,
   ): Promise<ResultDto<null>> {
     try {
-      await this.holidayService.importHoliday(importHolidayDto);
+      await this.holidayService.importHoliday(importHolidayDto)
       return {
         success: true,
         message: '导入成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: `导入失败，${e.message}`,
-      };
+      }
     }
   }
 
@@ -44,12 +45,13 @@ export class HolidayController {
         success: true,
         data: await this.holidayService.isHoliday(),
         message: '获取成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: `获取失败，${e.message}`,
-      };
+      }
     }
   }
 
@@ -57,15 +59,15 @@ export class HolidayController {
   @Header('content-type', 'text/calendar')
   @Header('content-disposition', 'attachment; filename=holiday.ics')
   async getHolidayICS(): Promise<string> {
-    return await this.holidayService.getHolidayICS();
+    return await this.holidayService.getHolidayICS()
   }
 
   @Get(':date')
   async isHolidayByDate(@Param('date') date?: number): Promise<
     ResultDto<{
-      isHoliday: boolean;
-      desc: string;
-      date?: string;
+      isHoliday: boolean
+      desc: string
+      date?: string
     }>
   > {
     try {
@@ -73,12 +75,13 @@ export class HolidayController {
         success: true,
         data: await this.holidayService.isHoliday(date),
         message: '获取成功',
-      };
-    } catch (e) {
+      }
+    }
+    catch (e) {
       return {
         success: false,
         message: `获取失败，${e.message}`,
-      };
+      }
     }
   }
 }

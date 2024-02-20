@@ -5,23 +5,23 @@ import {
   Model,
   PrimaryKey,
   Table,
-} from 'sequelize-typescript';
-import { User } from '~entities/user/user.model';
+} from 'sequelize-typescript'
+import { User } from '~entities/user/user.model'
 
 @Table
 export class Settings extends Model {
   @AutoIncrement
   @PrimaryKey
   @Column
-  id: number;
+  id: number
 
   @ForeignKey(() => User)
   @Column
-  userId: number;
+  userId: number
 
   @Column('jsonb')
-  settings: any;
+  settings: any
 
   @Column
-  key: string;
+  key: string
 }

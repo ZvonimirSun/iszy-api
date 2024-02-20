@@ -1,71 +1,72 @@
 import {
-  Model,
-  Table,
-  Column,
-  PrimaryKey,
   BelongsTo,
-  ForeignKey,
+  Column,
   DataType,
-} from 'sequelize-typescript';
-import { MockPrj } from './mock_prj.model';
-import { User } from '~entities/user/user.model';
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript'
+import { MockPrj } from './mock_prj.model'
+import { User } from '~entities/user/user.model'
+
 @Table
 export class MockData extends Model {
   @PrimaryKey
   @Column({
     autoIncrement: true,
   })
-  id?: number;
+  id?: number
 
   @Column({
     allowNull: false,
   })
-  name!: string;
+  name!: string
 
   @Column({
     allowNull: false,
   })
-  type!: string;
+  type!: string
 
   @Column({
     allowNull: false,
   })
-  enabled!: boolean;
+  enabled!: boolean
 
   @Column({
     allowNull: false,
   })
-  path!: string;
+  path!: string
 
   @Column({
     type: DataType.TEXT,
   })
-  description?: string;
+  description?: string
 
   @Column
-  delay?: number;
+  delay?: number
 
   @Column({
     type: DataType.TEXT,
   })
-  response?: string;
+  response?: string
 
   @ForeignKey(() => MockPrj)
   @Column({
     allowNull: false,
     type: DataType.UUID,
   })
-  projectId!: string;
+  projectId!: string
 
   @BelongsTo(() => MockPrj)
-  project: MockPrj;
+  project: MockPrj
 
   @ForeignKey(() => User)
   @Column({
     allowNull: false,
   })
-  userId!: number;
+  userId!: number
 
   @BelongsTo(() => User)
-  user!: User;
+  user!: User
 }

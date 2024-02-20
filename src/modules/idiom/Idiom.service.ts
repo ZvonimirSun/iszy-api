@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { IdiomHandle } from '~entities/idiom/IdiomHandle.model';
-import dayjs from 'dayjs';
-import { Idiom } from '~entities/idiom/Idiom.model';
-import { Sequelize } from 'sequelize-typescript';
+import { Injectable, Logger } from '@nestjs/common'
+import { InjectModel } from '@nestjs/sequelize'
+import dayjs from 'dayjs'
+import type { Sequelize } from 'sequelize-typescript'
+import { IdiomHandle } from '~entities/idiom/IdiomHandle.model'
+import { Idiom } from '~entities/idiom/Idiom.model'
 
 @Injectable()
 export class IdiomService {
@@ -13,17 +13,18 @@ export class IdiomService {
     private sequelize: Sequelize,
   ) {}
 
-  private readonly logger = new Logger(IdiomService.name);
+  private readonly logger = new Logger(IdiomService.name)
 
   async getIdiomHandle() {
     try {
-      const date = parseInt(dayjs().format('YYYYMMDD'));
+      const date = Number.parseInt(dayjs().format('YYYYMMDD'))
       const result = await this.idiomHandleModel.findByPk(date, {
         plain: true,
-      });
+      })
       if (result) {
-        return result.idiom;
-      } else {
+        return result.idiom
+      }
+      else {
         const idiom = (
           await this.idiomModel.findOne({
             attributes: ['word'],
@@ -35,26 +36,28 @@ export class IdiomService {
           })
         ).get({
           plain: true,
-        }).word;
+        }).word
         if (idiom) {
           await this.sequelize.transaction(async (t) => {
-            const transactionHost = { transaction: t };
+            const transactionHost = { transaction: t }
             await this.idiomHandleModel.create(
               {
                 date,
                 idiom,
               },
               transactionHost,
-            );
-          });
-          return idiom;
-        } else {
-          return null;
+            )
+          })
+          return idiom
+        }
+        else {
+          return null
         }
       }
-    } catch (e) {
-      this.logger.error(e.message);
-      throw new Error(e.message);
+    }
+    catch (e) {
+      this.logger.error(e.message)
+      throw new Error(e.message)
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Model, Table, Column, PrimaryKey } from 'sequelize-typescript';
+import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript'
 
 @Table({
   timestamps: false,
@@ -6,14 +6,14 @@ import { Model, Table, Column, PrimaryKey } from 'sequelize-typescript';
 export class Holiday extends Model {
   @PrimaryKey
   @Column
-  id: number;
+  id: number
 
   @Column
-  desc: string;
+  desc: string
 
   @Column
-  isHoliday: boolean;
+  isHoliday: boolean
 
   @Column
-  last: number;
+  last: number
 }

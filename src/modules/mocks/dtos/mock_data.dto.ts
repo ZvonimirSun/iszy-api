@@ -1,43 +1,43 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class MockDataDto {
   @ApiProperty({
     description: '数据名称',
   })
-  readonly name!: string;
+  readonly name!: string
 
   @ApiProperty({
     description: '请求类型',
   })
-  readonly type!: string;
+  readonly type!: string
 
   @ApiProperty({
     description: '是否启用',
   })
-  readonly enabled!: boolean;
+  readonly enabled!: boolean
 
   @ApiProperty({
     description: '请求路径',
   })
-  readonly path!: string;
+  readonly path!: string
 
   @ApiPropertyOptional({
     description: '数据描述',
   })
-  readonly description?: string;
+  readonly description?: string
 
   @ApiPropertyOptional({
     description: '延迟时间',
   })
-  readonly delay?: number;
+  readonly delay?: number
 
   @ApiPropertyOptional({
     description: '响应数据',
   })
-  response?: string | unknown;
+  response?: string | unknown
 
   @ApiProperty({
     description: '项目id',
   })
-  readonly projectId!: string;
+  readonly projectId!: string
 }
