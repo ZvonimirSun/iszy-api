@@ -1,6 +1,6 @@
 import { ApiTags } from '@nestjs/swagger'
 import { Controller, Get } from '@nestjs/common'
-import type { IdiomService } from './Idiom.service'
+import { IdiomService } from './Idiom.service'
 import type { ResultDto } from '~core/dto/result.dto'
 
 @ApiTags('Idiom')

@@ -8,7 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common'
-import type { IszyToolsService } from './iszy_tools.service'
+import { IszyToolsService } from './iszy_tools.service'
 import type { ResultDto } from '~core/dto/result.dto'
 import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
 import type { AuthRequest } from '~types/AuthRequest'

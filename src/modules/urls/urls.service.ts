@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import type { Sequelize } from 'sequelize-typescript'
+import { Sequelize } from 'sequelize-typescript'
 import type { Request } from 'express'
 import geoip from 'geoip-lite'
 import { load } from 'cheerio'

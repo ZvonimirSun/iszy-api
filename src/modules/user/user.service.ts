@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import type { Sequelize } from 'sequelize-typescript'
+import { Sequelize } from 'sequelize-typescript'
 import { Op } from 'sequelize'
 import { UserStatus } from './variables/user.status'
 import { User } from '~entities/user/user.model'

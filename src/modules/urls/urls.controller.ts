@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import type { Request, Response } from 'express'
-import type { UrlsService } from './urls.service'
+import { UrlsService } from './urls.service'
 import type { CreateDto } from './dto/create.dto'
 import type { PaginationQueryDto } from './dto/pagination_query.dto'
 import type { UpdateDto } from './dto/update.dto'

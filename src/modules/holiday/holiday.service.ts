@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import type { Sequelize } from 'sequelize-typescript'
+import { Sequelize } from 'sequelize-typescript'
 import dayjs from 'dayjs'
 import type { ImportHolidayDto } from './dto/import_holiday.dto'
 import { Holiday } from '~entities/holiday/holiday.model'

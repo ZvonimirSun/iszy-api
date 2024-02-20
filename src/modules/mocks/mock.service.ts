@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import type { Sequelize } from 'sequelize-typescript'
+import { Sequelize } from 'sequelize-typescript'
 import type { MockProjDto } from './dtos/mock_proj.dto'
 import type { MockDataDto } from './dtos/mock_data.dto'
 import { MockData } from '~entities/mocks/mock_data.model'

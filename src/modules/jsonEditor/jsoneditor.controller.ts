@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import type { JsoneditorService } from './jsoneditor.service'
+import { JsoneditorService } from './jsoneditor.service'
 import type { JsoneditorItemDto } from './dto/jsoneditor_item.dto'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'

@@ -14,7 +14,7 @@ import {
 import { ApiParam, ApiTags } from '@nestjs/swagger'
 import type { Request, Response } from 'express'
 import Mock from 'mockjs'
-import type { MockService } from './mock.service'
+import { MockService } from './mock.service'
 import type { MockProjDto } from './dtos/mock_proj.dto'
 import type { MockDataDto } from './dtos/mock_data.dto'
 import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'

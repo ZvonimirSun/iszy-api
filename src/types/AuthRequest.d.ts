@@ -1,6 +1,6 @@
 import type { Request } from 'express'
 import type { Session } from 'express-session'
-import type { User } from '../../modules/user/entities/user.model'
+import type { User } from '~entities/user/user.model'
 
 interface CallbackFunc {
   (err?): any

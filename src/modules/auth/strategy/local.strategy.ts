@@ -2,7 +2,7 @@ import { promisify } from 'node:util'
 import { Strategy } from 'passport-local'
 import { PassportStrategy } from '@nestjs/passport'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
-import type { AuthService } from '../auth.service'
+import { AuthService } from '../auth.service'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { User } from '~entities/user/user.model'
 

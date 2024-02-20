@@ -1,7 +1,7 @@
 // src/logical/auth/auth.service.ts
 import { Injectable, Logger } from '@nestjs/common'
-import type { Sequelize } from 'sequelize-typescript'
-import type { UserService } from '../user/user.service'
+import { Sequelize } from 'sequelize-typescript'
+import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
 import type { RegisterDto } from './dto/register.dto'
 import { encryptPassword, makeSalt } from '~utils/cryptogram'

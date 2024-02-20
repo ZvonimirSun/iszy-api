@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import type { HolidayService } from './holiday.service'
+import { HolidayService } from './holiday.service'
 import type { ImportHolidayDto } from './dto/import_holiday.dto'
 import type { ResultDto } from '~core/dto/result.dto'
 import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'

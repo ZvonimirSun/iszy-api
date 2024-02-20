@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import type { Sequelize } from 'sequelize-typescript'
+import { Sequelize } from 'sequelize-typescript'
 import { QueryTypes } from 'sequelize'
 import type { TransformPointDto } from './dto/transform_point.dto'
 import type { TransformGeometryDto } from './dto/transform_geometry.dto'
