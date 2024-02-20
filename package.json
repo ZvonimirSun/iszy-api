@@ -70,7 +70,7 @@
     "@types/sequelize": "^4.28.20",
     "@types/validator": "*",
     "class-transformer": "0.5.1",
-    "class-validator": "0.14.0",
+    "class-validator": "0.14.1",
     "eslint": "^8.56.0",
     "globals": "^14.0.0",
     "taze": "^0.13.3",
