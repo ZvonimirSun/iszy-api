@@ -160,12 +160,6 @@ devDependencies:
   '@types/validator':
     specifier: '*'
     version: 13.11.6
-  '@typescript-eslint/eslint-plugin':
-    specifier: ^6.21.0
-    version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.56.0)(typescript@5.3.3)
-  '@typescript-eslint/parser':
-    specifier: ^6.21.0
-    version: 6.21.0(eslint@8.56.0)(typescript@5.3.3)
   class-transformer:
     specifier: 0.5.1
     version: 0.5.1
