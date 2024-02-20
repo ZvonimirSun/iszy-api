@@ -97,7 +97,7 @@ dependencies:
     version: 6.37.1(pg@8.11.3)
   sequelize-typescript:
     specifier: ^2.1.6
-    version: 2.1.6(@types/node@20.11.19)(@types/validator@13.11.6)(reflect-metadata@0.2.1)(sequelize@6.37.1)
+    version: 2.1.6(@types/node@20.11.19)(@types/validator@13.11.9)(reflect-metadata@0.2.1)(sequelize@6.37.1)
   swagger-ui-express:
     specifier: ^5.0.0
     version: 5.0.0(express@4.18.2)
@@ -159,7 +159,7 @@ devDependencies:
     version: 4.28.20
   '@types/validator':
     specifier: '*'
-    version: 13.11.6
+    version: 13.11.9
   class-transformer:
     specifier: 0.5.1
     version: 0.5.1
@@ -1287,7 +1287,7 @@ packages:
       reflect-metadata: 0.2.1
       rxjs: 7.8.1
       sequelize: 6.37.1(pg@8.11.3)
-      sequelize-typescript: 2.1.6(@types/node@20.11.19)(@types/validator@13.11.6)(reflect-metadata@0.2.1)(sequelize@6.37.1)
+      sequelize-typescript: 2.1.6(@types/node@20.11.19)(@types/validator@13.11.9)(reflect-metadata@0.2.1)(sequelize@6.37.1)
       uuid: 9.0.1
     dev: false
 
@@ -2089,7 +2089,7 @@ packages:
       '@types/bluebird': 3.5.42
       '@types/continuation-local-storage': 3.2.7
       '@types/lodash': 4.14.202
-      '@types/validator': 13.11.6
+      '@types/validator': 13.11.9
     dev: true
 
   /@types/serve-static@1.15.5:
@@ -2108,8 +2108,8 @@ packages:
     resolution: {integrity: sha512-IfYcSBWE3hLpBg8+X2SEa8LVkJdJEkT2Ese2aaLs3ptGdVtABxndrMaxuFlQ1qdFf9Q5rDvDpxI3WwgvKFAsQA==}
     dev: true
 
-  /@types/validator@13.11.6:
-    resolution: {integrity: sha512-HUgHujPhKuNzgNXBRZKYexwoG+gHKU+tnfPqjWXFghZAnn73JElicMkuSKJyLGr9JgyA8IgK7fj88IyA9rwYeQ==}
+  /@types/validator@13.11.9:
+    resolution: {integrity: sha512-FCTsikRozryfayPuiI46QzH3fnrOoctTjvOYZkho9BTFLCOZ2rgZJHMOVgCOfttjPJcgOx52EpkY0CMfy87MIw==}
 
   /@types/yargs-parser@21.0.3:
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -3059,7 +3059,7 @@ packages:
   /class-validator@0.14.0:
     resolution: {integrity: sha512-ct3ltplN8I9fOwUd8GrP8UQixwff129BkEtuWDKL5W45cQuLd19xqmTLu5ge78YDm/fdje6FMt0hGOhl0lii3A==}
     dependencies:
-      '@types/validator': 13.11.6
+      '@types/validator': 13.11.9
       libphonenumber-js: 1.10.49
       validator: 13.11.0
 
@@ -7262,7 +7262,7 @@ packages:
     engines: {node: '>= 10.0.0'}
     dev: false
 
-  /sequelize-typescript@2.1.6(@types/node@20.11.19)(@types/validator@13.11.6)(reflect-metadata@0.2.1)(sequelize@6.37.1):
+  /sequelize-typescript@2.1.6(@types/node@20.11.19)(@types/validator@13.11.9)(reflect-metadata@0.2.1)(sequelize@6.37.1):
     resolution: {integrity: sha512-Vc2N++3en346RsbGjL3h7tgAl2Y7V+2liYTAOZ8XL0KTw3ahFHsyAUzOwct51n+g70I1TOUDgs06Oh6+XGcFkQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -7272,7 +7272,7 @@ packages:
       sequelize: '>=6.20.1'
     dependencies:
       '@types/node': 20.11.19
-      '@types/validator': 13.11.6
+      '@types/validator': 13.11.9
       glob: 7.2.0
       reflect-metadata: 0.2.1
       sequelize: 6.37.1(pg@8.11.3)
@@ -7312,7 +7312,7 @@ packages:
         optional: true
     dependencies:
       '@types/debug': 4.1.11
-      '@types/validator': 13.11.6
+      '@types/validator': 13.11.9
       debug: 4.3.4
       dottie: 2.0.6
       inflection: 1.13.4
