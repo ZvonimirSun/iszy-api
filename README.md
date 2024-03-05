@@ -4,27 +4,35 @@
 
 [![Nest 10.x](https://img.shields.io/badge/Nest-10.x-blue)](https://nestjs.com/) [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
 
-## Description
+ISZY API集合，基于 [NestJS](http://nestjs.com/) 开发，主要为[ISZY 工具集合](https://github.com/zvonimirsun/iszy-tools)。
 
-ISZY API is an api project developed based on <a href="http://nestjs.com/" target="blank">Nest</a> (A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications).
+- 项目框架: [NestJS 10](http://nestjs.com/)
+- 数据库ORM: [Sequelize 6](https://sequelize.org/)
+- 数据库存储: [PostgreSQL 14](https://www.postgresql.org/)
+- 文档生成: [OpenAPI 3](https://swagger.io/specification/)
 
-## Installation
+## 项目安装
 
 ```bash
-$ pnpm install
+pnpm install
 ```
 
-## Running the app
+### 启动开发服务器
 
 ```bash
-# development
-$ pnpm run start
+pnpm run start:debug
+```
 
-# watch mode
-$ pnpm run start:dev
+### 为生产环境构建产物
 
-# production mode
-$ pnpm run start:prod
+```bash
+pnpm run build
+```
+
+### 本地预览生产构建产物
+
+```bash
+pnpm run start:prod
 ```
 
 ## License
