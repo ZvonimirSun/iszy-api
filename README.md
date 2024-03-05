@@ -1,26 +1,30 @@
 # ISZY API
 
+[![build](https://github.com/ZvonimirSun/iszy-api/actions/workflows/docker.yml/badge.svg)](https://github.com/ZvonimirSun/iszy-api/actions/workflows/docker.yml)
+
+[![Nest 10.x](https://img.shields.io/badge/Nest-10.x-blue)](https://nestjs.com/) [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
+
 ## Description
 
-ISZY API is an api project developed based on <a href="http://nestjs.com/" target="blank">nestjs</a> (A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.).
+ISZY API is an api project developed based on <a href="http://nestjs.com/" target="blank">Nest</a> (A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications).
 
 ## Installation
 
 ```bash
-$ npm install
+$ pnpm install
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ pnpm run start
 
 # watch mode
-$ npm run start:dev
+$ pnpm run start:dev
 
 # production mode
-$ npm run start:prod
+$ pnpm run start:prod
 ```
 
 ## License
