@@ -9,6 +9,7 @@ import { RoleGroup } from '~entities/user/role-group.model'
 import { UserGroup } from '~entities/user/user-group.model'
 import { Privilege } from '~entities/user/privilege.model'
 import { RolePrivilege } from '~entities/user/role-privilege.model'
+import { UserController } from '~modules/user/user.controller'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RolePrivilege } from '~entities/user/role-privilege.model'
       RolePrivilege,
     ]),
   ],
+  controllers: [UserController],
   providers: [UserService],
   exports: [UserService],
 })

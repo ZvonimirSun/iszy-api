@@ -14,9 +14,9 @@ import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import type { RegisterDto } from './dto/register.dto'
-import { LocalAuthGuard } from './guard/local-auth.guard'
-import { CustomAuthGuard } from './guard/custom-auth.guard'
 import type { LogoutDto } from './dto/logout.dto'
+import { LocalAuthGuard } from '~core/guard/local-auth.guard'
+import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
 import type { User } from '~entities/user/user.model'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { AuthRequest } from '~types/AuthRequest'
@@ -26,7 +26,7 @@ import type { AuthRequest } from '~types/AuthRequest'
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  private readonly logger = new Logger(AuthService.name)
+  private readonly logger = new Logger(AuthController.name)
 
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })

@@ -13,7 +13,7 @@ import { JsoneditorService } from './jsoneditor.service'
 import type { JsoneditorItemDto } from './dto/jsoneditor_item.dto'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'
-import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
+import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
 import type { AuthRequest } from '~types/AuthRequest'
 
 @ApiTags('ISZY Tools')

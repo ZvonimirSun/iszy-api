@@ -20,7 +20,7 @@ import type { UpdateDto } from './dto/update.dto'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { UrlModel } from '~entities/urls/url.model'
 import type { PaginationDto } from '~core/dto/pagination.dto'
-import { CustomAuthGuard } from '~modules/auth/guard/custom-auth.guard'
+import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
 import type { AuthRequest } from '~types/AuthRequest'
 
 @ApiTags('Urls')
