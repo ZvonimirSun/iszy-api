@@ -1,6 +1,5 @@
 // src/logical/auth/auth.service.ts
 import { Injectable, Logger } from '@nestjs/common'
-import { Sequelize } from 'sequelize-typescript'
 import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
 import type { RegisterDto } from './dto/register.dto'
@@ -11,7 +10,6 @@ import type { User } from '~entities/user/user.model'
 export class AuthService {
   constructor(
     private readonly usersService: UserService,
-    private sequelize: Sequelize,
   ) {}
 
   private readonly logger = new Logger(AuthService.name)
@@ -108,49 +106,25 @@ export class AuthService {
     userProfile: Partial<User> & { oldPasswd?: string },
   ): Promise<Partial<User>> {
     try {
-      return await this.sequelize.transaction(async (t) => {
-        const user = await this.usersService.findOne(userName)
-        if (user) {
-          const newProfile: Partial<User> = {}
-          if (userProfile.nickName)
-            newProfile.nickName = userProfile.nickName
-
-          if (userProfile.email)
-            newProfile.email = userProfile.email
-
-          newProfile.updateBy = user.userId
-          let newUser: User
-          if (!userProfile.oldPasswd && !userProfile.passwd) {
-            newUser = await user.update(newProfile, { transaction: t })
-          }
-          else {
-            const hashedPassword = user.passwd
-            const salt = user.passwdSalt
-            // 通过密码盐，加密传参，再与数据库里的比较，判断是否相等
-            const hashPassword = encryptPassword(userProfile.oldPasswd, salt)
-            if (hashedPassword === hashPassword) {
-              newProfile.passwdSalt = makeSalt()
-              newProfile.passwd = encryptPassword(
-                userProfile.passwd,
-                newProfile.passwdSalt,
-              )
-              newUser = await user.update(newProfile, { transaction: t })
-            }
-            else {
-              this.logger.error('旧密码错误')
-              throw new Error('旧密码错误')
-            }
-          }
-          const { passwd, passwdSalt, ...result } = newUser.get({
-            plain: true,
-          })
-          return result as Partial<User>
+      const user = await this.usersService.findOne(userName)
+      if (user) {
+        const newProfile: Partial<User> = {}
+        newProfile.userId = user.userId
+        if (userProfile.nickName)
+          newProfile.nickName = userProfile.nickName
+        if (userProfile.email)
+          newProfile.email = userProfile.email
+        newProfile.updateBy = user.userId
+        if (userProfile.oldPasswd && userProfile.passwd) {
+          await this.usersService.checkUser(newProfile.userId, userProfile.oldPasswd)
+          newProfile.passwd = userProfile.passwd
         }
-        else {
-          this.logger.error('用户不存在')
-          throw new Error('用户不存在')
-        }
-      })
+        return await this.usersService.updateUser(userProfile)
+      }
+      else {
+        this.logger.error('用户不存在')
+        throw new Error('用户不存在')
+      }
     }
     catch (e) {
       throw new Error(e.message)
