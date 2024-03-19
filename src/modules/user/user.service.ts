@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { Sequelize } from 'sequelize-typescript'
-import { Op } from 'sequelize'
 import { UserStatus } from './variables/user.status'
 import { User } from '~entities/user/user.model'
 import { Role } from '~entities/user/role.model'
@@ -145,7 +144,7 @@ export class UserService {
     }
   }
 
-  removeUser(id: number) {
-    return this.userModel.destroy({ where: { id } })
+  removeUser(userId: number) {
+    return this.userModel.destroy({ where: { userId } })
   }
 }
