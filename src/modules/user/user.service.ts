@@ -40,9 +40,6 @@ export class UserService {
     return this.userModel.findOne({
       where: {
         userName,
-        status: {
-          [Op.ne]: UserStatus.DELETED,
-        },
       },
       include: [
         {
@@ -67,11 +64,6 @@ export class UserService {
 
   async findAllByPage(pageIndex: number = 1, pageSize: number = 10): Promise<User[]> {
     return this.userModel.findAll({
-      where: {
-        status: {
-          [Op.ne]: UserStatus.DELETED,
-        },
-      },
       include: [
         {
           model: Role,
@@ -112,8 +104,6 @@ export class UserService {
   async checkUser(userId: number, passwd: string) {
     const user = await this.userModel.findByPk(userId)
     if (user == null)
-      throw new Error('User not found')
-    if (user.status === UserStatus.DELETED)
       throw new Error('User not found')
     if (user.passwd === encryptPassword(passwd, user.passwdSalt))
       return true
@@ -156,6 +146,6 @@ export class UserService {
   }
 
   removeUser(id: number) {
-    return this.userModel.update({ status: UserStatus.DELETED }, { where: { id } })
+    return this.userModel.destroy({ where: { id } })
   }
 }

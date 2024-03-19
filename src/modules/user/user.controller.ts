@@ -45,4 +45,13 @@ export class UserController {
       message: '禁用成功',
     }
   }
+
+  @Post('remove')
+  async removeUser(@Query('id') id: number): Promise<ResultDto<boolean>> {
+    await this.userService.removeUser(id)
+    return {
+      success: true,
+      message: '删除成功',
+    }
+  }
 }
