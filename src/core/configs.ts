@@ -32,6 +32,8 @@ export default () => ({
     allowOrigins: process.env.APP_ALLOW_ORIGINS
       ? process.env.APP_ALLOW_ORIGINS.split(',')
       : null,
+    bodyLimit: process.env.APP_BODY_LIMIT || '200mb',
+    domain: process.env.APP_DOMAIN || '',
   },
   behindProxy: process.env.PROXY === 'true',
   development: process.env.DEVELOPMENT === 'true',

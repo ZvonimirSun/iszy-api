@@ -47,9 +47,10 @@ async function bootstrap() {
   const configService: ConfigService = app.get(ConfigService)
   const connectionService: ConnectionService = app.get(ConnectionService)
 
+  const bodyLimit = configService.get<string>('app.bodyLimit')
+  app.use(json({ limit: bodyLimit }))
+  app.use(urlencoded({ limit: bodyLimit, extended: true }))
   app.disable('x-powered-by')
-  app.use(json({ limit: '200mb' }))
-  app.use(urlencoded({ limit: '200mb', extended: true }))
   app.enableCors({
     origin(requestOrigin, callback) {
       const origins = configService.get<string[]>('app.allowOrigins')
@@ -91,6 +92,12 @@ async function bootstrap() {
     store: new redisStore({
       client: redisClient,
     }),
+  }
+
+  if (configService.get<string>('domain')) {
+    sessionConfig.cookie = merge({}, sessionConfig.cookie, {
+      domain: configService.get<string>('domain'),
+    })
   }
 
   if (!configService.get<boolean>('development')) {
