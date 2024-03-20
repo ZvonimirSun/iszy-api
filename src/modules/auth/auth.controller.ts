@@ -16,12 +16,14 @@ import { LoginDto } from './dto/login.dto'
 import type { RegisterDto } from './dto/register.dto'
 import type { LogoutDto } from './dto/logout.dto'
 import { LocalAuthGuard } from '~core/guard/local-auth.guard'
-import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
 import type { User } from '~entities/user/user.model'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { AuthRequest } from '~types/AuthRequest'
+import { Public } from '~core/decorator/public.decorator'
 
 @ApiTags('Auth')
+@UseGuards(AuthGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -29,6 +31,7 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name)
 
   @UseGuards(LocalAuthGuard)
+  @Public()
   @ApiBody({ type: LoginDto })
   @Post('login')
   login(@Req() req: AuthRequest): ResultDto<Partial<User>> {
@@ -40,6 +43,7 @@ export class AuthController {
     }
   }
 
+  @Public()
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<ResultDto<null>> {
     try {
@@ -57,7 +61,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: AuthRequest): Promise<ResultDto<Partial<User>>> {
     try {
@@ -75,7 +78,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Put('profile')
   async updateProfile(
     @Req() req: AuthRequest,
@@ -99,7 +101,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Post('logout')
   async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {

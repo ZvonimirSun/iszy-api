@@ -11,14 +11,14 @@ import { ApiTags } from '@nestjs/swagger'
 import { HolidayService } from './holiday.service'
 import type { ImportHolidayDto } from './dto/import_holiday.dto'
 import type { ResultDto } from '~core/dto/result.dto'
-import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
 
 @ApiTags('Holiday')
 @Controller('tools/holiday')
 export class HolidayController {
   constructor(private readonly holidayService: HolidayService) {}
 
-  @UseGuards(CustomAuthGuard)
+  @UseGuards(AuthGuard)
   @Post()
   async importHoliday(
     @Body() importHolidayDto: ImportHolidayDto,

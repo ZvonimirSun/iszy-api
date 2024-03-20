@@ -20,15 +20,16 @@ import type { UpdateDto } from './dto/update.dto'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { UrlModel } from '~entities/urls/url.model'
 import type { PaginationDto } from '~core/dto/pagination.dto'
-import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
 import type { AuthRequest } from '~types/AuthRequest'
+import { Public } from '~core/decorator/public.decorator'
 
 @ApiTags('Urls')
+@UseGuards(AuthGuard)
 @Controller('urls')
 export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}
 
-  @UseGuards(CustomAuthGuard)
   @Post('admin/url')
   async createUrl(
     @Body() createDto: CreateDto,
@@ -54,7 +55,6 @@ export class UrlsController {
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('admin/url/:keyword')
   async readUrl(
     @Param('keyword') keyword: string,
@@ -76,7 +76,6 @@ export class UrlsController {
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Put('admin/url/:keyword')
   async updateUrl(
     @Param('keyword') keyword: string,
@@ -98,7 +97,6 @@ export class UrlsController {
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Delete('admin/url/:keyword')
   async deleteUrl(
     @Param('keyword') keyword: string,
@@ -119,7 +117,6 @@ export class UrlsController {
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('admin/urls')
   async getUrlList(
     @Query() paginationQueryDto: PaginationQueryDto,
@@ -145,6 +142,7 @@ export class UrlsController {
     }
   }
 
+  @Public()
   @Get(':keyword')
   async visitUrl(
     @Param('keyword') keyword: string,
@@ -159,6 +157,7 @@ export class UrlsController {
       res.status(403)
   }
 
+  @Public()
   @Get()
   rootPage(@Res({ passthrough: true }) res: Response) {
     res.status(403)

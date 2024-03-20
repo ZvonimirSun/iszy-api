@@ -10,11 +10,11 @@ import {
 } from '@nestjs/common'
 import { IszyToolsService } from './iszy_tools.service'
 import type { ResultDto } from '~core/dto/result.dto'
-import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
 import type { AuthRequest } from '~types/AuthRequest'
 
 @ApiTags('ISZY Tools')
-@UseGuards(CustomAuthGuard)
+@UseGuards(AuthGuard)
 @Controller('tools')
 export class IszyToolsController {
   constructor(private readonly iszyToolsService: IszyToolsService) {}

@@ -6,7 +6,7 @@ import { User } from '~entities/user/user.model'
 
 @Injectable()
 export class CustomStrategy extends PassportStrategy(Strategy) {
-  async validate(@Req() req: AuthRequest): Promise<Partial<User>> {
+  validate(@Req() req: AuthRequest): Partial<User> {
     // 注意，passport的session数据结构，使用req.session.passport.user来访问 user session
     const user = req.session?.passport?.user
 

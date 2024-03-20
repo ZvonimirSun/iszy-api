@@ -17,261 +17,164 @@ import Mock from 'mockjs'
 import { MockService } from './mock.service'
 import type { MockProjDto } from './dtos/mock_proj.dto'
 import type { MockDataDto } from './dtos/mock_data.dto'
-import { CustomAuthGuard } from '~core/guard/custom-auth.guard'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { MockData } from '~entities/mocks/mock_data.model'
 import type { MockPrj } from '~entities/mocks/mock_prj.model'
+import { Public } from '~core/decorator/public.decorator'
 
 @ApiTags('Mock')
+@UseGuards(AuthGuard)
 @Controller('mock')
 export class MockController {
   constructor(private readonly mockService: MockService) {}
 
-  @UseGuards(CustomAuthGuard)
   @Post('api/prj')
   async createMockPrj(
     @Body() mockPrjDto: MockProjDto,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockPrj>> {
-    try {
-      return {
-        success: true,
-        message: '创建mock项目成功',
-        data: await this.mockService.createMockPrj(req.user.userId, mockPrjDto),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '创建mock项目成功',
+      data: await this.mockService.createMockPrj(req.user.userId, mockPrjDto),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Delete('api/prj/:mockPrjId')
   async deleteMockPrj(
     @Param('mockPrjId') mockPrjId: string,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<void>> {
-    try {
-      await this.mockService.deleteMockPrj(req.user.userId, mockPrjId)
-      return {
-        success: true,
-        message: '删除mock项目成功',
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    await this.mockService.deleteMockPrj(req.user.userId, mockPrjId)
+    return {
+      success: true,
+      message: '删除mock项目成功',
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Put('api/prj/:mockPrjId')
   async updateMockPrj(
     @Param('mockPrjId') mockPrjId: string,
     @Body() mockPrjDto: MockProjDto,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockPrj>> {
-    try {
-      return {
-        success: true,
-        message: '更新mock项目成功',
-        data: await this.mockService.updateMockPrj(
-          req.user.userId,
-          mockPrjId,
-          mockPrjDto,
-        ),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '更新mock项目成功',
+      data: await this.mockService.updateMockPrj(
+        req.user.userId,
+        mockPrjId,
+        mockPrjDto,
+      ),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('api/prj/list')
   async getMockPrjs(@Req() req: AuthRequest): Promise<ResultDto<MockPrj[]>> {
-    try {
-      return {
-        success: true,
-        message: '获取mock项目列表成功',
-        data: await this.mockService.getMockPrjs(req.user.userId),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '获取mock项目列表成功',
+      data: await this.mockService.getMockPrjs(req.user.userId),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('api/prj/:mockPrjId')
   async getMockPrj(
     @Param('mockPrjId') mockPrjId: string,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockPrj>> {
-    try {
-      return {
-        success: true,
-        message: '获取mock项目成功',
-        data: await this.mockService.getMockPrj(req.user.userId, mockPrjId),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '获取mock项目成功',
+      data: await this.mockService.getMockPrj(req.user.userId, mockPrjId),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Post('api/data')
   async createMockData(
     @Body() mockDataDto: MockDataDto,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
-    try {
-      if (typeof mockDataDto.response !== 'string')
-        mockDataDto.response = JSON.stringify(mockDataDto.response)
+    if (typeof mockDataDto.response !== 'string')
+      mockDataDto.response = JSON.stringify(mockDataDto.response)
 
-      return {
-        success: true,
-        message: '创建mock数据成功',
-        data: await this.mockService.createMockData(
-          req.user.userId,
-          mockDataDto,
-        ),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '创建mock数据成功',
+      data: await this.mockService.createMockData(
+        req.user.userId,
+        mockDataDto,
+      ),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Delete('api/data/:mockDataId')
   async deleteMockData(
     @Param('mockDataId') mockDataId: number,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<void>> {
-    try {
-      await this.mockService.deleteMockData(req.user.userId, mockDataId)
-      return {
-        success: true,
-        message: '删除mock数据成功',
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    await this.mockService.deleteMockData(req.user.userId, mockDataId)
+    return {
+      success: true,
+      message: '删除mock数据成功',
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Put('api/data/:mockDataId')
   async updateMockData(
     @Param('mockDataId') mockDataId: number,
     @Body() mockDataDto: MockDataDto,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
-    try {
-      if (typeof mockDataDto.response !== 'string')
-        mockDataDto.response = JSON.stringify(mockDataDto.response)
+    if (typeof mockDataDto.response !== 'string')
+      mockDataDto.response = JSON.stringify(mockDataDto.response)
 
-      return {
-        success: true,
-        message: '更新mock数据成功',
-        data: await this.mockService.updateMockData(
-          req.user.userId,
-          mockDataId,
-          mockDataDto,
-        ),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '更新mock数据成功',
+      data: await this.mockService.updateMockData(
+        req.user.userId,
+        mockDataId,
+        mockDataDto,
+      ),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('api/data/:mockDataId')
   async getMockData(
     @Param('mockDataId') mockDataId: number,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockData>> {
-    try {
-      return {
-        success: true,
-        message: '获取mock数据成功',
-        data: await this.mockService.getMockData(req.user.userId, mockDataId),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '获取mock数据成功',
+      data: await this.mockService.getMockData(req.user.userId, mockDataId),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('api/prj/:mockPrjId/list')
   async getMockDatas(
     @Req() req: AuthRequest,
     @Param('mockPrjId') mockPrjId: string,
   ): Promise<ResultDto<MockData[]>> {
-    try {
-      return {
-        success: true,
-        message: '获取mock数据列表成功',
-        data: await this.mockService.getMockDatas(req.user.userId, mockPrjId),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '获取mock数据列表成功',
+      data: await this.mockService.getMockDatas(req.user.userId, mockPrjId),
     }
   }
 
-  @UseGuards(CustomAuthGuard)
   @Get('api/path/:prjPath')
   async getMockPrjByPath(
     @Param('prjPath') prjPath: string,
     @Req() req: AuthRequest,
   ): Promise<ResultDto<MockPrj>> {
-    try {
-      return {
-        success: true,
-        message: '获取mock项目成功',
-        data: await this.mockService.getMockPrjByPath(req.user.userId, prjPath),
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      message: '获取mock项目成功',
+      data: await this.mockService.getMockPrjByPath(req.user.userId, prjPath),
     }
   }
 
@@ -287,6 +190,7 @@ export class MockController {
     name: 'mockPrjId',
     description: 'mock项目id',
   })
+  @Public()
   @All('/:mockPrjId/:prjPath/*')
   async mock(
     @Param()
