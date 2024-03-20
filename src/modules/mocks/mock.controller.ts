@@ -4,16 +4,21 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   Post,
   Put,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common'
-import { ApiParam, ApiTags } from '@nestjs/swagger'
-import type { Request, Response } from 'express'
+import { ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger'
+import type { Express, Request, Response } from 'express'
 import Mock from 'mockjs'
+import { FileInterceptor } from '@nestjs/platform-express'
 import { MockService } from './mock.service'
 import type { MockProjDto } from './dtos/mock_proj.dto'
 import type { MockDataDto } from './dtos/mock_data.dto'
@@ -23,6 +28,7 @@ import type { ResultDto } from '~core/dto/result.dto'
 import type { MockData } from '~entities/mocks/mock_data.model'
 import type { MockPrj } from '~entities/mocks/mock_prj.model'
 import { Public } from '~core/decorator/public.decorator'
+import { ImportMockPrjDto } from '~modules/mocks/dtos/import_mock_prj.dto'
 
 @ApiTags('Mock')
 @UseGuards(AuthGuard)
@@ -67,6 +73,35 @@ export class MockController {
         req.user.userId,
         mockPrjId,
         mockPrjDto,
+      ),
+    }
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: ImportMockPrjDto })
+  @Post('api/prj/:mockPrjId/:type')
+  @UseInterceptors(FileInterceptor('file'))
+  async importMockPrj(
+    @Param('mockPrjId') mockPrjId: string,
+    @Param('type') type: 'fastmock',
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'json',
+        }).build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    ) file: Express.Multer.File,
+    @Req() req: AuthRequest,
+  ) {
+    return {
+      success: true,
+      message: '导入成功',
+      data: await this.mockService.importMockPrj(
+        req.user.userId,
+        mockPrjId,
+        type,
+        file.buffer.toString(),
       ),
     }
   }

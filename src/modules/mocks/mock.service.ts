@@ -84,6 +84,16 @@ export class MockService {
     })
   }
 
+  async importMockPrj(userId: number, mockPrjId: string, type: 'fastmock', mockData: string): Promise<boolean> {
+    const mockPrj = await this.getMockPrj(userId, mockPrjId)
+    const data = JSON.parse(mockData)
+    switch (type) {
+      case 'fastmock': {
+      }
+    }
+    return true
+  }
+
   async getMockPrj(userId: number, mockPrjId: string): Promise<MockPrj> {
     const mockPrj = await this.mockPrjModel.findOne({
       where: { userId, id: mockPrjId },
