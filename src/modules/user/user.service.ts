@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { Sequelize } from 'sequelize-typescript'
+import { Op } from 'sequelize'
 import { UserStatus } from './variables/user.status'
 import { User } from '~entities/user/user.model'
 import { Role } from '~entities/user/role.model'
@@ -85,6 +86,29 @@ export class UserService {
       limit: pageSize,
       order: [['userId', 'DESC']],
     })
+  }
+
+  async searchUserName(userName: string, limit: number = 10): Promise<Pick<User, 'userId' | 'userName' | 'nickName'>[]> {
+    if (!userName)
+      return []
+
+    const users = await this.userModel.findAll({
+      where: {
+        userName: {
+          [Op.like]: `%${userName}%`,
+        },
+        status: UserStatus.ENABLED,
+      },
+      attributes: ['userId', 'userName', 'nickName'],
+      order: [['userId', 'DESC']],
+      limit,
+      raw: true,
+    })
+    return users.map(user => ({
+      userId: user.userId,
+      userName: user.userName,
+      nickName: user.nickName,
+    }))
   }
 
   async activateUser(userId: number) {

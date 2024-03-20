@@ -54,4 +54,14 @@ export class UserController {
       message: '删除成功',
     }
   }
+
+  @Roles()
+  @Get('search')
+  async searchUserName(@Query('userName') userName: string): Promise<ResultDto<Pick<User, 'userId' | 'userName' | 'nickName'>[]>> {
+    return {
+      success: true,
+      message: '搜索成功',
+      data: await this.userService.searchUserName(userName),
+    }
+  }
 }
