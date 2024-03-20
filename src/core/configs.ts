@@ -24,6 +24,7 @@ export default () => ({
       process.env.SESSION_MAXAGE != null
         ? Number.parseInt(process.env.SESSION_MAXAGE)
         : undefined,
+    domain: process.env.SESSION_DOMAIN || '',
   },
   app: {
     port: Number.parseInt(process.env.APP_PORT || process.env.PORT || '3000'),
@@ -33,7 +34,6 @@ export default () => ({
       ? process.env.APP_ALLOW_ORIGINS.split(',')
       : null,
     bodyLimit: process.env.APP_BODY_LIMIT || '200mb',
-    domain: process.env.APP_DOMAIN || '',
   },
   behindProxy: process.env.PROXY === 'true',
   development: process.env.DEVELOPMENT === 'true',

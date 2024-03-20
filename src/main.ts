@@ -94,9 +94,9 @@ async function bootstrap() {
     }),
   }
 
-  if (configService.get<string>('domain')) {
+  if (configService.get<string>('session.domain')) {
     sessionConfig.cookie = merge({}, sessionConfig.cookie, {
-      domain: configService.get<string>('domain'),
+      domain: configService.get<string>('session.domain'),
     })
   }
 
