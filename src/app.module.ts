@@ -17,6 +17,7 @@ import { IszyToolsModule } from '~modules/iszy_tools/iszy_tools.module'
 import { GisModule } from '~modules/gis/gis.module'
 import { UrlsModule } from '~modules/urls/urls.module'
 import { MockModule } from '~modules/mocks/mock.module'
+import { DDNSModule } from '~modules/ddns/ddns.module'
 
 const logger = new Logger('Database')
 
@@ -77,6 +78,7 @@ const logger = new Logger('Database')
     UrlsModule,
     ConnectionModule,
     MockModule,
+    DDNSModule,
   ],
   controllers: [AppController],
   providers: [AppService],
