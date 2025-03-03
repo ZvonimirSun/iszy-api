@@ -20,12 +20,12 @@ export class DDNSUpdateDto {
     example: 'example.com',
     required: true,
   })
-  readonly zone: string
+  readonly username: string
 
   @ApiProperty({
     description: '密码',
     example: '1234567890',
     required: true,
   })
-  readonly key: string
+  readonly password: string
 }

@@ -22,7 +22,7 @@ export class DDNSService {
   }
 
   async updateCloudflare(query: DDNSUpdateDto) {
-    const { hostname, ip, zone, key } = query
+    const { hostname, ip, username: zone, password: key } = query
     const cloudflareAPI = 'https://api.cloudflare.com/client/v4'
     try {
       const res = await axios.get(`${cloudflareAPI}/zones/${zone}/dns_records?type=A&name=${hostname}`, {
