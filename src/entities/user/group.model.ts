@@ -7,10 +7,10 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript'
-import { User } from './user.model'
-import { UserGroup } from './user-group.model'
-import { Role } from './role.model'
 import { RoleGroup } from './role-group.model'
+import { Role } from './role.model'
+import { UserGroup } from './user-group.model'
+import { User } from './user.model'
 
 @Table
 export class Group extends Model {

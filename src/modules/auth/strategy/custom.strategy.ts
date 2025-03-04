@@ -1,7 +1,7 @@
+import type { AuthRequest } from '~types/AuthRequest'
+import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy } from 'passport-custom'
-import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
-import type { AuthRequest } from '~types/AuthRequest'
 import { User } from '~entities/user/user.model'
 
 @Injectable()

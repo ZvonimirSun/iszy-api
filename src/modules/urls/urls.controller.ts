@@ -1,4 +1,11 @@
-import { ApiTags } from '@nestjs/swagger'
+import type { Request, Response } from 'express'
+import type { PaginationDto } from '~core/dto/pagination.dto'
+import type { ResultDto } from '~core/dto/result.dto'
+import type { UrlModel } from '~entities/urls/url.model'
+import type { AuthRequest } from '~types/AuthRequest'
+import type { CreateDto } from './dto/create.dto'
+import type { PaginationQueryDto } from './dto/pagination_query.dto'
+import type { UpdateDto } from './dto/update.dto'
 import {
   Body,
   Controller,
@@ -12,17 +19,10 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common'
-import type { Request, Response } from 'express'
-import { UrlsService } from './urls.service'
-import type { CreateDto } from './dto/create.dto'
-import type { PaginationQueryDto } from './dto/pagination_query.dto'
-import type { UpdateDto } from './dto/update.dto'
-import type { ResultDto } from '~core/dto/result.dto'
-import type { UrlModel } from '~entities/urls/url.model'
-import type { PaginationDto } from '~core/dto/pagination.dto'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
-import type { AuthRequest } from '~types/AuthRequest'
+import { ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator/public.decorator'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { UrlsService } from './urls.service'
 
 @ApiTags('Urls')
 @UseGuards(AuthGuard)

@@ -1,8 +1,8 @@
+import type { ImportHolidayDto } from './dto/import_holiday.dto'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { Sequelize } from 'sequelize-typescript'
 import dayjs from 'dayjs'
-import type { ImportHolidayDto } from './dto/import_holiday.dto'
+import { Sequelize } from 'sequelize-typescript'
 import { Holiday } from '~entities/holiday/holiday.model'
 
 @Injectable()
@@ -98,8 +98,8 @@ export class HolidayService {
       })
       let ics
         = 'BEGIN:VCALENDAR\r\n'
-        + 'VERSION:2.0\r\n'
-        + 'X-WR-CALNAME:中国节假日调休日历\r\n'
+          + 'VERSION:2.0\r\n'
+          + 'X-WR-CALNAME:中国节假日调休日历\r\n'
       let tmpEvent
       let tmpDate
       for (const day of tmp) {

@@ -5,8 +5,8 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript'
-import { Role } from './role.model'
 import { Privilege } from './privilege.model'
+import { Role } from './role.model'
 
 @Table
 export class RolePrivilege extends Model {

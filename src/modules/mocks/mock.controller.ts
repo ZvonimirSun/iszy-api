@@ -1,3 +1,10 @@
+import type { Request, Response } from 'express'
+import type { ResultDto } from '~core/dto/result.dto'
+import type { MockData } from '~entities/mocks/mock_data.model'
+import type { MockPrj } from '~entities/mocks/mock_prj.model'
+import type { AuthRequest } from '~types/AuthRequest'
+import type { MockDataDto } from './dtos/mock_data.dto'
+import type { MockProjDto } from './dtos/mock_proj.dto'
 import {
   All,
   Body,
@@ -12,17 +19,10 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiParam, ApiTags } from '@nestjs/swagger'
-import type { Request, Response } from 'express'
 import Mock from 'mockjs'
-import { MockService } from './mock.service'
-import type { MockProjDto } from './dtos/mock_proj.dto'
-import type { MockDataDto } from './dtos/mock_data.dto'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
-import type { AuthRequest } from '~types/AuthRequest'
-import type { ResultDto } from '~core/dto/result.dto'
-import type { MockData } from '~entities/mocks/mock_data.model'
-import type { MockPrj } from '~entities/mocks/mock_prj.model'
 import { Public } from '~core/decorator/public.decorator'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { MockService } from './mock.service'
 
 @ApiTags('Mock')
 @UseGuards(AuthGuard)

@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import dayjs from 'dayjs'
 import { Sequelize } from 'sequelize-typescript'
-import { IdiomHandle } from '~entities/idiom/IdiomHandle.model'
 import { Idiom } from '~entities/idiom/Idiom.model'
+import { IdiomHandle } from '~entities/idiom/IdiomHandle.model'
 
 @Injectable()
 export class IdiomService {

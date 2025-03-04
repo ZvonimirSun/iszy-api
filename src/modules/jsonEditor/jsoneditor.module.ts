@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { JsoneditorService } from './jsoneditor.service'
-import { JsoneditorController } from './jsoneditor.controller'
 import { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'
+import { JsoneditorController } from './jsoneditor.controller'
+import { JsoneditorService } from './jsoneditor.service'
 
 @Module({
   imports: [SequelizeModule.forFeature([JsoneditorModel])],

@@ -1,3 +1,8 @@
+import type { ResultDto } from '~core/dto/result.dto'
+import type { User } from '~entities/user/user.model'
+import type { AuthRequest } from '~types/AuthRequest'
+import type { LogoutDto } from './dto/logout.dto'
+import type { RegisterDto } from './dto/register.dto'
 import { promisify } from 'node:util'
 import {
   Body,
@@ -11,16 +16,11 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
+import { Public } from '~core/decorator/public.decorator'
+import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { LocalAuthGuard } from '~core/guard/local-auth.guard'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
-import type { RegisterDto } from './dto/register.dto'
-import type { LogoutDto } from './dto/logout.dto'
-import { LocalAuthGuard } from '~core/guard/local-auth.guard'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
-import type { User } from '~entities/user/user.model'
-import type { ResultDto } from '~core/dto/result.dto'
-import type { AuthRequest } from '~types/AuthRequest'
-import { Public } from '~core/decorator/public.decorator'
 
 @ApiTags('Auth')
 @UseGuards(AuthGuard)

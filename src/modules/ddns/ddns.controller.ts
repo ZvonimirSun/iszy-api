@@ -1,5 +1,5 @@
-import { ApiTags } from '@nestjs/swagger'
 import { Controller, Get, Param, Query } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { DDNSService } from './ddns.service'
 import { DDNSUpdateDto } from './dto/ddns_update.dto'
 

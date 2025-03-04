@@ -1,5 +1,5 @@
-import * as crypto from 'node:crypto'
 import * as Buffer from 'node:buffer'
+import * as crypto from 'node:crypto'
 
 /**
  * Make salt

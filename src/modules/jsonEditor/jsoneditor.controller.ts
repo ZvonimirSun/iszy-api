@@ -1,3 +1,7 @@
+import type { ResultDto } from '~core/dto/result.dto'
+import type { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'
+import type { AuthRequest } from '~types/AuthRequest'
+import type { JsoneditorItemDto } from './dto/jsoneditor_item.dto'
 import {
   Body,
   Controller,
@@ -9,12 +13,8 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { JsoneditorService } from './jsoneditor.service'
-import type { JsoneditorItemDto } from './dto/jsoneditor_item.dto'
-import type { ResultDto } from '~core/dto/result.dto'
-import type { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
-import type { AuthRequest } from '~types/AuthRequest'
+import { JsoneditorService } from './jsoneditor.service'
 
 @ApiTags('ISZY Tools')
 @UseGuards(AuthGuard)

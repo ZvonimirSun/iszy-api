@@ -1,4 +1,5 @@
-import { ApiTags } from '@nestjs/swagger'
+import type { ResultDto } from '~core/dto/result.dto'
+import type { AuthRequest } from '~types/AuthRequest'
 import {
   Body,
   Controller,
@@ -8,10 +9,9 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common'
-import { IszyToolsService } from './iszy_tools.service'
-import type { ResultDto } from '~core/dto/result.dto'
+import { ApiTags } from '@nestjs/swagger'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
-import type { AuthRequest } from '~types/AuthRequest'
+import { IszyToolsService } from './iszy_tools.service'
 
 @ApiTags('ISZY Tools')
 @UseGuards(AuthGuard)

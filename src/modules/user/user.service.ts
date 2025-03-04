@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { Sequelize } from 'sequelize-typescript'
 import { Op } from 'sequelize'
-import { UserStatus } from './variables/user.status'
-import { User } from '~entities/user/user.model'
-import { Role } from '~entities/user/role.model'
+import { Sequelize } from 'sequelize-typescript'
 import { Privilege } from '~entities/user/privilege.model'
+import { Role } from '~entities/user/role.model'
+import { User } from '~entities/user/user.model'
 import { encryptPassword, makeSalt } from '~utils/cryptogram'
+import { UserStatus } from './variables/user.status'
 
 @Injectable()
 export class UserService {

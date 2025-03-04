@@ -7,10 +7,10 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript'
-import { Role } from './role.model'
-import { UserRole } from './user_role.model'
 import { Group } from './group.model'
+import { Role } from './role.model'
 import { UserGroup } from './user-group.model'
+import { UserRole } from './user_role.model'
 
 @Table
 export class User extends Model {

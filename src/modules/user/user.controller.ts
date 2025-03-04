@@ -1,11 +1,11 @@
-import { ApiTags } from '@nestjs/swagger'
 import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common'
-import { UserService } from '~modules/user/user.service'
+import { ApiTags } from '@nestjs/swagger'
 import { Roles } from '~core/decorator/roles.decorator'
+import { ResultDto } from '~core/dto/result.dto'
 import { RoleEnum } from '~core/enum/role.enum'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
-import { ResultDto } from '~core/dto/result.dto'
 import { User } from '~entities/user/user.model'
+import { UserService } from '~modules/user/user.service'
 
 @ApiTags('User')
 @Roles(RoleEnum.ADMIN, RoleEnum.SUPERADMIN)

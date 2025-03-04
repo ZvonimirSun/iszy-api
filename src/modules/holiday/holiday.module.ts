@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
 import { SequelizeModule } from '@nestjs/sequelize'
+import { Holiday } from '~entities/holiday/holiday.model'
 import { HolidayController } from './holiday.controller'
 import { HolidayService } from './holiday.service'
-import { Holiday } from '~entities/holiday/holiday.model'
 
 @Module({
   imports: [SequelizeModule.forFeature([Holiday])],
