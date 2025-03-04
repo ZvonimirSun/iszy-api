@@ -1,8 +1,8 @@
 // eslint.config.js
-const antfu = require('@antfu/eslint-config').default
-const globals = require('globals')
+import antfu from '@antfu/eslint-config'
+import globals from 'globals'
 
-module.exports = antfu(
+export default antfu(
   {},
   {
     languageOptions: {
