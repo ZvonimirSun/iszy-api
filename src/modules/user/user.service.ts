@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
+import bcrypt from 'bcrypt'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { Privilege } from '~entities/user/privilege.model'
 import { Role } from '~entities/user/role.model'
 import { User } from '~entities/user/user.model'
-import { encryptPassword, makeSalt } from '~utils/cryptogram'
+import { encryptPassword } from '~utils/cryptogram'
 import { UserStatus } from './variables/user.status'
 
 @Injectable()
@@ -128,10 +129,16 @@ export class UserService {
     const user = await this.userModel.findByPk(userId)
     if (user == null)
       throw new Error('User not found')
-    if (user.passwd === encryptPassword(passwd, user.passwdSalt))
-      return true
-    else
-      throw new Error('Incorrect password')
+    if (!user.passwdSalt) {
+      const checkResult = await bcrypt.compare(passwd, user.passwd)
+      if (checkResult)
+        return true
+    }
+    else {
+      if (user.passwd === encryptPassword(passwd, user.passwdSalt))
+        return true
+    }
+    throw new Error('Incorrect password')
   }
 
   async updateUser(userProfile: Partial<User>) {
@@ -145,11 +152,8 @@ export class UserService {
           delete userProfile.createdAt
           delete userProfile.updatedAt
           if (userProfile.passwd) {
-            userProfile.passwdSalt = makeSalt()
-            userProfile.passwd = encryptPassword(
-              userProfile.passwd,
-              userProfile.passwdSalt,
-            )
+            userProfile.passwdSalt = ''
+            userProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
           }
           await user.update(userProfile, { transaction: t })
           const { passwd, passwdSalt, ...result } = user.get({

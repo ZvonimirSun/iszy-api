@@ -2,7 +2,8 @@ import type { User } from '~entities/user/user.model'
 import type { RegisterDto } from './dto/register.dto'
 // src/logical/auth/auth.service.ts
 import { Injectable, Logger } from '@nestjs/common'
-import { encryptPassword, makeSalt } from '~utils/cryptogram'
+import bcrypt from 'bcrypt'
+import { encryptPassword } from '~utils/cryptogram'
 import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
 
@@ -19,34 +20,35 @@ export class AuthService {
     password: string,
   ): Promise<Partial<User>> {
     const user = await this.usersService.findOne(username.toLowerCase())
-    if (user) {
-      const hashedPassword = user.passwd
-      const salt = user.passwdSalt
-      // 通过密码盐，加密传参，再与数据库里的比较，判断是否相等
-      const hashPassword = encryptPassword(password, salt)
-      if (hashedPassword === hashPassword) {
-        if (user.status === UserStatus.DEACTIVATED) {
-          this.logger.error('用户未激活')
-          throw new Error('用户未激活')
-        }
-        else if (user.status === UserStatus.DISABLED) {
-          this.logger.error('用户已停用')
-          throw new Error('用户已停用')
-        }
-        // 密码正确
-        const { passwd, passwdSalt, ...result } = user.get({
-          plain: true,
-        })
-        return result
-      }
-      else {
-        this.logger.error('密码错误')
-        throw new Error('用户名或密码错误')
-      }
+    if (!user) {
+      // 查无此人
+      this.logger.error('用户不存在')
+      throw new Error('用户名或密码错误')
     }
-    // 查无此人
-    this.logger.error('用户不存在')
-    throw new Error('用户名或密码错误')
+    let checkResult = false
+    if (!user.passwdSalt) {
+      checkResult = await bcrypt.compare(password, user.passwd)
+    }
+    else {
+      checkResult = user.passwd === encryptPassword(password, user.passwdSalt)
+    }
+    if (!checkResult) {
+      this.logger.error('密码错误')
+      throw new Error('用户名或密码错误')
+    }
+    if (user.status === UserStatus.DEACTIVATED) {
+      this.logger.error('用户未激活')
+      throw new Error('用户未激活')
+    }
+    else if (user.status === UserStatus.DISABLED) {
+      this.logger.error('用户已停用')
+      throw new Error('用户已停用')
+    }
+    // 密码正确
+    const { passwd, passwdSalt, ...result } = user.get({
+      plain: true,
+    })
+    return result
   }
 
   async register(registerDto: RegisterDto): Promise<void> {
@@ -54,8 +56,8 @@ export class AuthService {
       const user: Partial<User> = {}
       user.userName = registerDto.userName.toLowerCase()
       user.nickName = registerDto.nickName
-      user.passwdSalt = makeSalt()
-      user.passwd = encryptPassword(registerDto.password, user.passwdSalt)
+      user.passwdSalt = ''
+      user.passwd = await bcrypt.hash(registerDto.password, 10)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
       user.status = UserStatus.DEACTIVATED

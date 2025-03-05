@@ -30,7 +30,7 @@ export class User extends Model {
   passwd!: string
 
   @Column
-  passwdSalt!: string
+  passwdSalt?: string
 
   @Unique
   @Column
