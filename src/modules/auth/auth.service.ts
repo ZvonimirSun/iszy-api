@@ -121,7 +121,7 @@ export class AuthService {
           await this.usersService.checkUser(newProfile.userId, userProfile.oldPasswd)
           newProfile.passwd = userProfile.passwd
         }
-        return await this.usersService.updateUser(userProfile)
+        return await this.usersService.updateUser(newProfile)
       }
       else {
         this.logger.error('用户不存在')
