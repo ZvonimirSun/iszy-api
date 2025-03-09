@@ -138,7 +138,8 @@ export class UserService {
       type: p.type,
     }))
     setImmediate(() => {
-      this.cacheManager.set(cacheKey, rawUser, 60 * 60 * 1000)
+      this.cacheManager.set(`user:userId:${rawUser.userId}`, rawUser, 60 * 60 * 1000)
+      this.cacheManager.set(`user:userName:${rawUser.userName}`, rawUser, 60 * 60 * 1000)
     })
     return rawUser
   }
