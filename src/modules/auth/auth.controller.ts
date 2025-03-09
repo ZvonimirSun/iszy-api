@@ -18,6 +18,7 @@ import {
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator/public.decorator'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { GithubAuthGuard } from '~core/guard/github-auth.guard'
 import { LocalAuthGuard } from '~core/guard/local-auth.guard'
 import { UpdateProfileDto } from '~modules/auth/dto/updateProfile.dto'
 import { AuthService } from './auth.service'
@@ -136,6 +137,22 @@ export class AuthController {
         success: false,
         message: '登出失败',
       }
+    }
+  }
+
+  @Get('github')
+  @UseGuards(GithubAuthGuard)
+  githubLogin() {
+    // 自动跳转到 GitHub 授权页面
+  }
+
+  @Get('github/callback')
+  @UseGuards(GithubAuthGuard)
+  githubLoginCallback(@Req() req: AuthRequest) {
+    return {
+      success: true,
+      message: '登录成功',
+      data: req.user,
     }
   }
 }

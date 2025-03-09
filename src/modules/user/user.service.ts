@@ -43,16 +43,16 @@ export class UserService {
   }
 
   async findOne(userIdOrName: string | number, withPrivileges: boolean = false): Promise<RawUser> {
-    const options: FindOptions<RawUser> = {}
+    let where: Partial<RawUser>
     let cacheKey: string
     if (typeof userIdOrName === 'number') {
-      options.where = {
+      where = {
         userId: userIdOrName,
       }
       cacheKey = `user:userId:${userIdOrName}`
     }
     else {
-      options.where = {
+      where = {
         userName: userIdOrName,
       }
       cacheKey = `user:userName:${userIdOrName}`
@@ -74,6 +74,19 @@ export class UserService {
         const { roles, groups, privileges, ...rawUser } = cached
         return rawUser
       }
+    }
+    return await this.find(where, withPrivileges)
+  }
+
+  async findOneByGithub(github: string): Promise<RawUser> {
+    return await this.find({
+      github,
+    }, true)
+  }
+
+  async find(where: Partial<RawUser>, withPrivileges: boolean = false) {
+    const options: FindOptions<RawUser> = {
+      where: { ...where },
     }
     if (withPrivileges) {
       options.include = [
@@ -108,7 +121,8 @@ export class UserService {
     const rawUser = user.get({ plain: true })
     if (!withPrivileges) {
       setImmediate(() => {
-        this.cacheManager.set(cacheKey, rawUser, 60 * 60 * 1000)
+        this.cacheManager.set(`user:userId:${rawUser.userId}`, rawUser, 60 * 60 * 1000)
+        this.cacheManager.set(`user:userName:${rawUser.userName}`, rawUser, 60 * 60 * 1000)
       })
       return rawUser
     }

@@ -27,6 +27,7 @@ export interface RawUser {
   createBy: number
   updateBy: number
   privileges?: RawPrivilege[]
+  github?: string
 }
 
 export type PublicUser = Omit<RawUser, 'passwd' | 'passwdSalt'>
@@ -73,4 +74,8 @@ export class User extends Model<RawUser> implements RawUser {
 
   @Column
   updateBy!: number
+
+  @Unique
+  @Column
+  github?: string
 }

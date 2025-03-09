@@ -30,6 +30,15 @@ export class AuthService {
     return result
   }
 
+  async validateGithub(githubId: string): Promise<PublicUser> {
+    const user = await this.userService.findOneByGithub(githubId)
+    if (!user) {
+      throw new Error('用户不存在')
+    }
+    const { passwd, passwdSalt, ...result } = user
+    return result
+  }
+
   async register(registerDto: RegisterDto): Promise<void> {
     try {
       const user: Partial<RawUser> = {}
