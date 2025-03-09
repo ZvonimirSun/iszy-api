@@ -25,7 +25,6 @@ import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 
 @ApiTags('Auth')
-@UseGuards(AuthGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -45,6 +44,7 @@ export class AuthController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Public()
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<ResultDto<void>> {
@@ -63,6 +63,7 @@ export class AuthController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@Req() req: AuthRequest): Promise<ResultDto<PublicUser>> {
     try {
@@ -80,6 +81,7 @@ export class AuthController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Put('profile')
   async updateProfile(
     @Req() req: AuthRequest,
@@ -103,6 +105,7 @@ export class AuthController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('logout')
   async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
@@ -140,14 +143,14 @@ export class AuthController {
     }
   }
 
-  @Get('github')
   @UseGuards(GithubAuthGuard)
+  @Get('github')
   githubLogin() {
     // 自动跳转到 GitHub 授权页面
   }
 
-  @Get('github/callback')
   @UseGuards(GithubAuthGuard)
+  @Get('github/callback')
   githubLoginCallback(@Req() req: AuthRequest) {
     return {
       success: true,
