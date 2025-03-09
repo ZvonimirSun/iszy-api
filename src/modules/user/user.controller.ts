@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common'
+import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Roles } from '~core/decorator/roles.decorator'
 import { ResultDto } from '~core/dto/result.dto'
@@ -13,15 +13,6 @@ import { UserService } from '~modules/user/user.service'
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Get(':id')
-  async getUserById(@Query('id') id: number): Promise<ResultDto<PublicUser>> {
-    return {
-      success: true,
-      data: await this.userService.findOne(id, true),
-      message: '获取成功',
-    }
-  }
 
   @Get('list')
   async getUserByPage(
@@ -70,6 +61,15 @@ export class UserController {
       success: true,
       message: '搜索成功',
       data: await this.userService.searchUserName(userName),
+    }
+  }
+
+  @Get(':id')
+  async getUserById(@Param('id') id: number): Promise<ResultDto<PublicUser>> {
+    return {
+      success: true,
+      data: await this.userService.findOne(id, true),
+      message: '获取成功',
     }
   }
 }
