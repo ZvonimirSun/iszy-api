@@ -1,6 +1,6 @@
+// src/logical/auth/auth.service.ts
 import type { User } from '~entities/user/user.model'
 import type { RegisterDto } from './dto/register.dto'
-// src/logical/auth/auth.service.ts
 import { Injectable, Logger } from '@nestjs/common'
 import bcrypt from 'bcrypt'
 import { encryptPassword } from '~utils/cryptogram'
@@ -20,29 +20,9 @@ export class AuthService {
     password: string,
   ): Promise<Partial<User>> {
     const user = await this.usersService.findOne(username.toLowerCase())
-    if (!user) {
-      // 查无此人
-      this.logger.error('用户不存在')
-      throw new Error('用户名或密码错误')
-    }
-    let checkResult = false
-    if (!user.passwdSalt) {
-      checkResult = await bcrypt.compare(password, user.passwd)
-    }
-    else {
-      checkResult = user.passwd === encryptPassword(password, user.passwdSalt)
-    }
+    const checkResult = await this._checkUser(user, password)
     if (!checkResult) {
-      this.logger.error('密码错误')
       throw new Error('用户名或密码错误')
-    }
-    if (user.status === UserStatus.DEACTIVATED) {
-      this.logger.error('用户未激活')
-      throw new Error('用户未激活')
-    }
-    else if (user.status === UserStatus.DISABLED) {
-      this.logger.error('用户已停用')
-      throw new Error('用户已停用')
     }
     // 密码正确
     const { passwd, passwdSalt, ...result } = user.get({
@@ -93,44 +73,42 @@ export class AuthService {
 
   async getProfile(userName: string): Promise<Partial<User>> {
     const user = await this.usersService.findOne(userName)
-    if (user) {
-      const { passwd, passwdSalt, ...result } = user.get({
-        plain: true,
-      })
-      return result
+    if (!user) {
+      this.logger.error('用户不存在')
+      throw new Error('用户不存在')
     }
-    this.logger.error('用户不存在')
-    throw new Error('用户不存在')
+    const { passwd, passwdSalt, ...result } = user.get({
+      plain: true,
+    })
+    return result
   }
 
   async updateProfile(
     userName: string,
     userProfile: Partial<User> & { oldPasswd?: string },
   ): Promise<Partial<User>> {
-    try {
-      const user = await this.usersService.findOne(userName)
-      if (user) {
-        const newProfile: Partial<User> = {}
-        newProfile.userId = user.userId
-        if (userProfile.nickName)
-          newProfile.nickName = userProfile.nickName
-        if (userProfile.email)
-          newProfile.email = userProfile.email
-        newProfile.updateBy = user.userId
-        if (userProfile.oldPasswd && userProfile.passwd) {
-          await this.usersService.checkUser(newProfile.userId, userProfile.oldPasswd)
-          newProfile.passwd = userProfile.passwd
-        }
-        return await this.usersService.updateUser(newProfile)
-      }
-      else {
-        this.logger.error('用户不存在')
-        throw new Error('用户不存在')
-      }
+    const user = await this.usersService.findOne(userName)
+    if (!user) {
+      this.logger.error('用户不存在')
+      throw new Error('用户不存在')
     }
-    catch (e) {
-      throw new Error(e.message)
+    const newProfile: Partial<User> = {}
+    if (userProfile.oldPasswd && userProfile.passwd) {
+      const checkResult = await this._checkUser(user, userProfile.oldPasswd)
+      if (!checkResult) {
+        this.logger.error('密码错误')
+        throw new Error('密码错误')
+      }
+      newProfile.passwdSalt = ''
+      newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
     }
+    newProfile.userId = user.userId
+    if (userProfile.nickName)
+      newProfile.nickName = userProfile.nickName
+    if (userProfile.email)
+      newProfile.email = userProfile.email
+    newProfile.updateBy = user.userId
+    return await this.usersService.updateUser(newProfile)
   }
 
   logout(userId: number, sid?: string) {
@@ -139,5 +117,35 @@ export class AuthService {
 
     if (!sid) {
     }
+  }
+
+  async _checkUser(user: User, passwd: string, checkStatus = true): Promise<boolean> {
+    if (user == null) {
+      this.logger.error('用户不存在')
+      return false
+    }
+    let checkResult: boolean
+    if (!user.passwdSalt) {
+      checkResult = await bcrypt.compare(passwd, user.passwd)
+    }
+    else {
+      checkResult = user.passwd === encryptPassword(passwd, user.passwdSalt)
+    }
+    if (!checkResult) {
+      this.logger.error('密码错误')
+      return false
+    }
+    if (!checkStatus) {
+      return true
+    }
+    if (user.status === UserStatus.DEACTIVATED) {
+      this.logger.error('用户未激活')
+      return false
+    }
+    else if (user.status === UserStatus.DISABLED) {
+      this.logger.error('用户已禁用')
+      return false
+    }
+    return true
   }
 }

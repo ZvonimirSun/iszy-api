@@ -1,12 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import bcrypt from 'bcrypt'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { Privilege } from '~entities/user/privilege.model'
 import { Role } from '~entities/user/role.model'
 import { User } from '~entities/user/user.model'
-import { encryptPassword } from '~utils/cryptogram'
 import { UserStatus } from './variables/user.status'
 
 @Injectable()
@@ -125,51 +123,20 @@ export class UserService {
     return this.userModel.update({ status: UserStatus.DISABLED }, { where: { userId } })
   }
 
-  async checkUser(userId: number, passwd: string) {
-    const user = await this.userModel.findByPk(userId)
-    if (user == null)
-      throw new Error('User not found')
-    if (!user.passwdSalt) {
-      const checkResult = await bcrypt.compare(passwd, user.passwd)
-      if (checkResult)
-        return true
-    }
-    else {
-      if (user.passwd === encryptPassword(passwd, user.passwdSalt))
-        return true
-    }
-    throw new Error('Incorrect password')
-  }
-
   async updateUser(userProfile: Partial<User>) {
-    try {
-      return await this.sequelize.transaction(async (t) => {
-        const user = await this.userModel.findByPk(userProfile.userId)
-        if (user) {
-          delete userProfile.userId
-          delete userProfile.passwdSalt
-          delete userProfile.createBy
-          delete userProfile.createdAt
-          delete userProfile.updatedAt
-          if (userProfile.passwd) {
-            userProfile.passwdSalt = ''
-            userProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
-          }
-          await user.update(userProfile, { transaction: t })
-          const { passwd, passwdSalt, ...result } = user.get({
-            plain: true,
-          })
-          return result as Partial<User>
-        }
-        else {
-          this.logger.error('用户不存在')
-          throw new Error('用户不存在')
-        }
+    const { userId, ...profile } = userProfile
+    const user = await this.userModel.findByPk(userId)
+    if (!user) {
+      this.logger.error('用户不存在')
+      throw new Error('用户不存在')
+    }
+    return await this.sequelize.transaction(async (t) => {
+      await user.update(profile, { transaction: t })
+      const { passwd, passwdSalt, ...result } = user.get({
+        plain: true,
       })
-    }
-    catch (e) {
-      throw new Error(e.message)
-    }
+      return result as Partial<User>
+    })
   }
 
   removeUser(userId: number) {
