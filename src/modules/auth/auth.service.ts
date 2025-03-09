@@ -1,8 +1,8 @@
 // src/logical/auth/auth.service.ts
-import type { User } from '~entities/user/user.model'
 import type { RegisterDto } from './dto/register.dto'
 import { Injectable, Logger } from '@nestjs/common'
 import bcrypt from 'bcrypt'
+import { PublicUser, RawUser, User } from '~entities/user/user.model'
 import { encryptPassword } from '~utils/cryptogram'
 import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
@@ -10,7 +10,7 @@ import { UserStatus } from '../user/variables/user.status'
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UserService,
+    private readonly userService: UserService,
   ) {}
 
   private readonly logger = new Logger(AuthService.name)
@@ -18,16 +18,14 @@ export class AuthService {
   async validateUser(
     username: string,
     password: string,
-  ): Promise<Partial<User>> {
-    const user = await this.usersService.findOne(username.toLowerCase())
+  ): Promise<PublicUser> {
+    const user = await this.userService.findOne(username.toLowerCase(), true)
     const checkResult = await this._checkUser(user, password)
     if (!checkResult) {
       throw new Error('用户名或密码错误')
     }
     // 密码正确
-    const { passwd, passwdSalt, ...result } = user.get({
-      plain: true,
-    })
+    const { passwd, passwdSalt, ...result } = user
     return result
   }
 
@@ -41,7 +39,7 @@ export class AuthService {
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
       user.status = UserStatus.DEACTIVATED
-      await this.usersService.create(user)
+      await this.userService.create(user)
     }
     catch (e) {
       if (e.name === 'SequelizeUniqueConstraintError') {
@@ -71,23 +69,21 @@ export class AuthService {
     }
   }
 
-  async getProfile(userName: string): Promise<Partial<User>> {
-    const user = await this.usersService.findOne(userName)
+  async getProfile(userName: string): Promise<PublicUser> {
+    const user = await this.userService.findOne(userName, true)
     if (!user) {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
-    const { passwd, passwdSalt, ...result } = user.get({
-      plain: true,
-    })
+    const { passwd, passwdSalt, ...result } = user
     return result
   }
 
   async updateProfile(
     userName: string,
     userProfile: Partial<User> & { oldPasswd?: string },
-  ): Promise<Partial<User>> {
-    const user = await this.usersService.findOne(userName)
+  ): Promise<PublicUser> {
+    const user = await this.userService.findOne(userName)
     if (!user) {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
@@ -108,7 +104,9 @@ export class AuthService {
     if (userProfile.email)
       newProfile.email = userProfile.email
     newProfile.updateBy = user.userId
-    return await this.usersService.updateUser(newProfile)
+    const updatedUser = await this.userService.updateUser(newProfile)
+    const { passwd, passwdSalt, ...result } = updatedUser
+    return result
   }
 
   logout(userId: number, sid?: string) {
@@ -119,7 +117,7 @@ export class AuthService {
     }
   }
 
-  async _checkUser(user: User, passwd: string, checkStatus = true): Promise<boolean> {
+  async _checkUser(user: RawUser, passwd: string, checkStatus = true): Promise<boolean> {
     if (user == null) {
       this.logger.error('用户不存在')
       return false

@@ -1,4 +1,4 @@
-import type { User } from '~entities/user/user.model'
+import type { PublicUser } from '~entities/user/user.model'
 import type { AuthRequest } from '~types/AuthRequest'
 import { promisify } from 'node:util'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
@@ -19,7 +19,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     username: string,
     password: string,
   ): Promise<any> {
-    let user: Partial<User>
+    let user: PublicUser
     try {
       user = await this.authService.validateUser(username, password)
     }

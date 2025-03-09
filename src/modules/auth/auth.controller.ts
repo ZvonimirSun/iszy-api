@@ -1,5 +1,5 @@
 import type { ResultDto } from '~core/dto/result.dto'
-import type { User } from '~entities/user/user.model'
+import type { PublicUser, User } from '~entities/user/user.model'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { LogoutDto } from './dto/logout.dto'
 import type { RegisterDto } from './dto/register.dto'
@@ -62,7 +62,7 @@ export class AuthController {
   }
 
   @Get('profile')
-  async getProfile(@Req() req: AuthRequest): Promise<ResultDto<Partial<User>>> {
+  async getProfile(@Req() req: AuthRequest): Promise<ResultDto<PublicUser>> {
     try {
       return {
         success: true,
@@ -82,7 +82,7 @@ export class AuthController {
   async updateProfile(
     @Req() req: AuthRequest,
     @Body() updateProfileDto: Partial<User> & { oldPasswd?: string },
-  ): Promise<ResultDto<Partial<User>>> {
+  ): Promise<ResultDto<PublicUser>> {
     try {
       return {
         success: true,

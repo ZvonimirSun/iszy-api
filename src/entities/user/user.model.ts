@@ -7,27 +7,46 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript'
-import { Group } from './group.model'
-import { Role } from './role.model'
+import { RawPrivilege } from '~entities/user/privilege.model'
+import { Group, RawGroup } from './group.model'
+import { RawRole, Role } from './role.model'
 import { UserGroup } from './user-group.model'
 import { UserRole } from './user_role.model'
 
+export interface RawUser {
+  userId: number
+  userName: string
+  nickName: string
+  passwd: string
+  passwdSalt?: string
+  mobile?: string
+  email?: string
+  roles?: RawRole[]
+  groups?: RawGroup[]
+  status: number
+  createBy: number
+  updateBy: number
+  privileges?: RawPrivilege[]
+}
+
+export type PublicUser = Omit<RawUser, 'passwd' | 'passwdSalt'>
+
 @Table
-export class User extends Model {
+export class User extends Model<RawUser> implements RawUser {
   @PrimaryKey
   @AutoIncrement
   @Column
-  userId?: number
+  userId: number
 
   @Unique
   @Column
-  userName!: string
+  userName: string
 
   @Column
-  nickName!: string
+  nickName: string
 
   @Column
-  passwd!: string
+  passwd: string
 
   @Column
   passwdSalt?: string

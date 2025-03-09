@@ -4,21 +4,30 @@ import { Roles } from '~core/decorator/roles.decorator'
 import { ResultDto } from '~core/dto/result.dto'
 import { RoleEnum } from '~core/enum/role.enum'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
-import { User } from '~entities/user/user.model'
+import { PublicUser, User } from '~entities/user/user.model'
 import { UserService } from '~modules/user/user.service'
 
 @ApiTags('User')
-@Roles(RoleEnum.ADMIN, RoleEnum.SUPERADMIN)
+@Roles(RoleEnum.SUPERADMIN)
 @UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Get(':id')
+  async getUserById(@Query('id') id: number): Promise<ResultDto<PublicUser>> {
+    return {
+      success: true,
+      data: await this.userService.findOne(id, true),
+      message: '获取成功',
+    }
+  }
+
   @Get('list')
   async getUserByPage(
     @Query('pageIndex') pageIndex: number,
     @Query('pageSize') pageSize: number,
-  ): Promise<ResultDto<User[]>> {
+  ): Promise<ResultDto<PublicUser[]>> {
     const users = await this.userService.findAllByPage(pageIndex, pageSize)
     return {
       success: true,

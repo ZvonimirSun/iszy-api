@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { Op } from 'sequelize'
+import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
+import { Group } from '~entities/user/group.model'
 import { Privilege } from '~entities/user/privilege.model'
 import { Role } from '~entities/user/role.model'
-import { User } from '~entities/user/user.model'
+import { PublicUser, RawUser, User } from '~entities/user/user.model'
 import { UserStatus } from './variables/user.status'
 
 @Injectable()
@@ -16,8 +17,8 @@ export class UserService {
 
   private readonly logger = new Logger(UserService.name)
 
-  async create(user: Partial<User>, userId?: number): Promise<User> {
-    return await this.sequelize.transaction(async (t) => {
+  async create(user: Partial<RawUser>, userId?: number): Promise<RawUser> {
+    const userItem = await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t }
       if (userId != null) {
         return await this.userModel.create(
@@ -33,61 +34,98 @@ export class UserService {
         })
       }
     })
-  }
-
-  async findOne(userName: string | number): Promise<User> {
-    return this.userModel.findOne({
-      where: {
-        userName,
-      },
-      include: [
-        {
-          model: Role,
-          attributes: ['name', 'alias'],
-          through: {
-            attributes: [],
-          },
-          include: [
-            {
-              model: Privilege,
-              attributes: ['type'],
-              through: {
-                attributes: [],
-              },
-            },
-          ],
-        },
-      ],
+    return userItem.get({
+      plain: true,
     })
   }
 
-  async findAllByPage(pageIndex: number = 1, pageSize: number = 10): Promise<User[]> {
-    return this.userModel.findAll({
-      include: [
+  async findOne(userIdOrName: string | number, withPrivileges: boolean = false): Promise<RawUser> {
+    const options: FindOptions<RawUser> = {}
+    if (typeof userIdOrName === 'number') {
+      options.where = {
+        userId: userIdOrName,
+      }
+    }
+    else {
+      options.where = {
+        userName: userIdOrName,
+      }
+    }
+    if (withPrivileges) {
+      options.include = [
         {
           model: Role,
           attributes: ['name', 'alias'],
-          through: {
-            attributes: [],
-          },
-          include: [
-            {
-              model: Privilege,
-              attributes: ['type'],
-              through: {
-                attributes: [],
-              },
-            },
-          ],
+          through: { attributes: [] },
+          include: [{
+            model: Privilege,
+            attributes: ['id', 'type'],
+            through: { attributes: [] },
+          }],
         },
-      ],
+        {
+          model: Group,
+          attributes: ['name', 'alias'],
+          include: [{
+            model: Role,
+            through: { attributes: [] },
+            include: [{
+              model: Privilege,
+              attributes: ['id', 'type'],
+            }],
+          }],
+        },
+      ]
+    }
+    const user = await this.userModel.findOne(options)
+    if (!user) {
+      return null
+    }
+    const rawUser = user.get({ plain: true })
+    if (!withPrivileges) {
+      return rawUser
+    }
+    // 合并角色并去重
+    const allRoles = [
+      ...user.roles,
+      ...user.groups.flatMap(g => g.roles),
+    ]
+    const uniqueRoles = Array.from(
+      new Map(allRoles.map(r => [r.name, r])).values(),
+    )
+    const allPrivileges = uniqueRoles.flatMap(r => r.privileges)
+    const uniquePrivileges = Array.from(
+      new Map(allPrivileges.map(p => [p.id, p])).values(),
+    )
+    // 构建最终结果
+    rawUser.roles = uniqueRoles.map(role => ({
+      name: role.name,
+      alias: role.alias,
+    }))
+    rawUser.groups = user.groups.map(g => ({
+      alias: g.alias,
+      name: g.name,
+    }))
+    rawUser.privileges = uniquePrivileges.map(p => ({
+      id: p.id,
+      type: p.type,
+    }))
+    return rawUser
+  }
+
+  async findAllByPage(pageIndex: number = 1, pageSize: number = 10): Promise<PublicUser[]> {
+    return this.userModel.findAll({
       offset: (pageIndex - 1) * pageSize,
       limit: pageSize,
       order: [['userId', 'DESC']],
+      attributes: {
+        exclude: ['passwd', 'passwdSalt'],
+      },
+      raw: true,
     })
   }
 
-  async searchUserName(userName: string, limit: number = 10): Promise<Pick<User, 'userId' | 'userName' | 'nickName'>[]> {
+  async searchUserName(userName: string, limit: number = 10): Promise<Pick<PublicUser, 'userId' | 'userName' | 'nickName'>[]> {
     if (!userName)
       return []
 
@@ -110,36 +148,38 @@ export class UserService {
     }))
   }
 
-  async activateUser(userId: number) {
+  async activateUser(userId: number): Promise<RawUser> {
     const user = await this.userModel.findOne({ where: { userId } })
     if (user == null)
       throw new Error('User not found')
     if (user.status === UserStatus.ENABLED)
       throw new Error('User is already enabled')
-    return user.update({ status: UserStatus.ENABLED })
+    await user.update({ status: UserStatus.ENABLED })
+    return user.get({
+      plain: true,
+    })
   }
 
   async disableUser(userId: number) {
-    return this.userModel.update({ status: UserStatus.DISABLED }, { where: { userId } })
+    await this.userModel.update({ status: UserStatus.DISABLED }, { where: { userId } })
+    return true
   }
 
-  async updateUser(userProfile: Partial<User>) {
+  async updateUser(userProfile: Partial<RawUser>): Promise<RawUser> {
     const { userId, ...profile } = userProfile
     const user = await this.userModel.findByPk(userId)
     if (!user) {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
-    return await this.sequelize.transaction(async (t) => {
-      await user.update(profile, { transaction: t })
-      const { passwd, passwdSalt, ...result } = user.get({
-        plain: true,
-      })
-      return result as Partial<User>
+    await user.update(profile)
+    return user.get({
+      plain: true,
     })
   }
 
-  removeUser(userId: number) {
-    return this.userModel.destroy({ where: { userId } })
+  async removeUser(userId: number) {
+    await this.userModel.destroy({ where: { userId } })
+    return true
   }
 }
