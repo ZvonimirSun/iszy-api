@@ -1,4 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common'
+import type { Cache } from 'cache-manager'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
@@ -13,6 +15,7 @@ export class UserService {
   constructor(
     @InjectModel(User) private userModel: typeof User,
     private sequelize: Sequelize,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   private readonly logger = new Logger(UserService.name)
@@ -41,14 +44,35 @@ export class UserService {
 
   async findOne(userIdOrName: string | number, withPrivileges: boolean = false): Promise<RawUser> {
     const options: FindOptions<RawUser> = {}
+    let cacheKey: string
     if (typeof userIdOrName === 'number') {
       options.where = {
         userId: userIdOrName,
       }
+      cacheKey = `user:userId:${userIdOrName}`
     }
     else {
       options.where = {
         userName: userIdOrName,
+      }
+      cacheKey = `user:userName:${userIdOrName}`
+    }
+    const cached = await this.cacheManager.get<RawUser>(cacheKey)
+    if (cached) {
+      if (withPrivileges) {
+        if (cached.privileges) {
+          setImmediate(() => {
+            this.cacheManager.set(cacheKey, cached, 60 * 60 * 1000)
+          })
+          return cached
+        }
+      }
+      else {
+        setImmediate(() => {
+          this.cacheManager.set(cacheKey, cached, 60 * 60 * 1000)
+        })
+        const { roles, groups, privileges, ...rawUser } = cached
+        return rawUser
       }
     }
     if (withPrivileges) {
@@ -83,6 +107,9 @@ export class UserService {
     }
     const rawUser = user.get({ plain: true })
     if (!withPrivileges) {
+      setImmediate(() => {
+        this.cacheManager.set(cacheKey, rawUser, 60 * 60 * 1000)
+      })
       return rawUser
     }
     // 合并角色并去重
@@ -110,6 +137,9 @@ export class UserService {
       id: p.id,
       type: p.type,
     }))
+    setImmediate(() => {
+      this.cacheManager.set(cacheKey, rawUser, 60 * 60 * 1000)
+    })
     return rawUser
   }
 
