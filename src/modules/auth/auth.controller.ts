@@ -1,5 +1,5 @@
 import type { ResultDto } from '~core/dto/result.dto'
-import type { PublicUser, User } from '~entities/user/user.model'
+import type { PublicUser } from '~entities/user/user.model'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { LogoutDto } from './dto/logout.dto'
 import type { RegisterDto } from './dto/register.dto'
@@ -19,6 +19,7 @@ import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator/public.decorator'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
 import { LocalAuthGuard } from '~core/guard/local-auth.guard'
+import { UpdateProfileDto } from '~modules/auth/dto/updateProfile.dto'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 
@@ -34,7 +35,7 @@ export class AuthController {
   @Public()
   @ApiBody({ type: LoginDto })
   @Post('login')
-  login(@Req() req: AuthRequest): ResultDto<Partial<User>> {
+  login(@Req() req: AuthRequest): ResultDto<PublicUser> {
     this.logger.log(`${req.user.userName} 登陆成功`)
     return {
       success: true,
@@ -45,7 +46,7 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async register(@Body() registerDto: RegisterDto): Promise<ResultDto<null>> {
+  async register(@Body() registerDto: RegisterDto): Promise<ResultDto<void>> {
     try {
       await this.authService.register(registerDto)
       return {
@@ -81,7 +82,7 @@ export class AuthController {
   @Put('profile')
   async updateProfile(
     @Req() req: AuthRequest,
-    @Body() updateProfileDto: Partial<User> & { oldPasswd?: string },
+    @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<ResultDto<PublicUser>> {
     try {
       return {

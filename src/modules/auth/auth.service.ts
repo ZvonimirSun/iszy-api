@@ -2,7 +2,8 @@
 import type { RegisterDto } from './dto/register.dto'
 import { Injectable, Logger } from '@nestjs/common'
 import bcrypt from 'bcrypt'
-import { PublicUser, RawUser, User } from '~entities/user/user.model'
+import { PublicUser, RawUser } from '~entities/user/user.model'
+import { UpdateProfileDto } from '~modules/auth/dto/updateProfile.dto'
 import { encryptPassword } from '~utils/cryptogram'
 import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
@@ -31,10 +32,9 @@ export class AuthService {
 
   async register(registerDto: RegisterDto): Promise<void> {
     try {
-      const user: Partial<User> = {}
+      const user: Partial<RawUser> = {}
       user.userName = registerDto.userName.toLowerCase()
       user.nickName = registerDto.nickName
-      user.passwdSalt = ''
       user.passwd = await bcrypt.hash(registerDto.password, 10)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
@@ -81,14 +81,14 @@ export class AuthService {
 
   async updateProfile(
     userName: string,
-    userProfile: Partial<User> & { oldPasswd?: string },
+    userProfile: UpdateProfileDto,
   ): Promise<PublicUser> {
     const user = await this.userService.findOne(userName)
     if (!user) {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
-    const newProfile: Partial<User> = {}
+    const newProfile: Partial<RawUser> = {}
     if (userProfile.oldPasswd && userProfile.passwd) {
       const checkResult = await this._checkUser(user, userProfile.oldPasswd)
       if (!checkResult) {
@@ -103,6 +103,8 @@ export class AuthService {
       newProfile.nickName = userProfile.nickName
     if (userProfile.email)
       newProfile.email = userProfile.email
+    if (userProfile.mobile)
+      newProfile.mobile = userProfile.mobile
     newProfile.updateBy = user.userId
     const updatedUser = await this.userService.updateUser(newProfile)
     const { passwd, passwdSalt, ...result } = updatedUser
