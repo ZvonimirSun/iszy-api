@@ -152,10 +152,17 @@ export class AuthController {
   @UseGuards(GithubAuthGuard)
   @Get('github/callback')
   githubLoginCallback(@Req() req: AuthRequest) {
-    return {
-      success: true,
-      message: '登录成功',
-      data: req.user,
-    }
+    return `
+    <body>
+      <script>
+        window.onload = () => {
+          if (!window.opener) {
+            return
+          }
+          window.opener && window.opener.postMessage({ type: 'oauth_complete' }, '*');
+        };
+      </script>
+    </body>
+    `
   }
 }
