@@ -153,14 +153,14 @@ export class AuthController {
   @Get('github/callback')
   githubLoginCallback() {
     return `
-      <script>
-        if (window.opener && !window.opener.closed) {
-          window.opener.postMessage({ type: 'oauth_complete' }, '*');
-        }
-        window.opener = null;
-        window.open('about:blank', '_self');
-        window.close();
-      </script>
+      <body>
+        登录完成
+        <script>
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'oauth_complete' }, '*');
+          }
+        </script>
+      </body>
     `
   }
 }
