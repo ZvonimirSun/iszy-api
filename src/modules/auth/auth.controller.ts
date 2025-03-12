@@ -153,16 +153,13 @@ export class AuthController {
   @Get('github/callback')
   githubLoginCallback(@Req() req: AuthRequest) {
     return `
-    <body>
       <script>
-        window.onload = () => {
-          if (!window.opener) {
-            return
-          }
-          window.opener && window.opener.postMessage({ type: 'oauth_complete' }, '*');
-        };
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'oauth_complete' }, '*');
+        }
+        window.opener = null;
+        window.close();
       </script>
-    </body>
     `
   }
 }
