@@ -158,7 +158,7 @@ export class AuthController {
           window.opener.postMessage({ type: 'oauth_complete' }, '*');
         }
         window.opener = null;
-        window.open('', '_self');
+        window.open('about:blank', '_self');
         window.close();
       </script>
     `
