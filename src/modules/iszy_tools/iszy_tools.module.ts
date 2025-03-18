@@ -14,6 +14,5 @@ import { IszyToolsService } from './iszy_tools.service'
   ],
   controllers: [IszyToolsController],
   providers: [IszyToolsService],
-  exports: [IszyToolsService],
 })
 export class IszyToolsModule {}

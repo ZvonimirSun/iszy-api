@@ -5,6 +5,5 @@ import { GisService } from './gis.service'
 @Module({
   controllers: [GisController],
   providers: [GisService],
-  exports: [GisService],
 })
 export class GisModule {}

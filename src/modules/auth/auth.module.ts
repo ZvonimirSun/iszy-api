@@ -12,6 +12,5 @@ import { LocalStrategy } from './local.strategy'
   imports: [PassportModule, UserModule, GithubAuthModule],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, CustomStrategy],
-  exports: [AuthService],
 })
 export class AuthModule {}

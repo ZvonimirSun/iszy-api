@@ -8,6 +8,5 @@ import { JsoneditorService } from './jsoneditor.service'
   imports: [SequelizeModule.forFeature([JsoneditorModel])],
   controllers: [JsoneditorController],
   providers: [JsoneditorService],
-  exports: [JsoneditorService],
 })
 export class JsoneditorModule {}

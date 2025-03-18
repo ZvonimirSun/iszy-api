@@ -9,6 +9,5 @@ import { MockService } from './mock.service'
   imports: [SequelizeModule.forFeature([MockPrj, MockData])],
   controllers: [MockController],
   providers: [MockService],
-  exports: [MockService],
 })
 export class MockModule {}

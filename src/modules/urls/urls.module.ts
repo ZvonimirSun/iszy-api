@@ -8,8 +8,7 @@ import { UrlsService } from './urls.service'
 
 @Module({
   imports: [SequelizeModule.forFeature([UrlModel, OptionsModel, LogModel])],
-  providers: [UrlsService],
-  exports: [UrlsService],
   controllers: [UrlsController],
+  providers: [UrlsService],
 })
 export class UrlsModule {}

@@ -9,6 +9,5 @@ import { IdiomService } from './Idiom.service'
   imports: [SequelizeModule.forFeature([IdiomHandle, Idiom])],
   controllers: [IdiomController],
   providers: [IdiomService],
-  exports: [IdiomService],
 })
 export class IdiomModule {}

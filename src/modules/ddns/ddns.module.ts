@@ -5,6 +5,5 @@ import { DDNSService } from './ddns.service'
 @Module({
   controllers: [DDNSController],
   providers: [DDNSService],
-  exports: [DDNSModule],
 })
 export class DDNSModule {}

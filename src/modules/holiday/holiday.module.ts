@@ -8,6 +8,5 @@ import { HolidayService } from './holiday.service'
   imports: [SequelizeModule.forFeature([Holiday])],
   controllers: [HolidayController],
   providers: [HolidayService],
-  exports: [HolidayService],
 })
 export class HolidayModule {}
