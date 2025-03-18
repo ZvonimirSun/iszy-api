@@ -5,11 +5,11 @@ import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy } from 'passport-github2'
 import { PublicUser } from '~entities/user/user.model'
-import { AuthService } from '~modules/auth/auth.service'
+import { GithubAuthService } from './github-auth.service'
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService, private authService: AuthService) {
+  constructor(configService: ConfigService, private githubAuthService: GithubAuthService) {
     super({
       passReqToCallback: true,
       clientID: configService.get<string>('auth.github.clientId'),
@@ -29,7 +29,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
   ) {
     let user: PublicUser
     try {
-      user = await this.authService.validateGithub(profile.id)
+      user = await this.githubAuthService.validateUser(profile.id)
     }
     catch (e) {
       // 如果用户名密码不匹配，清理session

@@ -4,14 +4,14 @@ import { PassportModule } from '@nestjs/passport'
 import { UserModule } from '../user/user.module'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { CustomStrategy } from './strategy/custom.strategy'
-import { GithubStrategy } from './strategy/github.strategy'
-import { LocalStrategy } from './strategy/local.strategy'
+import { GithubAuthModule } from './children/github/github-auth.module'
+import { CustomStrategy } from './custom.strategy'
+import { LocalStrategy } from './local.strategy'
 
 @Module({
-  imports: [PassportModule, UserModule],
+  imports: [PassportModule, UserModule, GithubAuthModule],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, CustomStrategy, GithubStrategy],
+  providers: [AuthService, LocalStrategy, CustomStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

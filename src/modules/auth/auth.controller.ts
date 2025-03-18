@@ -18,13 +18,13 @@ import {
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator/public.decorator'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
-import { GithubAuthGuard } from '~core/guard/github-auth.guard'
 import { LocalAuthGuard } from '~core/guard/local-auth.guard'
 import { UpdateProfileDto } from '~modules/auth/dto/updateProfile.dto'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 
 @ApiTags('Auth')
+@UseGuards(AuthGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -44,7 +44,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @Public()
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<ResultDto<void>> {
@@ -63,7 +62,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@Req() req: AuthRequest): Promise<ResultDto<PublicUser>> {
     try {
@@ -81,7 +79,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @Put('profile')
   async updateProfile(
     @Req() req: AuthRequest,
@@ -105,7 +102,6 @@ export class AuthController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @Post('logout')
   async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
@@ -141,26 +137,5 @@ export class AuthController {
         message: '登出失败',
       }
     }
-  }
-
-  @UseGuards(GithubAuthGuard)
-  @Get('github')
-  githubLogin() {
-    // 自动跳转到 GitHub 授权页面
-  }
-
-  @UseGuards(GithubAuthGuard)
-  @Get('github/callback')
-  githubLoginCallback() {
-    return `
-      <body>
-        登录完成
-        <script>
-          if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ type: 'oauth_complete' }, '*');
-          }
-        </script>
-      </body>
-    `
   }
 }
