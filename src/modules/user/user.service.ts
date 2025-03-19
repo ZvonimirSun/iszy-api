@@ -46,8 +46,7 @@ export class UserService {
     const cached = await this._getCache(userIdOrName)
     if (cached) {
       this._setCache(cached)
-      const { roles, groups, privileges, ...rawUser } = cached
-      return rawUser
+      return cached
     }
     let where: Partial<RawUser>
     if (typeof userIdOrName === 'number') {
