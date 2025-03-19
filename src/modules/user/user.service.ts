@@ -42,20 +42,12 @@ export class UserService {
     })
   }
 
-  async findOne(userIdOrName: string | number, withPrivileges: boolean = false): Promise<RawUser> {
+  async findOne(userIdOrName: string | number): Promise<RawUser> {
     const cached = await this._getCache(userIdOrName)
     if (cached) {
-      if (withPrivileges) {
-        if (cached.privileges) {
-          this._setCache(cached)
-          return cached
-        }
-      }
-      else {
-        this._setCache(cached)
-        const { roles, groups, privileges, ...rawUser } = cached
-        return rawUser
-      }
+      this._setCache(cached)
+      const { roles, groups, privileges, ...rawUser } = cached
+      return rawUser
     }
     let where: Partial<RawUser>
     if (typeof userIdOrName === 'number') {
@@ -68,21 +60,19 @@ export class UserService {
         userName: userIdOrName,
       }
     }
-    return await this.find(where, withPrivileges)
+    return await this.find(where)
   }
 
   async findOneByGithub(github: string): Promise<RawUser> {
     return await this.find({
       github,
-    }, true)
+    })
   }
 
-  async find(where: Partial<RawUser>, withPrivileges: boolean = false) {
+  async find(where: Partial<RawUser>) {
     const options: FindOptions<RawUser> = {
       where: { ...where },
-    }
-    if (withPrivileges) {
-      options.include = [
+      include: [
         {
           model: Role,
           attributes: ['name', 'alias'],
@@ -105,17 +95,13 @@ export class UserService {
             }],
           }],
         },
-      ]
+      ],
     }
     const user = await this.userModel.findOne(options)
     if (!user) {
       return null
     }
     const rawUser = user.get({ plain: true })
-    if (!withPrivileges) {
-      this._setCache(rawUser)
-      return rawUser
-    }
     // 合并角色并去重
     const allRoles = [
       ...user.roles,

@@ -20,7 +20,7 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<PublicUser> {
-    const user = await this.userService.findOne(username.toLowerCase(), true)
+    const user = await this.userService.findOne(username.toLowerCase())
     const checkResult = await this._checkUser(user, password)
     if (!checkResult) {
       throw new Error('用户名或密码错误')
@@ -70,7 +70,7 @@ export class AuthService {
   }
 
   async getProfile(userName: string): Promise<PublicUser> {
-    const user = await this.userService.findOne(userName, true)
+    const user = await this.userService.findOne(userName)
     if (!user) {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')

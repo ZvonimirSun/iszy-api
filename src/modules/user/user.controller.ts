@@ -62,7 +62,7 @@ export class UserController {
   async getUserById(@Param('id') id: number): Promise<ResultDto<PublicUser>> {
     return {
       success: true,
-      data: await this.userService.findOne(id, true),
+      data: await this.userService.findOne(id),
       message: '获取成功',
     }
   }
