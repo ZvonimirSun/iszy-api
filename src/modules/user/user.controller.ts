@@ -32,8 +32,8 @@ export class UserController {
   }
 
   @Put('activate')
-  async activateUser(@Query('id') id: number): Promise<ResultDto<boolean>> {
-    await this.userService.activateUser(id)
+  async activateUser(@Req() req: AuthRequest, @Query('id') id: number): Promise<ResultDto<boolean>> {
+    await this.userService.activateUser(id, req.user.userId)
     return {
       success: true,
       message: '激活成功',
@@ -41,8 +41,8 @@ export class UserController {
   }
 
   @Put('ban')
-  async banUser(@Query('id') id: number): Promise<ResultDto<boolean>> {
-    await this.userService.disableUser(id)
+  async banUser(@Req() req: AuthRequest, @Query('id') id: number): Promise<ResultDto<boolean>> {
+    await this.userService.disableUser(id, req.user.userId)
     return {
       success: true,
       message: '禁用成功',

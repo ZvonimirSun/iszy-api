@@ -43,36 +43,29 @@ export class UserService {
   }
 
   async findOne(userIdOrName: string | number, withPrivileges: boolean = false): Promise<RawUser> {
-    let where: Partial<RawUser>
-    let cacheKey: string
-    if (typeof userIdOrName === 'number') {
-      where = {
-        userId: userIdOrName,
-      }
-      cacheKey = `user:userId:${userIdOrName}`
-    }
-    else {
-      where = {
-        userName: userIdOrName,
-      }
-      cacheKey = `user:userName:${userIdOrName}`
-    }
-    const cached = await this.cacheManager.get<RawUser>(cacheKey)
+    const cached = await this._getCache(userIdOrName)
     if (cached) {
       if (withPrivileges) {
         if (cached.privileges) {
-          setImmediate(() => {
-            this.cacheManager.set(cacheKey, cached, 60 * 60 * 1000)
-          })
+          this._setCache(cached)
           return cached
         }
       }
       else {
-        setImmediate(() => {
-          this.cacheManager.set(cacheKey, cached, 60 * 60 * 1000)
-        })
+        this._setCache(cached)
         const { roles, groups, privileges, ...rawUser } = cached
         return rawUser
+      }
+    }
+    let where: Partial<RawUser>
+    if (typeof userIdOrName === 'number') {
+      where = {
+        userId: userIdOrName,
+      }
+    }
+    else {
+      where = {
+        userName: userIdOrName,
       }
     }
     return await this.find(where, withPrivileges)
@@ -120,10 +113,7 @@ export class UserService {
     }
     const rawUser = user.get({ plain: true })
     if (!withPrivileges) {
-      setImmediate(() => {
-        this.cacheManager.set(`user:userId:${rawUser.userId}`, rawUser, 60 * 60 * 1000)
-        this.cacheManager.set(`user:userName:${rawUser.userName}`, rawUser, 60 * 60 * 1000)
-      })
+      this._setCache(rawUser)
       return rawUser
     }
     // 合并角色并去重
@@ -151,10 +141,7 @@ export class UserService {
       id: p.id,
       type: p.type,
     }))
-    setImmediate(() => {
-      this.cacheManager.set(`user:userId:${rawUser.userId}`, rawUser, 60 * 60 * 1000)
-      this.cacheManager.set(`user:userName:${rawUser.userName}`, rawUser, 60 * 60 * 1000)
-    })
+    this._setCache(rawUser)
     return rawUser
   }
 
@@ -193,21 +180,40 @@ export class UserService {
     }))
   }
 
-  async activateUser(userId: number): Promise<RawUser> {
-    const user = await this.userModel.findOne({ where: { userId } })
-    if (user == null)
-      throw new Error('User not found')
-    if (user.status === UserStatus.ENABLED)
-      throw new Error('User is already enabled')
-    await user.update({ status: UserStatus.ENABLED })
-    return user.get({
-      plain: true,
+  async activateUser(userId: number, updateUserId: number): Promise<RawUser> {
+    const user = await this.userModel.findByPk(userId)
+    if (!user) {
+      this.logger.error('用户不存在')
+      throw new Error('用户不存在')
+    }
+    if (user.status === UserStatus.ENABLED) {
+      this.logger.error('用户已激活')
+      throw new Error('用户已激活')
+    }
+    await user.update({
+      status: UserStatus.ENABLED,
+      updateBy: updateUserId,
     })
+    await this._clearCache(user)
+    return this.findOne(userId)
   }
 
-  async disableUser(userId: number) {
-    await this.userModel.update({ status: UserStatus.DISABLED }, { where: { userId } })
-    return true
+  async disableUser(userId: number, updateUserId: number) {
+    const user = await this.userModel.findByPk(userId)
+    if (!user) {
+      this.logger.error('用户不存在')
+      throw new Error('用户不存在')
+    }
+    if (user.status === UserStatus.DISABLED) {
+      this.logger.error('用户已禁用')
+      return this.findOne(userId)
+    }
+    await user.update({
+      status: UserStatus.DISABLED,
+      updateBy: updateUserId,
+    })
+    await this._clearCache(user)
+    return this.findOne(userId)
   }
 
   async updateUser(userProfile: Partial<RawUser>): Promise<RawUser> {
@@ -218,13 +224,41 @@ export class UserService {
       throw new Error('用户不存在')
     }
     await user.update(profile)
-    return user.get({
-      plain: true,
-    })
+    await this._clearCache(user)
+    return this.findOne(userId)
   }
 
   async removeUser(userId: number) {
-    await this.userModel.destroy({ where: { userId } })
+    const user = await this.userModel.findByPk(userId)
+    if (!user) {
+      this.logger.error('用户不存在')
+      throw new Error('用户不存在')
+    }
+    await user.destroy()
+    await this._clearCache(user)
     return true
+  }
+
+  async _getCache(userIdOrName: string | number): Promise<RawUser | null> {
+    let cacheKey: string
+    if (typeof userIdOrName === 'number') {
+      cacheKey = `user:userId:${userIdOrName}`
+    }
+    else {
+      cacheKey = `user:userName:${userIdOrName}`
+    }
+    return this.cacheManager.get<RawUser>(cacheKey)
+  }
+
+  _setCache(user: RawUser) {
+    setImmediate(async () => {
+      await this.cacheManager.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
+      await this.cacheManager.set(`user:userName:${user.userName}`, user, 60 * 60 * 1000)
+    })
+  }
+
+  async _clearCache(user: RawUser) {
+    await this.cacheManager.del(`user:userId:${user.userId}`)
+    await this.cacheManager.del(`user:userName:${user.userName}`)
   }
 }
