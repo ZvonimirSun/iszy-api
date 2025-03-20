@@ -73,8 +73,18 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   )
-  if (configService.get<boolean>('behindProxy'))
-    app.set('trust proxy', true)
+
+  const behindProxy = configService.get<boolean>('behindProxy')
+  const trustProxy = configService.get<string>('trustProxy')
+  if (behindProxy || trustProxy) {
+    if (trustProxy) {
+      const defaultTrustProxy = 'loopback, linklocal, uniquelocal, '
+      app.set('trust proxy', defaultTrustProxy + trustProxy)
+    }
+    else {
+      app.set('trust proxy', true)
+    }
+  }
 
   const redisClient = connectionService.getRedisClient()
 

@@ -48,6 +48,7 @@ export default () => {
       },
     },
     behindProxy: process.env.PROXY === 'true',
+    trustProxy: process.env.TRUST_PROXY,
     development: process.env.DEVELOPMENT === 'true',
   }
 }
