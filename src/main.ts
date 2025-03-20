@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
+import cookieParser from 'cookie-parser'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
@@ -47,6 +48,7 @@ async function bootstrap() {
   const bodyLimit = configService.get<string>('app.bodyLimit')
   app.use(json({ limit: bodyLimit }))
   app.use(urlencoded({ limit: bodyLimit, extended: true }))
+  app.use(cookieParser())
   app.set('query parser', 'extended')
   app.disable('x-powered-by')
   app.enableCors({

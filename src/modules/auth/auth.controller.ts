@@ -1,3 +1,4 @@
+import type { Response } from 'express'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { PublicUser } from '~entities/user/user.model'
 import type { AuthRequest } from '~types/AuthRequest'
@@ -13,6 +14,7 @@ import {
   Put,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
@@ -103,16 +105,14 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
+  async logout(@Req() req: AuthRequest, @Res({ passthrough: true }) res: Response, @Query() logoutDto: LogoutDto) {
     try {
       const userName = req.user.userName
       const userId = req.user.userId
       const session = req.session
       if (logoutDto.all) {
         await promisify(req.logout.bind(req))()
-        session.destroy(() => {
-
-        })
+        await promisify(req.session.destroy.bind(req.session))()
         this.authService.logout(userId)
       }
       else if (logoutDto.other) {
@@ -120,8 +120,9 @@ export class AuthController {
       }
       else {
         await promisify(req.logout.bind(req))()
-        session.destroy(() => {
-
+        await promisify(req.session.destroy.bind(req.session))()
+        res.cookie('iszy_api.connect.sid', '', {
+          maxAge: 0,
         })
       }
       this.logger.log(`${userName} 登出成功`)
