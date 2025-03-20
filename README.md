@@ -6,7 +6,7 @@
 
 ISZY API集合，基于 [NestJS](http://nestjs.com/) 开发，主要为 [ISZY 工具集合](https://github.com/zvonimirsun/iszy-tools) 提供后端支持。
 
-- 项目框架: [NestJS 10](http://nestjs.com/)
+- 项目框架: [NestJS 11](http://nestjs.com/)
 - 数据库ORM: [Sequelize 6](https://sequelize.org/)
 - 数据库存储: [PostgreSQL 14](https://www.postgresql.org/)
 - 文档生成: [OpenAPI 3](https://swagger.io/specification/)

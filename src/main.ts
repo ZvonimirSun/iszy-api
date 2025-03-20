@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
-import connectRedis from 'connect-redis'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
@@ -21,8 +20,6 @@ import { AppModule } from './app.module'
 import getLogLevels from './core/getLogLevels'
 import SwaggerPublic from './swagger.public'
 import 'dayjs/locale/zh-cn'
-
-const redisStore = connectRedis(session)
 
 // 设置passport序列化和反序列化user的方法，在将用户信息存储到session时使用
 passport.serializeUser((user, done) => {
@@ -50,6 +47,7 @@ async function bootstrap() {
   const bodyLimit = configService.get<string>('app.bodyLimit')
   app.use(json({ limit: bodyLimit }))
   app.use(urlencoded({ limit: bodyLimit, extended: true }))
+  app.set('query parser', 'extended')
   app.disable('x-powered-by')
   app.enableCors({
     origin(requestOrigin, callback) {
@@ -86,8 +84,6 @@ async function bootstrap() {
     }
   }
 
-  const redisClient = connectionService.getRedisClient()
-
   const sessionConfig: SessionOptions = {
     cookie: {
       httpOnly: true,
@@ -98,9 +94,7 @@ async function bootstrap() {
     saveUninitialized: false,
     secret: configService.get<string>('session.secret'),
     // 使用redis存储session
-    store: new redisStore({
-      client: redisClient,
-    }),
+    store: connectionService.getSessionStore(),
   }
 
   if (configService.get<string>('session.domain')) {

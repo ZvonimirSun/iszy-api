@@ -179,7 +179,7 @@ export class MockController {
   }
 
   @ApiParam({
-    name: '0',
+    name: 'dataPath',
     description: 'mock数据路径',
   })
   @ApiParam({
@@ -191,28 +191,24 @@ export class MockController {
     description: 'mock项目id',
   })
   @Public()
-  @All('/:mockPrjId/:prjPath/*')
+  @All('/:mockPrjId/:prjPath/*dataPath')
   async mock(
-    @Param()
-    params: {
-      mockPrjId: string
-      prjPath: string
-      0: string
-    },
+    @Param('mockPrjId') mockPrjId: string,
+    @Param('prjPath') prjPath: string,
+    @Param('dataPath') dataPath: string[],
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { mockPrjId, prjPath, '0': dataPath } = params
     if (!dataPath) {
       res.status(404)
       return
     }
-    let mockData
+    let mockData: MockData
     try {
       mockData = await this.mockService.getMockDataByPath(
         mockPrjId,
         prjPath,
-        dataPath,
+        dataPath.join('/'),
       )
     }
     catch (e) {
