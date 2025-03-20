@@ -50,5 +50,6 @@ export default () => {
     behindProxy: process.env.PROXY === 'true',
     trustProxy: process.env.TRUST_PROXY,
     development: process.env.DEVELOPMENT === 'true',
+    systemProxy: process.env.http_proxy || process.env.HTTP_PROXY || process.env.https_proxy || process.env.HTTPS_PROXY || '',
   }
 }

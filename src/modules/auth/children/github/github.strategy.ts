@@ -3,6 +3,7 @@ import { promisify } from 'node:util'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Strategy } from 'passport-github2'
 import { PublicUser } from '~entities/user/user.model'
 import { GithubAuthService } from './github-auth.service'
@@ -17,6 +18,11 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
       callbackURL: configService.get<string>('auth.github.callbackUrl'),
       scope: [],
     })
+    const systemProxy = configService.get<string>('systemProxy')
+    if (systemProxy) {
+      const httpsProxyAgent = new HttpsProxyAgent(systemProxy)
+      this._oauth2.setAgent(httpsProxyAgent)
+    }
   }
 
   async validate(
