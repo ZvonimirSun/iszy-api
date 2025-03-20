@@ -1,6 +1,6 @@
 import { Controller, Get, Logger, UseGuards } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { GithubAuthGuard } from '~core/guard/github-auth.guard'
+import { GithubAuthGuard } from './github-auth.guard'
 
 @ApiTags('Auth')
 @UseGuards(GithubAuthGuard)

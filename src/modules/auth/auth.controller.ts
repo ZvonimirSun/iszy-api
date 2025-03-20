@@ -18,10 +18,10 @@ import {
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator/public.decorator'
 import { AuthGuard } from '~core/guard/custom-auth.guard'
-import { LocalAuthGuard } from '~core/guard/local-auth.guard'
-import { UpdateProfileDto } from '~modules/auth/dto/updateProfile.dto'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
+import { UpdateProfileDto } from './dto/updateProfile.dto'
+import { LocalAuthGuard } from './local-auth.guard'
 
 @ApiTags('Auth')
 @UseGuards(AuthGuard)
