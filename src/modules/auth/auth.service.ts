@@ -90,7 +90,7 @@ export class AuthService {
     }
     const newProfile: Partial<RawUser> = {}
     if (userProfile.oldPasswd && userProfile.passwd) {
-      const checkResult = await this._checkUser(user, userProfile.oldPasswd)
+      const checkResult = await this._checkUser(user, userProfile.oldPasswd, false)
       if (!checkResult) {
         this.logger.error('密码错误')
         throw new Error('密码错误')
@@ -140,11 +140,11 @@ export class AuthService {
     }
     if (user.status === UserStatus.DEACTIVATED) {
       this.logger.error('用户未激活')
-      return false
+      throw new Error('用户未激活')
     }
     else if (user.status === UserStatus.DISABLED) {
       this.logger.error('用户已禁用')
-      return false
+      throw new Error('用户已禁用')
     }
     return true
   }
