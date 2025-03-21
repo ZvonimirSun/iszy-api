@@ -1,10 +1,8 @@
-import type { Response } from 'express'
 import type { ResultDto } from '~core/dto/result.dto'
-import type { PublicUser } from '~entities/user/user.model'
+import type { PublicUser } from '~entities/user'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { LogoutDto } from './dto/logout.dto'
 import type { RegisterDto } from './dto/register.dto'
-import { promisify } from 'node:util'
 import {
   Body,
   Controller,
@@ -14,35 +12,56 @@ import {
   Put,
   Query,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common'
-import { ApiBody, ApiTags } from '@nestjs/swagger'
-import { Public } from '~core/decorator/public.decorator'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger'
+import { Public, RefreshToken } from '~core/decorator'
+import { UserService } from '~modules/core/user/user.service'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import { UpdateProfileDto } from './dto/updateProfile.dto'
 import { LocalAuthGuard } from './local-auth.guard'
 
+@ApiBearerAuth()
 @ApiTags('Auth')
-@UseGuards(AuthGuard)
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
 
   private readonly logger = new Logger(AuthController.name)
 
   @UseGuards(LocalAuthGuard)
-  @Public()
   @ApiBody({ type: LoginDto })
   @Post('login')
-  login(@Req() req: AuthRequest): ResultDto<PublicUser> {
+  async login(@Req() req: AuthRequest): Promise<ResultDto<{
+    access_token: string
+    refresh_token: string
+    profile: PublicUser
+  }>> {
     this.logger.log(`${req.user.userName} 登陆成功`)
     return {
       success: true,
       message: '登录成功',
-      data: req.user,
+      data: await this.authService.generateToken(req.user, req.deviceId),
+    }
+  }
+
+  @RefreshToken()
+  @Post('refresh')
+  async refreshToken(
+    @Req() req: AuthRequest,
+  ): Promise<ResultDto<{
+      access_token: string
+      refresh_token: string
+      profile: PublicUser
+    }>> {
+    return {
+      success: true,
+      message: '刷新成功',
+      data: await this.authService.generateToken(req.user, req.deviceId),
     }
   }
 
@@ -105,25 +124,19 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Req() req: AuthRequest, @Res({ passthrough: true }) res: Response, @Query() logoutDto: LogoutDto) {
+  async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
       const userName = req.user.userName
       const userId = req.user.userId
-      const session = req.session
+      const deviceId = req.deviceId
       if (logoutDto.all) {
-        await promisify(req.logout.bind(req))()
-        await promisify(req.session.destroy.bind(req.session))()
-        this.authService.logout(userId)
+        await this.authService.logout(userId)
       }
       else if (logoutDto.other) {
-        this.authService.logout(userId, session.id)
+        await this.authService.logout(userId, deviceId, true)
       }
       else {
-        await promisify(req.logout.bind(req))()
-        await promisify(req.session.destroy.bind(req.session))()
-        res.cookie('iszy_api.connect.sid', '', {
-          maxAge: 0,
-        })
+        await this.authService.logout(userId, deviceId)
       }
       this.logger.log(`${userName} 登出成功`)
       return {

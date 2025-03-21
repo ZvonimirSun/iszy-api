@@ -1,8 +1,10 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { Public } from '~core/decorator'
 import { DDNSService } from './ddns.service'
 import { DDNSUpdateDto } from './dto/ddns_update.dto'
 
+@Public()
 @ApiTags('DDNS')
 @Controller('ddns')
 export class DDNSController {

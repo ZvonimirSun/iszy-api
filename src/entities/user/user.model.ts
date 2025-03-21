@@ -7,8 +7,8 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript'
-import { RawPrivilege } from '~entities/user/privilege.model'
 import { Group, RawGroup } from './group.model'
+import { RawPrivilege } from './privilege.model'
 import { RawRole, Role } from './role.model'
 import { UserGroup } from './user-group.model'
 import { UserRole } from './user_role.model'
@@ -67,13 +67,13 @@ export class User extends Model<RawUser> implements RawUser {
   groups?: Group[]
 
   @Column
-  status!: number
+  status: number
 
   @Column
-  createBy!: number
+  createBy: number
 
   @Column
-  updateBy!: number
+  updateBy: number
 
   @Unique
   @Column

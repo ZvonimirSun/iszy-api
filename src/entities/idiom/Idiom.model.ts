@@ -33,5 +33,5 @@ export class Idiom extends Model {
   @AutoIncrement
   @PrimaryKey
   @Column
-  id: number
+  declare id: number
 }

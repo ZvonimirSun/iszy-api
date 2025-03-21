@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { RawUser } from '~entities/user/user.model'
+import { RawUser } from '~entities/user'
 
 export class UpdateProfileDto implements Partial<RawUser> {
   @ApiProperty({

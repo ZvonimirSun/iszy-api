@@ -3,8 +3,10 @@ import type { TransformGeometryDto } from './dto/transform_geometry.dto'
 import type { TransformPointDto } from './dto/transform_point.dto'
 import { Body, Controller, Post } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { Public } from '~core/decorator'
 import { GisService } from './gis.service'
 
+@Public()
 @ApiTags('Gis')
 @Controller('gis')
 export class GisController {

@@ -10,14 +10,12 @@ import {
   Param,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { JsoneditorService } from './jsoneditor.service'
 
+@ApiBearerAuth()
 @ApiTags('ISZY Tools')
-@UseGuards(AuthGuard)
 @Controller('tools/jsoneditor')
 export class JsoneditorController {
   constructor(private readonly jsoneditorService: JsoneditorService) {}

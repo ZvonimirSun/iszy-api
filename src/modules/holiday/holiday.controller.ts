@@ -7,18 +7,19 @@ import {
   Header,
   Param,
   Post,
-  UseGuards,
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Private, Public } from '~core/decorator'
 import { HolidayService } from './holiday.service'
 
+@Public()
 @ApiTags('Holiday')
 @Controller('tools/holiday')
 export class HolidayController {
   constructor(private readonly holidayService: HolidayService) {}
 
-  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Private()
   @Post()
   async importHoliday(
     @Body() importHolidayDto: ImportHolidayDto,

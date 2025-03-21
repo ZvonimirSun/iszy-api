@@ -16,16 +16,14 @@ import {
   Put,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common'
-import { ApiParam, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger'
 import Mock from 'mockjs'
-import { Public } from '~core/decorator/public.decorator'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { Public } from '~core/decorator'
 import { MockService } from './mock.service'
 
+@ApiBearerAuth()
 @ApiTags('Mock')
-@UseGuards(AuthGuard)
 @Controller('mock')
 export class MockController {
   constructor(private readonly mockService: MockService) {}

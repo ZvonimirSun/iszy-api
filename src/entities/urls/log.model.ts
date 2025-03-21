@@ -13,7 +13,7 @@ export class LogModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number
+  declare id: number
 
   @Column
   shortUrl: string

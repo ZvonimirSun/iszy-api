@@ -22,14 +22,6 @@ export default () => {
       port: Number.parseInt(process.env.REDIS_PORT || '6379'),
       password: process.env.REDIS_PASSWD,
     },
-    session: {
-      secret: process.env.SESSION_SECRET,
-      maxAge:
-        process.env.SESSION_MAXAGE != null
-          ? Number.parseInt(process.env.SESSION_MAXAGE)
-          : undefined,
-      domain: process.env.SESSION_DOMAIN || '',
-    },
     app: {
       origin: appOrigin,
       port: appPort,
@@ -41,6 +33,12 @@ export default () => {
       bodyLimit: process.env.APP_BODY_LIMIT || '200mb',
     },
     auth: {
+      publicRegister: process.env.PUBLIC_REGISTER === 'true',
+      jwt: {
+        secret: process.env.JWT_SECRET || '',
+        expire: process.env.JWT_EXPIRE || '1d',
+        refreshExpire: process.env.JWT_REFRESH_EXPIRE || '7d',
+      },
       github: {
         clientId: process.env.GITHUB_CLIENT_ID || '',
         clientSecret: process.env.GITHUB_CLIENT_SECRET || '',

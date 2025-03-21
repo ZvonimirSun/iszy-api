@@ -15,7 +15,7 @@ export class OptionsModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number
+  declare id: number
 
   @Unique
   @Column

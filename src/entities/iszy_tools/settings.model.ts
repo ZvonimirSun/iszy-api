@@ -6,14 +6,14 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript'
-import { User } from '~entities/user/user.model'
+import { User } from '~entities/user'
 
 @Table
 export class Settings extends Model {
   @AutoIncrement
   @PrimaryKey
   @Column
-  id: number
+  declare id: number
 
   @ForeignKey(() => User)
   @Column

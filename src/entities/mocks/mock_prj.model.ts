@@ -7,7 +7,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript'
-import { User } from '~entities/user/user.model'
+import { User } from '~entities/user'
 
 @Table
 export class MockPrj extends Model {
@@ -16,7 +16,7 @@ export class MockPrj extends Model {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
   })
-  id?: string
+  declare id?: string
 
   @Column({
     allowNull: false,

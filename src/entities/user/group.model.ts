@@ -25,7 +25,7 @@ export class Group extends Model<RawGroup> implements RawGroup {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number
+  declare id: number
 
   @Column
   name!: string

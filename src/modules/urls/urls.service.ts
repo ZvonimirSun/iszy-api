@@ -1,8 +1,6 @@
-import type { Cache } from 'cache-manager'
 import type { Request } from 'express'
 import type { PaginationDto } from '~core/dto/pagination.dto'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import axios from 'axios'
 import { load } from 'cheerio'
@@ -11,6 +9,7 @@ import { Sequelize } from 'sequelize-typescript'
 import { LogModel } from '~entities/urls/log.model'
 import { OptionsModel } from '~entities/urls/options.model'
 import { UrlModel } from '~entities/urls/url.model'
+import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 
 export enum OPTIONS {
   NEXT_KEYWORD = 'nextKeyword',
@@ -22,19 +21,19 @@ export class UrlsService {
     @InjectModel(UrlModel) private urlModel: typeof UrlModel,
     @InjectModel(OptionsModel) private optionsModel: typeof OptionsModel,
     @InjectModel(LogModel) private logModel: typeof LogModel,
-    private sequelize: Sequelize,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly sequelize: Sequelize,
+    private readonly redisCacheService: RedisCacheService,
   ) {}
 
   private readonly logger = new Logger(UrlsService.name)
 
   private async getUrl(keyword: string): Promise<string> {
     try {
-      const cacheKey = `url_${keyword}`
-      const cached = await this.cacheManager.get<string>(cacheKey)
+      const cacheKey = `url:${keyword}`
+      const cached = await this.redisCacheService.get<string>(cacheKey)
       if (cached) {
         setImmediate(() => {
-          this.cacheManager.set(cacheKey, cached, 60 * 60 * 1000)
+          this.redisCacheService.set(cacheKey, cached, 60 * 60 * 1000)
         })
         return cached
       }
@@ -44,7 +43,7 @@ export class UrlsService {
           return null
         }
         else {
-          await this.cacheManager.set(cacheKey, data.url, 60 * 60 * 1000)
+          await this.redisCacheService.set(cacheKey, data.url, 60 * 60 * 1000)
           return data.url
         }
       }
@@ -133,7 +132,7 @@ export class UrlsService {
           { transaction: t },
         )
       })
-      await this.cacheManager.del(`url_${keyword}`)
+      await this.redisCacheService.del(`url:${keyword}`)
       return urlModel
     }
     catch (e) {
@@ -154,7 +153,7 @@ export class UrlsService {
       await this.sequelize.transaction(async (t) => {
         await data.destroy({ transaction: t })
       })
-      await this.cacheManager.del(`url_${keyword}`)
+      await this.redisCacheService.del(`url:${keyword}`)
       setImmediate(() => {
         this._clearLog(keyword)
       })

@@ -6,7 +6,7 @@ import { Column, Model, PrimaryKey, Table } from 'sequelize-typescript'
 export class Holiday extends Model {
   @PrimaryKey
   @Column
-  id: number
+  declare id: number
 
   @Column
   desc: string

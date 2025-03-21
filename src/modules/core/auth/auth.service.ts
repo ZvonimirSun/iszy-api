@@ -1,17 +1,25 @@
-// src/logical/auth/auth.service.ts
 import type { RegisterDto } from './dto/register.dto'
 import { Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { JwtService } from '@nestjs/jwt'
 import bcrypt from 'bcrypt'
-import { PublicUser, RawUser } from '~entities/user/user.model'
-import { UpdateProfileDto } from '~modules/auth/dto/updateProfile.dto'
+import ms, { StringValue } from 'ms'
+import { PublicUser, RawUser } from '~entities/user'
+import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { encryptPassword } from '~utils/cryptogram'
+import { encodeUUID } from '~utils/uuid'
 import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
+import { UpdateProfileDto } from './dto/updateProfile.dto'
+import { JwtPayload, RefreshJwtPayload } from './jwt.strategy'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly redisCacheService: RedisCacheService,
   ) {}
 
   private readonly logger = new Logger(AuthService.name)
@@ -30,6 +38,57 @@ export class AuthService {
     return result
   }
 
+  async generateToken(user: PublicUser, deviceId?: string): Promise<{
+    access_token: string
+    refresh_token: string
+    profile: PublicUser
+  }> {
+    const accessExpireTime = this.configService.get<StringValue>('auth.jwt.expire')
+    const refreshExpireTime = this.configService.get<StringValue>('auth.jwt.refreshExpire')
+    const accessExpireMs = ms(accessExpireTime)
+    const refreshExpireMs = ms(refreshExpireTime)
+
+    if (refreshExpireMs <= accessExpireMs) {
+      throw new Error('refresh_token 过期时间必须大于 access_token 过期时间')
+    }
+
+    if (typeof user === 'number') {
+      const rawUser = await this.userService.findOne(user)
+      if (!rawUser) {
+        this.logger.error('用户不存在')
+        throw new Error('用户不存在')
+      }
+      const { passwd, passwdSalt, ...publicUser } = rawUser
+      user = publicUser
+    }
+    const userId = user.userId
+    deviceId = deviceId || encodeUUID()
+
+    const jwtPayload: JwtPayload = {
+      deviceId,
+      profile: user,
+    }
+    const accessToken = this.jwtService.sign(jwtPayload, {
+      expiresIn: accessExpireTime,
+    })
+
+    const refreshJwtPayload: RefreshJwtPayload = {
+      deviceId,
+      refreshUserId: userId,
+    }
+    const refreshToken = this.jwtService.sign(refreshJwtPayload, {
+      expiresIn: refreshExpireTime,
+    })
+
+    await this.redisCacheService.set(`device:userId:${userId}:${deviceId}`, refreshToken, refreshExpireMs)
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      profile: user,
+    }
+  }
+
   async register(registerDto: RegisterDto): Promise<void> {
     try {
       const user: Partial<RawUser> = {}
@@ -38,7 +97,7 @@ export class AuthService {
       user.passwd = await bcrypt.hash(registerDto.password, 10)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
-      user.status = UserStatus.DEACTIVATED
+      user.status = this.configService.get<boolean>('auth.publicRegister') ? UserStatus.ENABLED : UserStatus.DEACTIVATED
       await this.userService.create(user)
     }
     catch (e) {
@@ -111,11 +170,21 @@ export class AuthService {
     return result
   }
 
-  logout(userId: number, sid?: string) {
+  async logout(userId: number, deviceId?: string, other?: boolean) {
     if (userId == null)
       return
 
-    if (!sid) {
+    // 登出所有设备
+    if (!deviceId) {
+      // todo
+    }
+    // 登出其他设备
+    else if (other) {
+      // todo
+    }
+    // 登出当前设备
+    else {
+      await this.redisCacheService.del(`device:userId:${userId}:${deviceId}`)
     }
   }
 
@@ -139,8 +208,8 @@ export class AuthService {
       return true
     }
     if (user.status === UserStatus.DEACTIVATED) {
-      this.logger.error('用户未激活')
-      throw new Error('用户未激活')
+      this.logger.error('用户待激活')
+      throw new Error('用户待激活')
     }
     else if (user.status === UserStatus.DISABLED) {
       this.logger.error('用户已禁用')

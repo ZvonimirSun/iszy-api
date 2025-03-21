@@ -1,4 +1,4 @@
-import { AuthModule } from '~modules/auth/auth.module'
+import { AuthModule } from '~modules/core/auth/auth.module'
 import { DDNSModule } from '~modules/ddns/ddns.module'
 import { GisModule } from '~modules/gis/gis.module'
 import { HolidayModule } from '~modules/holiday/holiday.module'

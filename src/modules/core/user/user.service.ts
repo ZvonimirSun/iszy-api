@@ -1,13 +1,9 @@
-import type { Cache } from 'cache-manager'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
-import { Group } from '~entities/user/group.model'
-import { Privilege } from '~entities/user/privilege.model'
-import { Role } from '~entities/user/role.model'
-import { PublicUser, RawUser, User } from '~entities/user/user.model'
+import { Group, Privilege, PublicUser, RawUser, Role, User } from '~entities/user'
+import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { UserStatus } from './variables/user.status'
 
 @Injectable()
@@ -15,7 +11,7 @@ export class UserService {
   constructor(
     @InjectModel(User) private userModel: typeof User,
     private sequelize: Sequelize,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly redisCacheService: RedisCacheService,
   ) {}
 
   private readonly logger = new Logger(UserService.name)
@@ -225,25 +221,30 @@ export class UserService {
   }
 
   async _getCache(userIdOrName: string | number): Promise<RawUser | null> {
-    let cacheKey: string
     if (typeof userIdOrName === 'number') {
-      cacheKey = `user:userId:${userIdOrName}`
+      const cacheKey = `user:userId:${userIdOrName}`
+      return await this.redisCacheService.get<RawUser>(cacheKey)
     }
     else {
-      cacheKey = `user:userName:${userIdOrName}`
+      const userIdKey = `user:userName:${userIdOrName}:userId`
+      const cachedUserId = await this.redisCacheService.get<number>(userIdKey)
+      if (!cachedUserId) {
+        return null
+      }
+      const cacheKey = `user:userId:${cachedUserId}`
+      return await this.redisCacheService.get<RawUser>(cacheKey)
     }
-    return this.cacheManager.get<RawUser>(cacheKey)
   }
 
   _setCache(user: RawUser) {
     setImmediate(async () => {
-      await this.cacheManager.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
-      await this.cacheManager.set(`user:userName:${user.userName}`, user, 60 * 60 * 1000)
+      await this.redisCacheService.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
+      await this.redisCacheService.set(`user:userName:${user.userName}:userId`, user.userId, 60 * 60 * 1000)
     })
   }
 
   async _clearCache(user: RawUser) {
-    await this.cacheManager.del(`user:userId:${user.userId}`)
-    await this.cacheManager.del(`user:userName:${user.userName}`)
+    await this.redisCacheService.del(`user:userId:${user.userId}`)
+    await this.redisCacheService.del(`user:userName:${user.userName}:userId`)
   }
 }

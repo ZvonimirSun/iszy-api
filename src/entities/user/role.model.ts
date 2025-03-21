@@ -27,7 +27,7 @@ export class Role extends Model<RawRole> implements RawRole {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number
+  declare id: number
 
   @Column
   desc: string

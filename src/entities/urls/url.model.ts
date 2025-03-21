@@ -6,7 +6,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript'
-import { User } from '~entities/user/user.model'
+import { User } from '~entities/user'
 
 @Table({
   tableName: 'ShortUrlUrl',

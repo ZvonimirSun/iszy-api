@@ -7,14 +7,12 @@ import {
   Param,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { IszyToolsService } from './iszy_tools.service'
 
+@ApiBearerAuth()
 @ApiTags('ISZY Tools')
-@UseGuards(AuthGuard)
 @Controller('tools')
 export class IszyToolsController {
   constructor(private readonly iszyToolsService: IszyToolsService) {}

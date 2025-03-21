@@ -7,7 +7,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript'
-import { User } from '~entities/user/user.model'
+import { User } from '~entities/user'
 import { MockPrj } from './mock_prj.model'
 
 @Table
@@ -16,7 +16,7 @@ export class MockData extends Model {
   @Column({
     autoIncrement: true,
   })
-  id?: number
+  declare id?: number
 
   @Column({
     allowNull: false,

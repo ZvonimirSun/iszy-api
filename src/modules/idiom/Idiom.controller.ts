@@ -1,8 +1,10 @@
 import type { ResultDto } from '~core/dto/result.dto'
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { Public } from '~core/decorator'
 import { IdiomService } from './Idiom.service'
 
+@Public()
 @ApiTags('Idiom')
 @Controller('idiom')
 export class IdiomController {

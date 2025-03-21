@@ -17,15 +17,13 @@ import {
   Query,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
-import { Public } from '~core/decorator/public.decorator'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Public } from '~core/decorator'
 import { UrlsService } from './urls.service'
 
+@ApiBearerAuth()
 @ApiTags('Urls')
-@UseGuards(AuthGuard)
 @Controller('urls')
 export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}

@@ -19,7 +19,7 @@ export class Privilege extends Model<RawPrivilege> implements RawPrivilege {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number
+  declare id: number
 
   @Column
   type: string

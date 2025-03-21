@@ -1,20 +1,18 @@
 import type { AuthRequest } from '~types/AuthRequest'
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import bcrypt from 'bcrypt'
-import { Roles } from '~core/decorator/roles.decorator'
+import { Roles } from '~core/decorator'
 import { PageableDto } from '~core/dto/pageable.dto'
 import { ResultDto } from '~core/dto/result.dto'
 import { RoleEnum } from '~core/enum/role.enum'
-import { AuthGuard } from '~core/guard/custom-auth.guard'
-import { PublicUser, RawUser, User } from '~entities/user/user.model'
-import { RegisterDto } from '~modules/auth/dto/register.dto'
-import { UserService } from '~modules/user/user.service'
-import { UserStatus } from '~modules/user/variables/user.status'
+import { PublicUser, RawUser, User } from '~entities/user'
+import { RegisterDto } from '../auth/dto/register.dto'
+import { UserService } from './user.service'
+import { UserStatus } from './variables/user.status'
 
 @ApiTags('User')
 @Roles(RoleEnum.SUPERADMIN)
-@UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
