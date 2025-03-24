@@ -4,7 +4,7 @@ export class MockDataDto {
   @ApiProperty({
     description: '数据名称',
   })
-  readonly name!: string
+  name: string
 
   @ApiProperty({
     description: '请求类型',
@@ -19,7 +19,7 @@ export class MockDataDto {
   @ApiProperty({
     description: '请求路径',
   })
-  readonly path!: string
+  path: string
 
   @ApiPropertyOptional({
     description: '数据描述',

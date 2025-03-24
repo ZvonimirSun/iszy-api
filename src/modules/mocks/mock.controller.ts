@@ -66,7 +66,7 @@ export class MockController {
       data: await this.mockService.updateMockPrj(
         req.user.userId,
         mockPrjId,
-        mockPrjDto,
+        _normalizeDto(mockPrjDto),
       ),
     }
   }
@@ -105,7 +105,7 @@ export class MockController {
       message: '创建mock数据成功',
       data: await this.mockService.createMockData(
         req.user.userId,
-        mockDataDto,
+        _normalizeDto(mockDataDto),
       ),
     }
   }
@@ -137,7 +137,7 @@ export class MockController {
       data: await this.mockService.updateMockData(
         req.user.userId,
         mockDataId,
-        mockDataDto,
+        _normalizeDto(mockDataDto),
       ),
     }
   }
@@ -199,7 +199,7 @@ export class MockController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (!dataPath) {
+    if (!dataPath || !dataPath.length) {
       res.status(404)
       return
     }
@@ -207,8 +207,8 @@ export class MockController {
     try {
       mockData = await this.mockService.getMockDataByPath(
         mockPrjId,
-        prjPath,
-        dataPath.join('/'),
+        `/${prjPath}`,
+        `/${dataPath.join('/')}`,
       )
     }
     catch (e) {
@@ -219,7 +219,7 @@ export class MockController {
       res.status(404)
       return
     }
-    if (mockData.type.toLowerCase() !== req.method.toLowerCase()) {
+    if (mockData.type.toLowerCase() !== 'all' && mockData.type.toLowerCase() !== req.method.toLowerCase()) {
       res.status(405)
       return
     }
@@ -276,4 +276,30 @@ function _sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
   })
+}
+
+function _normalizeDto<T extends MockProjDto | MockDataDto>(dto: T): T {
+  if (dto.path) {
+    dto.path = dto.path.trim()
+    if (!dto.path) {
+      delete dto.path
+    }
+    else {
+      if (dto.path === '/') {
+        throw new Error('根路径不允许使用')
+      }
+      if (!dto.path.startsWith('/')) {
+        dto.path = `/${dto.path}`
+      }
+      // 不允许出现连续的斜杠
+      dto.path = dto.path.replace(/\/+/g, '/')
+    }
+  }
+  if (dto.name) {
+    dto.name = dto.name.trim()
+    if (!dto.name) {
+      delete dto.name
+    }
+  }
+  return dto
 }

@@ -18,43 +18,35 @@ export class MockService {
     userId: number,
     mockPrjDto: MockProjDto,
   ): Promise<MockPrj> {
-    if (mockPrjDto.name && mockPrjDto.path) {
-      if (mockPrjDto.path === '/')
-        throw new Error('path can not be /')
-
-      if (!mockPrjDto.path.startsWith('/'))
-        throw new Error('path must start with /')
-
-      return await this.mockPrjModel.create({
-        ...mockPrjDto,
-        userId,
-        id: undefined,
-      })
+    if (!mockPrjDto.name || !mockPrjDto.path) {
+      throw new Error('必须指定名称和路径')
     }
-    else {
-      throw new Error('name and path are required')
+    if (mockPrjDto.path === '/') {
+      throw new Error('根路径不允许使用')
     }
+
+    return await this.mockPrjModel.create({
+      ...mockPrjDto,
+      userId,
+      id: undefined,
+    })
   }
 
   async deleteMockPrj(userId: number, mockPrjId: string): Promise<void> {
+    const mockPrj = await this.mockPrjModel.findByPk(mockPrjId)
+    if (!mockPrj || mockPrj.userId !== userId) {
+      throw new Error('Mock项目不存在')
+    }
     await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t }
-      const mockPrj = await this.mockPrjModel.findOne({
-        where: { userId, id: mockPrjId },
+      await this.mockDataModel.destroy({
+        where: { userId, projectId: mockPrjId },
+        ...transactionHost,
       })
-      if (!mockPrj) {
-        throw new Error('mock project not found')
-      }
-      else {
-        await this.mockDataModel.destroy({
-          where: { userId, projectId: mockPrjId },
-          ...transactionHost,
-        })
-        await this.mockPrjModel.destroy({
-          where: { userId, id: mockPrjId },
-          ...transactionHost,
-        })
-      }
+      await this.mockPrjModel.destroy({
+        where: { userId, id: mockPrjId },
+        ...transactionHost,
+      })
     })
   }
 
@@ -63,45 +55,34 @@ export class MockService {
     mockPrjId: string,
     mockPrjDto: Partial<MockProjDto>,
   ): Promise<MockPrj> {
-    return await this.sequelize.transaction(async (t) => {
-      const transactionHost = { transaction: t }
-      const mockPrj = await this.mockPrjModel.findOne({
-        where: { userId, id: mockPrjId },
-      })
-      if (mockPrj) {
-        if (mockPrjDto.path) {
-          if (mockPrjDto.path === '/')
-            throw new Error('path can not be /')
-
-          if (!mockPrjDto.path.startsWith('/'))
-            throw new Error('path must start with /')
-        }
-        return await mockPrj.update(mockPrjDto, transactionHost)
+    if (mockPrjDto.path != null) {
+      if (mockPrjDto.path === '/') {
+        throw new Error('根路径不允许使用')
       }
-      else {
-        throw new Error('mock project not found')
-      }
-    })
+    }
+    const mockPrj = await this.mockPrjModel.findByPk(mockPrjId)
+    if (!mockPrj || mockPrj.userId !== userId) {
+      throw new Error('Mock项目不存在')
+    }
+    return await mockPrj.update(mockPrjDto)
   }
 
   async getMockPrj(userId: number, mockPrjId: string): Promise<MockPrj> {
-    const mockPrj = await this.mockPrjModel.findOne({
-      where: { userId, id: mockPrjId },
-    })
-    if (mockPrj)
-      return mockPrj
-    else
-      throw new Error('mock project not found')
+    const mockPrj = await this.mockPrjModel.findByPk(mockPrjId)
+    if (!mockPrj || mockPrj.userId !== userId) {
+      throw new Error('Mock项目不存在')
+    }
+    return mockPrj
   }
 
   async getMockPrjByPath(userId: number, path: string): Promise<MockPrj> {
     const mockPrj = await this.mockPrjModel.findOne({
-      where: { userId, path: `/${path}` },
+      where: { userId, path },
     })
-    if (mockPrj)
-      return mockPrj
-    else
-      throw new Error('mock project not found')
+    if (!mockPrj) {
+      throw new Error('Mock项目不存在')
+    }
+    return mockPrj
   }
 
   async getMockPrjs(userId: number): Promise<MockPrj[]> {
@@ -112,66 +93,42 @@ export class MockService {
     userId: number,
     mockDataDto: MockDataDto,
   ): Promise<MockData> {
-    return await this.sequelize.transaction(async (t) => {
-      const transactionHost = { transaction: t }
-      const mockPrj = await this.mockPrjModel.findOne({
-        where: { userId, id: mockDataDto.projectId },
-      })
-      if (!mockPrj) {
-        throw new Error('mock project not found')
-      }
-      else {
-        if (
-          mockDataDto.path
-          && mockDataDto.name
-          && (!mockDataDto.delay || mockDataDto.delay <= 60 * 1000)
-        ) {
-          if (mockDataDto.path === '/')
-            throw new Error('path can not be /')
-
-          if (!mockDataDto.path.startsWith('/'))
-            throw new Error('path must start with /')
-
-          const mockData = await this.mockDataModel.findOne({
-            where: {
-              userId,
-              path: mockDataDto.path,
-              projectId: mockDataDto.projectId,
-            },
-          })
-          if (!mockData || mockData.projectId !== mockDataDto.projectId) {
-            return await this.mockDataModel.create(
-              { ...mockDataDto, userId, id: undefined },
-              transactionHost,
-            )
-          }
-          else {
-            throw new Error('mock data path already exists')
-          }
-        }
-        else {
-          throw new Error('mock data invalid')
-        }
-      }
+    if (!mockDataDto.name || !mockDataDto.path) {
+      throw new Error('必须指定名称和路径')
+    }
+    if (mockDataDto.path === '/') {
+      throw new Error('根路径不允许使用')
+    }
+    if (mockDataDto.delay && mockDataDto.delay > 60 * 1000) {
+      throw new Error('延迟时间不能超过60秒')
+    }
+    const mockPrj = await this.mockPrjModel.findByPk(mockDataDto.projectId)
+    if (!mockPrj || mockPrj.userId !== userId) {
+      throw new Error('Mock项目不存在')
+    }
+    const mockData = await this.mockDataModel.findOne({
+      where: {
+        userId,
+        path: mockDataDto.path,
+        projectId: mockDataDto.projectId,
+      },
+    })
+    if (mockData) {
+      throw new Error('Mock数据路径已存在')
+    }
+    return await this.mockDataModel.create({
+      ...mockDataDto,
+      userId,
+      id: undefined,
     })
   }
 
   async deleteMockData(userId: number, mockDataId: number): Promise<void> {
-    await this.sequelize.transaction(async (t) => {
-      const transactionHost = { transaction: t }
-      const mockData = await this.mockDataModel.findOne({
-        where: { id: mockDataId, userId },
-      })
-      if (!mockData) {
-        throw new Error('mock data not found')
-      }
-      else {
-        await this.mockDataModel.destroy({
-          where: { id: mockDataId, userId },
-          ...transactionHost,
-        })
-      }
-    })
+    const mockData = await this.mockDataModel.findByPk(mockDataId)
+    if (!mockData || mockData.userId !== userId) {
+      throw new Error('Mock数据不存在')
+    }
+    await mockData.destroy()
   }
 
   async updateMockData(
@@ -179,51 +136,40 @@ export class MockService {
     mockDataId: number,
     mockDataDto: Partial<MockDataDto>,
   ): Promise<MockData> {
-    return await this.sequelize.transaction(async (t) => {
-      const transactionHost = { transaction: t }
-      const mockData = await this.mockDataModel.findOne({
-        where: { id: mockDataId, userId },
+    if (mockDataDto.path) {
+      if (mockDataDto.path === '/') {
+        throw new Error('根路径不允许使用')
+      }
+    }
+    if (mockDataDto.delay && mockDataDto.delay > 60 * 1000) {
+      throw new Error('延迟时间不能超过60秒')
+    }
+    const mockData = await this.mockDataModel.findByPk(mockDataId)
+    if (!mockData || mockData.userId !== userId) {
+      throw new Error('Mock数据不存在')
+    }
+    if (mockDataDto.path) {
+      const mockData2 = await this.mockDataModel.findOne({
+        where: {
+          userId,
+          path: mockDataDto.path,
+          projectId: mockData.projectId,
+        },
       })
-      if (!mockData) {
-        throw new Error('mock data not found')
+      if (mockData2 && mockData2.id !== mockDataId) {
+        throw new Error('Mock数据路径已存在')
       }
-      else {
-        if (!mockDataDto.delay || mockDataDto.delay < 60) {
-          if (mockDataDto.path) {
-            if (mockDataDto.path === '/')
-              throw new Error('path can not be /')
-
-            if (!mockDataDto.path.startsWith('/'))
-              throw new Error('path must start with /')
-
-            const mockData2 = await this.mockDataModel.findOne({
-              where: {
-                userId,
-                path: mockDataDto.path,
-                projectId: mockData.projectId,
-              },
-            })
-            if (mockData2 && mockData2.id !== mockDataId)
-              throw new Error('mock data path already exists')
-          }
-          const { projectId, ...other } = mockDataDto
-          return await mockData.update(other, transactionHost)
-        }
-        else {
-          throw new Error('mock data invalid')
-        }
-      }
-    })
+    }
+    const { projectId, ...other } = mockDataDto
+    return await mockData.update(other)
   }
 
   async getMockData(userId: number, mockDataId: number): Promise<MockData> {
-    const mockData = await this.mockDataModel.findOne({
-      where: { id: mockDataId, userId },
-    })
-    if (mockData)
-      return mockData
-    else
-      throw new Error('mock data not found')
+    const mockData = await this.mockDataModel.findByPk(mockDataId)
+    if (!mockData || mockData.userId !== userId) {
+      throw new Error('Mock数据不存在')
+    }
+    return mockData
   }
 
   async getMockDataByPath(
@@ -231,21 +177,20 @@ export class MockService {
     mockPath: string,
     dataPath: string,
   ): Promise<MockData> {
-    const mockPrj = await this.mockPrjModel.findOne({
-      where: { id: mockPrjId, path: `/${mockPath}` },
-    })
+    const mockPrj = await this.mockPrjModel.findByPk(mockPrjId)
     if (!mockPrj) {
-      throw new Error('mock project not found')
+      throw new Error('Mock项目不存在')
     }
-    else {
-      const mockData = await this.mockDataModel.findOne({
-        where: { projectId: mockPrjId, path: `/${dataPath}` },
-      })
-      if (mockData)
-        return mockData
-      else
-        throw new Error('mock data not found')
+    if (mockPath !== mockPrj.path) {
+      throw new Error('Mock项目路径错误')
     }
+    const mockData = await this.mockDataModel.findOne({
+      where: { projectId: mockPrjId, path: dataPath },
+    })
+    if (!mockData) {
+      throw new Error('Mock数据不存在')
+    }
+    return mockData
   }
 
   async getMockDatas(userId: number, mockPrjId: string): Promise<MockData[]> {

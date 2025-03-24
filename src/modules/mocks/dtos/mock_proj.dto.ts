@@ -4,12 +4,12 @@ export class MockProjDto {
   @ApiProperty({
     description: '项目名称',
   })
-  readonly name!: string
+  name: string
 
   @ApiProperty({
     description: '项目路径',
   })
-  readonly path!: string
+  path: string
 
   @ApiPropertyOptional({
     description: '项目描述',
