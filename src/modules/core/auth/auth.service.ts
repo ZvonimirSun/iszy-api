@@ -188,7 +188,7 @@ export class AuthService {
     }
   }
 
-  async _checkUser(user: RawUser, passwd: string, checkStatus = true): Promise<boolean> {
+  private async _checkUser(user: RawUser, passwd: string, checkStatus = true): Promise<boolean> {
     if (user == null) {
       this.logger.error('用户不存在')
       return false

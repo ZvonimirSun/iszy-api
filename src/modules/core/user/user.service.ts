@@ -122,7 +122,7 @@ export class UserService {
       id: p.id,
       type: p.type,
     }))
-    this._setCache(rawUser)
+    this._setCache(rawUser).then()
     return rawUser
   }
 
@@ -236,14 +236,12 @@ export class UserService {
     }
   }
 
-  _setCache(user: RawUser) {
-    setImmediate(async () => {
-      await this.redisCacheService.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
-      await this.redisCacheService.set(`user:userName:${user.userName}:userId`, user.userId, 60 * 60 * 1000)
-    })
+  async _setCache(user: RawUser): Promise<void> {
+    await this.redisCacheService.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
+    await this.redisCacheService.set(`user:userName:${user.userName}:userId`, user.userId, 60 * 60 * 1000)
   }
 
-  async _clearCache(user: RawUser) {
+  async _clearCache(user: RawUser): Promise<void> {
     await this.redisCacheService.del(`user:userId:${user.userId}`)
     await this.redisCacheService.del(`user:userName:${user.userName}:userId`)
   }
