@@ -269,7 +269,12 @@ export class AuthService {
           newDevices.push(device)
         }
       }
-      await this.redisCacheService.set(`device:userId:${userId}`, newDevices, this.refreshExpireMs)
+      if (newDevices.length) {
+        await this.redisCacheService.set(`device:userId:${userId}`, newDevices, this.refreshExpireMs)
+      }
+      else {
+        await this.redisCacheService.del(`device:userId:${userId}`)
+      }
     }
   }
 }
