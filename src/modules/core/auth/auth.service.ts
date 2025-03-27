@@ -20,9 +20,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisCacheService: RedisCacheService,
-  ) {}
+  ) {
+    this.accessExpireTime = this.configService.get<StringValue>('auth.jwt.expire')
+    this.refreshExpireTime = this.configService.get<StringValue>('auth.jwt.refreshExpire')
+    this.accessExpireMs = ms(this.accessExpireTime)
+    this.refreshExpireMs = ms(this.refreshExpireTime)
+  }
 
   private readonly logger = new Logger(AuthService.name)
+  private readonly accessExpireTime: StringValue
+  private readonly refreshExpireTime: StringValue
+  private readonly accessExpireMs: number
+  private readonly refreshExpireMs: number
 
   async validateUser(
     username: string,
@@ -43,12 +52,7 @@ export class AuthService {
     refresh_token: string
     profile: PublicUser
   }> {
-    const accessExpireTime = this.configService.get<StringValue>('auth.jwt.expire')
-    const refreshExpireTime = this.configService.get<StringValue>('auth.jwt.refreshExpire')
-    const accessExpireMs = ms(accessExpireTime)
-    const refreshExpireMs = ms(refreshExpireTime)
-
-    if (refreshExpireMs <= accessExpireMs) {
+    if (this.refreshExpireMs <= this.accessExpireMs) {
       throw new Error('refresh_token 过期时间必须大于 access_token 过期时间')
     }
 
@@ -69,7 +73,7 @@ export class AuthService {
       profile: user,
     }
     const accessToken = this.jwtService.sign(jwtPayload, {
-      expiresIn: accessExpireTime,
+      expiresIn: this.accessExpireTime,
     })
 
     const refreshJwtPayload: RefreshJwtPayload = {
@@ -77,10 +81,13 @@ export class AuthService {
       refreshUserId: userId,
     }
     const refreshToken = this.jwtService.sign(refreshJwtPayload, {
-      expiresIn: refreshExpireTime,
+      expiresIn: this.refreshExpireTime,
     })
 
-    await this.redisCacheService.set(`device:userId:${userId}:${deviceId}`, refreshToken, refreshExpireMs)
+    await this.redisCacheService.set(`device:userId:${userId}:${deviceId}`, refreshToken, this.refreshExpireMs)
+
+    // 更新设备列表
+    this._addDevice(userId, deviceId).then()
 
     return {
       access_token: accessToken,
@@ -170,21 +177,21 @@ export class AuthService {
     return result
   }
 
-  async logout(userId: number, deviceId?: string, other?: boolean) {
+  async logout(userId: number, deviceId: string, options: {
+    other?: boolean
+    all?: boolean
+  } = {}) {
     if (userId == null)
       return
 
-    // 登出所有设备
-    if (!deviceId) {
-      // todo
+    if (options.all) {
+      await this._removeDevice(userId)
     }
-    // 登出其他设备
-    else if (other) {
-      // todo
+    else if (options.other) {
+      await this._removeDevice(userId, deviceId, true)
     }
-    // 登出当前设备
     else {
-      await this.redisCacheService.del(`device:userId:${userId}:${deviceId}`)
+      await this._removeDevice(userId, deviceId)
     }
   }
 
@@ -216,5 +223,53 @@ export class AuthService {
       throw new Error('用户已禁用')
     }
     return true
+  }
+
+  private async _addDevice(userId: number, deviceId: string) {
+    const devices = (await this.redisCacheService.get<string[]>(`device:userId:${userId}`)) || []
+    const newDevices = [deviceId]
+    for (const device of devices) {
+      if (device === deviceId) {
+        continue
+      }
+      if (await this.redisCacheService.get<string>(`device:userId:${userId}:${device}`)) {
+        newDevices.push(device)
+      }
+    }
+    await this.redisCacheService.set(`device:userId:${userId}`, newDevices, this.refreshExpireMs)
+  }
+
+  private async _removeDevice(userId: number, deviceId?: string, other?: boolean) {
+    const devices = (await this.redisCacheService.get<string[]>(`device:userId:${userId}`)) || []
+    // 登出所有设备
+    if (!deviceId) {
+      for (const device of devices) {
+        await this.redisCacheService.del(`device:userId:${userId}:${device}`)
+      }
+      await this.redisCacheService.del(`device:userId:${userId}`)
+    }
+    // 登出其他设备
+    else if (other) {
+      for (const device of devices) {
+        if (device !== deviceId) {
+          await this.redisCacheService.del(`device:userId:${userId}:${device}`)
+        }
+      }
+      await this.redisCacheService.set(`device:userId:${userId}`, [deviceId], this.refreshExpireMs)
+    }
+    // 登出当前设备
+    else {
+      await this.redisCacheService.del(`device:userId:${userId}:${deviceId}`)
+      const newDevices: string[] = []
+      for (const device of devices) {
+        if (device === deviceId) {
+          continue
+        }
+        if (await this.redisCacheService.get<string>(`device:userId:${userId}:${device}`)) {
+          newDevices.push(device)
+        }
+      }
+      await this.redisCacheService.set(`device:userId:${userId}`, newDevices, this.refreshExpireMs)
+    }
   }
 }

@@ -126,19 +126,11 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
-      const userName = req.user.userName
-      const userId = req.user.userId
-      const deviceId = req.deviceId
-      if (logoutDto.all) {
-        await this.authService.logout(userId)
-      }
-      else if (logoutDto.other) {
-        await this.authService.logout(userId, deviceId, true)
-      }
-      else {
-        await this.authService.logout(userId, deviceId)
-      }
-      this.logger.log(`${userName} 登出成功`)
+      await this.authService.logout(req.user.userId, req.deviceId, {
+        all: logoutDto.all,
+        other: logoutDto.other,
+      })
+      this.logger.log(`${req.user.userName} 登出成功`)
       return {
         success: true,
         message: '登出成功',
