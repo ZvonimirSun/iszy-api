@@ -88,17 +88,22 @@ export class AuthService {
     }
   }
 
-  async register(registerDto: RegisterDto): Promise<void> {
+  async register(registerDto: RegisterDto): Promise<boolean> {
     try {
-      const user: Partial<RawUser> = {}
       this._normalizeUserInfo(registerDto)
+
+      const publicRegister = this.configService.get<boolean>('auth.publicRegister')
+
+      const user: Partial<RawUser> = {}
       user.userName = registerDto.userName
       user.nickName = registerDto.nickName
       user.passwd = await bcrypt.hash(registerDto.password, 10)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
-      user.status = this.configService.get<boolean>('auth.publicRegister') ? UserStatus.ENABLED : UserStatus.DEACTIVATED
+      user.status = publicRegister ? UserStatus.ENABLED : UserStatus.DEACTIVATED
+
       await this.userService.create(user)
+      return publicRegister
     }
     catch (e) {
       if (e.name === 'SequelizeUniqueConstraintError') {

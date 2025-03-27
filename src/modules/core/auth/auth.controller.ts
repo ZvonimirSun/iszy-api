@@ -67,11 +67,11 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async register(@Body() registerDto: RegisterDto): Promise<ResultDto<void>> {
+  async register(@Body() registerDto: RegisterDto): Promise<ResultDto<boolean>> {
     try {
-      await this.authService.register(registerDto)
       return {
         success: true,
+        data: await this.authService.register(registerDto),
         message: '用户创建成功',
       }
     }
