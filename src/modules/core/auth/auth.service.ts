@@ -56,15 +56,6 @@ export class AuthService {
       throw new Error('refresh_token 过期时间必须大于 access_token 过期时间')
     }
 
-    if (typeof user === 'number') {
-      const rawUser = await this.userService.findOne(user)
-      if (!rawUser) {
-        this.logger.error('用户不存在')
-        throw new Error('用户不存在')
-      }
-      const { passwd, passwdSalt, ...publicUser } = rawUser
-      user = publicUser
-    }
     const userId = user.userId
     deviceId = deviceId || encodeUUID()
 
