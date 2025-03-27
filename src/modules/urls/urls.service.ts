@@ -32,9 +32,7 @@ export class UrlsService {
       const cacheKey = `url:${keyword}`
       const cached = await this.redisCacheService.get<string>(cacheKey)
       if (cached) {
-        setImmediate(() => {
-          this.redisCacheService.set(cacheKey, cached, 60 * 60 * 1000)
-        })
+        this.redisCacheService.set(cacheKey, cached, 60 * 60 * 1000).then()
         return cached
       }
       else {
@@ -85,9 +83,7 @@ export class UrlsService {
           { transaction: t },
         )
       })
-      setImmediate(() => {
-        this._getUrlTitle(data)
-      })
+      this._getUrlTitle(data).then()
     }
     catch (e) {
       let message: string
@@ -154,9 +150,7 @@ export class UrlsService {
         await data.destroy({ transaction: t })
       })
       await this.redisCacheService.del(`url:${keyword}`)
-      setImmediate(() => {
-        this._clearLog(keyword)
-      })
+      this._clearLog(keyword).then()
     }
     catch (e) {
       this.logger.log(e)
@@ -167,7 +161,7 @@ export class UrlsService {
   async visitUrl(keyword: string, req: Request): Promise<string> {
     const url = await this.getUrl(keyword)
     if (url) {
-      setImmediate(async () => {
+      (async () => {
         try {
           await this.sequelize.transaction(async (t) => {
             const transactionHost = { transaction: t }
@@ -197,7 +191,7 @@ export class UrlsService {
         catch (e) {
           this.logger.error(e)
         }
-      })
+      })().then()
     }
     return url
   }
@@ -248,9 +242,7 @@ export class UrlsService {
         flag = false
     }
 
-    setImmediate(() => {
-      this._setNextKeyword(this._computeNextKeyword(keyword))
-    })
+    await this._setNextKeyword(this._computeNextKeyword(keyword))
 
     return keyword
   }
