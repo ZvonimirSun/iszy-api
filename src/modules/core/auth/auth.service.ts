@@ -7,6 +7,7 @@ import ms, { StringValue } from 'ms'
 import { PublicUser, RawUser } from '~entities/user'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { encryptPassword } from '~utils/cryptogram'
+import { REGEX_EMAIL, REGEX_MOBILE_PHONE } from '~utils/regexUtils'
 import { encodeUUID } from '~utils/uuid'
 import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
@@ -90,7 +91,8 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<void> {
     try {
       const user: Partial<RawUser> = {}
-      user.userName = registerDto.userName.toLowerCase()
+      this._normalizeUserInfo(registerDto)
+      user.userName = registerDto.userName
       user.nickName = registerDto.nickName
       user.passwd = await bcrypt.hash(registerDto.password, 10)
       user.mobile = registerDto.mobile || undefined
@@ -146,6 +148,7 @@ export class AuthService {
       throw new Error('用户不存在')
     }
     const newProfile: Partial<RawUser> = {}
+    this._normalizeUserInfo(userProfile)
     if (userProfile.oldPasswd && userProfile.passwd) {
       const checkResult = await this._checkUser(user, userProfile.oldPasswd, false)
       if (!checkResult) {
@@ -156,6 +159,8 @@ export class AuthService {
       newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
     }
     newProfile.userId = user.userId
+    if (userProfile.userName)
+      newProfile.userName = userProfile.userName
     if (userProfile.nickName)
       newProfile.nickName = userProfile.nickName
     if (userProfile.email)
@@ -183,6 +188,39 @@ export class AuthService {
     }
     else {
       await this._removeDevice(userId, deviceId)
+    }
+  }
+
+  private _normalizeUserInfo(userProfile: RegisterDto | UpdateProfileDto) {
+    if (userProfile.userName) {
+      if (!userProfile.userName.trim()) {
+        throw new Error('用户名值非法')
+      }
+      userProfile.userName = userProfile.userName.trim().toLowerCase()
+    }
+    if (userProfile.nickName) {
+      if (!userProfile.nickName.trim()) {
+        throw new Error('昵称值非法')
+      }
+      userProfile.nickName = userProfile.nickName.trim()
+    }
+    if (userProfile.email) {
+      if (!userProfile.email.trim()) {
+        throw new Error('邮箱值非法')
+      }
+      userProfile.email = userProfile.email.trim().toLowerCase()
+      if (!REGEX_EMAIL.test(userProfile.email)) {
+        throw new Error('邮箱值非法')
+      }
+    }
+    if (userProfile.mobile) {
+      if (!userProfile.mobile.trim()) {
+        throw new Error('手机号值非法')
+      }
+      userProfile.mobile = userProfile.mobile.trim()
+      if (!REGEX_MOBILE_PHONE.test(userProfile.mobile)) {
+        throw new Error('手机号值非法')
+      }
     }
   }
 

@@ -204,8 +204,11 @@ export class UserService {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
+    const oldUser = user.get({
+      plain: true,
+    })
     await user.update(profile)
-    await this._clearCache(user)
+    await this._clearCache(oldUser)
     return this.findOne(userId)
   }
 
