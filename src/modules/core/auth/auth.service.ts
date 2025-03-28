@@ -154,14 +154,20 @@ export class AuthService {
     }
     const newProfile: Partial<RawUser> = {}
     this._normalizeUserInfo(userProfile)
-    if (userProfile.oldPasswd && userProfile.passwd) {
-      const checkResult = await this._checkUser(user, userProfile.oldPasswd, false)
-      if (!checkResult) {
-        this.logger.error('密码错误')
-        throw new Error('密码错误')
+    if (userProfile.passwd) {
+      if (!user.passwd) {
+        // 用户初始设置密码
+        newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
       }
-      newProfile.passwdSalt = ''
-      newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
+      else {
+        const checkResult = await this._checkUser(user, userProfile.oldPasswd, false)
+        if (!checkResult) {
+          this.logger.error('密码错误')
+          throw new Error('密码错误')
+        }
+        newProfile.passwdSalt = ''
+        newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
+      }
     }
     newProfile.userId = user.userId
     if (userProfile.userName)
@@ -229,7 +235,7 @@ export class AuthService {
     }
   }
 
-  private async _checkUser(user: RawUser, passwd: string, checkStatus = true): Promise<boolean> {
+  private async _checkUser(user: RawUser, passwd: string = '', checkStatus = true): Promise<boolean> {
     if (user == null) {
       this.logger.error('用户不存在')
       return false
