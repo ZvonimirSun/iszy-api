@@ -27,7 +27,7 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
       return true
 
     // 部分AuthGuard跳过全局验证
-    const bypassAuthGuards = ['GithubAuthGuard', 'LocalAuthGuard']
+    const bypassAuthGuards = ['LocalAuthGuard']
     const allGuards = getMetaValue<any[]>(GUARDS_METADATA) || []
     for (const guard of allGuards) {
       if (bypassAuthGuards.includes(guard.name))

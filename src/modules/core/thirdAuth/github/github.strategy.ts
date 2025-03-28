@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Strategy } from 'passport-github2'
+import { AuthRequest } from '~types/AuthRequest'
 import { GithubAuthService } from './github-auth.service'
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy) {
   constructor(configService: ConfigService, private githubAuthService: GithubAuthService) {
     super({
+      passReqToCallback: true,
       clientID: configService.get<string>('auth.github.clientId'),
       clientSecret: configService.get<string>('auth.github.clientSecret'),
       callbackURL: configService.get<string>('auth.github.callbackUrl'),
@@ -22,10 +24,17 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(
+    @Req() req: AuthRequest,
     _accessToken: string,
     _refreshToken: any,
     profile: any,
   ) {
-    return await this.githubAuthService.validateUser(profile)
+    req.thirdPartProfile = profile
+    try {
+      return await this.githubAuthService.validateUser(profile)
+    }
+    catch (e) {
+      throw new UnauthorizedException()
+    }
   }
 }

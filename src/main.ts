@@ -9,6 +9,8 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
+import session, { SessionOptions } from 'express-session'
+import { merge } from 'lodash'
 import { HttpExceptionFilter } from '~core/filter/http-exception.filter'
 import info from '../package.json'
 import { AppModule } from './app.module'
@@ -73,6 +75,23 @@ async function bootstrap() {
       app.set('trust proxy', true)
     }
   }
+
+  const sessionConfig: SessionOptions = {
+    cookie: {
+      httpOnly: true,
+    },
+    name: 'iszy_api.connect.sid',
+    secret: configService.get<string>('auth.jwt.secret'),
+  }
+
+  if (!configService.get<boolean>('development')) {
+    sessionConfig.cookie = merge({}, sessionConfig.cookie, {
+      sameSite: true,
+      secure: true,
+    })
+  }
+
+  app.use(session(sessionConfig))
 
   const documentConfig = new DocumentBuilder()
     .addBearerAuth()
