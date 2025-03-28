@@ -30,7 +30,7 @@ export class UserService {
         return await userEntity.update({
           createBy: userEntity.id,
           updateBy: userEntity.id,
-        })
+        }, transactionHost)
       }
     })
     return userItem.get({
