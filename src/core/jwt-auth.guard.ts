@@ -20,6 +20,17 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
       ])
     }
 
+    const req: AuthRequest = context.switchToHttp().getRequest()
+
+    // jwt验证
+    let activeError: Error
+    try {
+      await super.canActivate(context)
+    }
+    catch (e) {
+      activeError = e
+    }
+
     const isPublic = getMetaValue<boolean>(MetaKeysEnum.IS_PUBLIC_KEY)
     const isPrivate = getMetaValue<boolean>(MetaKeysEnum.IS_PRIVATE_KEY)
     // 私有设置优先级高于公共设置
@@ -27,19 +38,15 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
       return true
 
     // 部分AuthGuard跳过全局验证
-    const bypassAuthGuards = ['GithubAuthGuard', 'LocalAuthGuard']
+    const bypassAuthGuards = ['LocalAuthGuard']
     const allGuards = getMetaValue<any[]>(GUARDS_METADATA) || []
     for (const guard of allGuards) {
       if (bypassAuthGuards.includes(guard.name))
         return true
     }
 
-    // jwt验证
-    const canActivate = (await super.canActivate(context)) as boolean
-    if (!canActivate)
-      return false
-
-    const req: AuthRequest = context.switchToHttp().getRequest()
+    if (activeError)
+      throw activeError
 
     const useRefreshToken = getMetaValue<boolean>(MetaKeysEnum.USE_REFRESH_TOKEN_KEY)
     if (useRefreshToken)
