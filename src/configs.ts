@@ -44,6 +44,11 @@ export default () => {
         clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
         callbackUrl: process.env.GITHUB_CALLBACK_URL || `${appOrigin}/auth/github/callback`,
       },
+      linuxdo: {
+        clientId: process.env.LINUXDO_CLIENT_ID || '',
+        clientSecret: process.env.LINUXDO_CLIENT_SECRET || '',
+        callbackUrl: process.env.LINUXDO_CALLBACK_URL || `${appOrigin}/auth/linuxdo/callback`,
+      },
     },
     behindProxy: process.env.PROXY === 'true',
     trustProxy: process.env.TRUST_PROXY,

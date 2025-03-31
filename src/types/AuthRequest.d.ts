@@ -3,6 +3,7 @@ import type { PublicUser } from '~entities/user/user.model'
 
 interface AuthSession extends Session {
   bindGithub?: boolean
+  bindLinuxdo?: boolean
 }
 
 export interface AuthRequest extends Request {

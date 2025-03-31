@@ -28,6 +28,7 @@ export interface RawUser {
   updateBy: number
   privileges?: RawPrivilege[]
   github?: string
+  linuxdo?: string
 }
 
 export type PublicUser = Omit<RawUser, 'passwd' | 'passwdSalt'>
@@ -78,4 +79,8 @@ export class User extends Model<RawUser> implements RawUser {
   @Unique
   @Column
   github?: string
+
+  @Unique
+  @Column
+  linuxdo?: string
 }

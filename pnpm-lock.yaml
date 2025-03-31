@@ -113,6 +113,9 @@ importers:
       passport-local:
         specifier: ^1.0.0
         version: 1.0.0
+      passport-oauth2:
+        specifier: ^1.8.0
+        version: 1.8.0
       pg:
         specifier: ^8.14.1
         version: 8.14.1
@@ -198,6 +201,9 @@ importers:
       '@types/passport-local':
         specifier: ^1.0.38
         version: 1.0.38
+      '@types/passport-oauth2':
+        specifier: ^1.4.17
+        version: 1.4.17
       '@types/sequelize':
         specifier: ^4.28.20
         version: 4.28.20
