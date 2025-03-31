@@ -58,12 +58,6 @@ export class UserService {
     return await this.find(where)
   }
 
-  async findOneByGithub(github: string): Promise<RawUser> {
-    return await this.find({
-      github,
-    })
-  }
-
   async find(where: Partial<RawUser>) {
     const options: FindOptions<RawUser> = {
       where: { ...where },

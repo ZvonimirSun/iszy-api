@@ -29,6 +29,7 @@ export class GithubAuthController {
         bodyInfo = data.data
         msgInfo = data
       }
+      delete req.session.bindGithub
     }
     // 登录
     else {
@@ -38,7 +39,7 @@ export class GithubAuthController {
         req.user = await this.githubAuthService.register(req.thirdPartProfile)
       }
       msgInfo = await this.githubAuthService.login(req.user, req.deviceId)
-      this.logger.log('Github登录成功')
+      this.logger.log(`${req.user.userName}通过 Github 登录成功`)
     }
     return `
       <body>

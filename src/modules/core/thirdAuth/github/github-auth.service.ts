@@ -14,16 +14,14 @@ export class GithubAuthService {
   private readonly logger = new Logger(GithubAuthService.name)
 
   async validateUser(githubProfile: any): Promise<PublicUser> {
-    const user = await this.userService.findOneByGithub(githubProfile.id)
+    const user = await this.userService.find({
+      github: githubProfile.id,
+    })
     if (!user) {
       throw new Error('用户不存在')
     }
     const { passwd, passwdSalt, ...result } = user
     return result
-  }
-
-  async isNotBind(githubId: string) {
-    return !(await this.userService.findOneByGithub(githubId))
   }
 
   async login(user?: PublicUser, deviceId?: string) {
@@ -77,7 +75,9 @@ export class GithubAuthService {
   }
 
   async bind(profile: any) {
-    const tmpUser = await this.userService.findOneByGithub(profile.id)
+    const tmpUser = await this.userService.find({
+      github: profile.id,
+    })
     if (tmpUser) {
       return {
         type: 'bind_fail',
