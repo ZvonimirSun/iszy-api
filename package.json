@@ -17,6 +17,9 @@
     "up": "taze minor -I"
   },
   "dependencies": {
+    "@alicloud/alidns20150109": "^3.4.8",
+    "@alicloud/openapi-client": "^0.4.13",
+    "@alicloud/tea-util": "^1.4.10",
     "@keyv/redis": "^4.3.2",
     "@nestjs/cache-manager": "^3.0.0",
     "@nestjs/common": "^11.0.12",
@@ -93,6 +96,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@alicloud/openapi-core",
       "@nestjs/core",
       "@swc/core",
       "bcrypt"
