@@ -1,4 +1,5 @@
 import type { NestExpressApplication } from '@nestjs/platform-express'
+import type { SessionOptions } from 'express-session'
 import * as process from 'node:process'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -9,9 +10,10 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
-import session, { SessionOptions } from 'express-session'
+import session from 'express-session'
 import { merge } from 'lodash'
 import { HttpExceptionFilter } from '~core/filter/http-exception.filter'
+import { ConnectionService } from '~modules/core/connection/connection.service'
 import info from '../package.json'
 import { AppModule } from './app.module'
 import getLogLevels from './core/getLogLevels'
@@ -30,6 +32,7 @@ async function bootstrap() {
   })
 
   const configService: ConfigService = app.get(ConfigService)
+  const connectionService: ConnectionService = app.get(ConnectionService)
 
   const bodyLimit = configService.get<string>('app.bodyLimit')
   app.use(json({ limit: bodyLimit }))
@@ -80,10 +83,13 @@ async function bootstrap() {
     cookie: {
       httpOnly: true,
     },
-    resave: false,
-    saveUninitialized: false,
     name: 'iszy_api.connect.sid',
+    resave: false,
+    rolling: true,
+    saveUninitialized: false,
     secret: configService.get<string>('auth.jwt.secret'),
+    // 使用redis存储session
+    store: connectionService.getSessionStore(),
   }
 
   if (!configService.get<boolean>('development')) {

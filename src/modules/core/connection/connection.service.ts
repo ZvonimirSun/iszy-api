@@ -5,15 +5,45 @@ import KeyvRedis from '@keyv/redis'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { SequelizeModuleOptions } from '@nestjs/sequelize'
+import { RedisStore } from 'connect-redis'
+import Redis from 'ioredis'
 import { KeyvStoreAdapter } from 'keyv'
 
 @Injectable()
 export class ConnectionService {
   constructor(private readonly configService: ConfigService) {}
 
+  private sessionStore: RedisStore
   private cacheStore: KeyvStoreAdapter
 
   private readonly logger = new Logger(ConnectionService.name)
+
+  getSessionStore() {
+    if (!this.sessionStore) {
+      try {
+        const redisClient = new Redis(
+          this.configService.get<number>('redis.port'),
+          this.configService.get<string>('redis.host'),
+          {
+            password: this.configService.get<string>('redis.password'),
+          },
+        )
+        this.sessionStore = new RedisStore({
+          client: redisClient,
+        })
+        this.logger.log(
+          `Session连接 Redis {redis://.:***@${this.configService.get<string>(
+            'redis.host',
+          )}:${this.configService.get<number>('redis.port')}} 成功`,
+        )
+      }
+      catch (e) {
+        this.logger.error(`连接 Redis 失败，${e.message}`)
+        throw e
+      }
+    }
+    return this.sessionStore
+  }
 
   getCacheConfig(): CacheModuleOptions<RedisOptions> {
     if (!this.cacheStore) {
