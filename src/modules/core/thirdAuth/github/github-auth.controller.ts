@@ -1,5 +1,6 @@
 import type { AuthRequest } from '~types/AuthRequest'
 import { Controller, Get, Logger, Req, UseGuards } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator'
 import { GithubAuthGuard } from './github-auth.guard'
@@ -9,7 +10,7 @@ import { GithubAuthService } from './github-auth.service'
 @UseGuards(GithubAuthGuard)
 @Controller('auth/github')
 export class GithubAuthController {
-  constructor(private githubAuthService: GithubAuthService) {}
+  constructor(private githubAuthService: GithubAuthService, private configService: ConfigService) {}
 
   private readonly logger = new Logger(GithubAuthController.name)
 
@@ -34,12 +35,21 @@ export class GithubAuthController {
     // 登录
     else {
       bodyInfo = '登录完成'
-      if (!req.user) {
-        // 用户不存在
-        req.user = await this.githubAuthService.register(req.thirdPartProfile)
+      if (!req.user || this.configService.get<boolean>('auth.publicRegister')) {
+        if (!req.user) {
+          // 用户不存在
+          req.user = await this.githubAuthService.register(req.thirdPartProfile)
+        }
+        msgInfo = await this.githubAuthService.login(req.user, req.deviceId)
+        this.logger.log(`${req.user.userName}通过 Github 登录成功`)
       }
-      msgInfo = await this.githubAuthService.login(req.user, req.deviceId)
-      this.logger.log(`${req.user.userName}通过 Github 登录成功`)
+      else {
+        bodyInfo = '登录失败'
+        msgInfo = {
+          type: 'oauth_fail',
+          data: '登陆失败',
+        }
+      }
     }
     return `
       <body>

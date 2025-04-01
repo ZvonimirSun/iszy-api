@@ -1,5 +1,6 @@
 import type { AuthRequest } from '~types/AuthRequest'
 import { Controller, Get, Logger, Req, UseGuards } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator'
 import { LinuxdoAuthGuard } from './linuxdo-auth.guard'
@@ -9,7 +10,7 @@ import { LinuxdoAuthService } from './linuxdo-auth.service'
 @UseGuards(LinuxdoAuthGuard)
 @Controller('auth/linuxdo')
 export class LinuxdoAuthController {
-  constructor(private linuxdoAuthService: LinuxdoAuthService) {}
+  constructor(private linuxdoAuthService: LinuxdoAuthService, private configService: ConfigService) {}
 
   private readonly logger = new Logger(LinuxdoAuthController.name)
 
@@ -33,13 +34,22 @@ export class LinuxdoAuthController {
     }
     // 登录
     else {
-      bodyInfo = '登录完成'
-      if (!req.user) {
-        // 用户不存在
-        req.user = await this.linuxdoAuthService.register(req.thirdPartProfile)
+      if (!req.user || this.configService.get<boolean>('auth.publicRegister')) {
+        bodyInfo = '登录完成'
+        if (!req.user) {
+          // 用户不存在
+          req.user = await this.linuxdoAuthService.register(req.thirdPartProfile)
+        }
+        msgInfo = await this.linuxdoAuthService.login(req.user, req.deviceId)
+        this.logger.log(`${req.user.userName}通过 LINUX DO 登录成功`)
       }
-      msgInfo = await this.linuxdoAuthService.login(req.user, req.deviceId)
-      this.logger.log(`${req.user.userName}通过 LINUX DO 登录成功`)
+      else {
+        bodyInfo = '登录失败'
+        msgInfo = {
+          type: 'oauth_fail',
+          data: '登陆失败',
+        }
+      }
     }
     return `
       <body>
