@@ -1,4 +1,5 @@
 import type { AuthRequest } from '~types/AuthRequest'
+import { promisify } from 'node:util'
 import { Controller, Get, Logger, Req, UseGuards } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ApiTags } from '@nestjs/swagger'
@@ -30,11 +31,11 @@ export class LinuxdoAuthController {
         bodyInfo = data.data
         msgInfo = data
       }
-      delete req.session.bindLinuxdo
+      await promisify(req.session.destroy.bind(req.session))()
     }
     // 登录
     else {
-      if (!req.user || this.configService.get<boolean>('auth.publicRegister')) {
+      if (req.user || this.configService.get<boolean>('auth.publicRegister')) {
         bodyInfo = '登录完成'
         if (!req.user) {
           // 用户不存在

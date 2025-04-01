@@ -1,4 +1,5 @@
 import type { Request } from 'express'
+import type { Session } from 'express-session'
 import type { PublicUser } from '~entities/user/user.model'
 
 interface AuthSession extends Session {

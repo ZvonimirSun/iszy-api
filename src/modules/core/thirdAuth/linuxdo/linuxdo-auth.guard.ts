@@ -1,3 +1,4 @@
+import { promisify } from 'node:util'
 import { ExecutionContext, Injectable } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { AuthRequest } from '~types/AuthRequest'
@@ -11,7 +12,7 @@ export class LinuxdoAuthGuard extends AuthGuard('linuxdo') {
       req.session.bindLinuxdo = true
     }
     else if (!path.endsWith('/callback')) {
-      delete req.session.bindLinuxdo
+      await promisify(req.session.destroy.bind(req.session))()
     }
     try {
       await super.canActivate(context)
