@@ -218,6 +218,22 @@ export class AuthService {
     })
   }
 
+  async unbind(userId: number, type: string) {
+    const types = ['github', 'linuxdo']
+    if (!types.includes(type)) {
+      throw new Error('不支持的绑定类型')
+    }
+    const user = await this.userService.findOne(userId)
+    if (!user) {
+      this.logger.error('用户不存在')
+      throw new Error('用户不存在')
+    }
+    await this.userService.updateUser({
+      userId,
+      [type]: null,
+    })
+  }
+
   private _normalizeUserInfo(userProfile: RegisterDto | UpdateProfileDto) {
     if (userProfile.userName) {
       if (!userProfile.userName.trim()) {

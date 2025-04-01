@@ -6,6 +6,7 @@ import type { RegisterDto } from './dto/register.dto'
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Logger,
   Param,
@@ -138,6 +139,18 @@ export class AuthController {
     return {
       success: true,
       message: '绑定成功',
+    }
+  }
+
+  @Delete('bind/:type')
+  async unbind(
+    @Req() req: AuthRequest,
+    @Param('type') type: string,
+  ): Promise<ResultDto<void>> {
+    await this.authService.unbind(req.user.userId, type)
+    return {
+      success: true,
+      message: '解绑成功',
     }
   }
 }
