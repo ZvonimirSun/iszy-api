@@ -96,7 +96,6 @@ async function bootstrap() {
 
   if (!configService.get<boolean>('development')) {
     sessionConfig.cookie = merge({}, sessionConfig.cookie, {
-      sameSite: true,
       secure: true,
     })
   }
