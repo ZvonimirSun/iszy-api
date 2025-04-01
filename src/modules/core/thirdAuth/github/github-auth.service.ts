@@ -34,7 +34,7 @@ export class GithubAuthService {
 
   async register(profile: any) {
     try {
-      let userName = profile.userName
+      let userName = profile.username
       const testUser = await this.userService.findOne(userName)
       if (testUser) {
         userName = `${userName}_${encodeUUID()}`
