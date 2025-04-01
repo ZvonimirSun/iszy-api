@@ -40,11 +40,13 @@ export default () => {
         refreshExpire: process.env.JWT_REFRESH_EXPIRE || '7d',
       },
       github: {
+        enabled: Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET),
         clientId: process.env.GITHUB_CLIENT_ID || '',
         clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
         callbackUrl: process.env.GITHUB_CALLBACK_URL || `${appOrigin}/auth/github/callback`,
       },
       linuxdo: {
+        enabled: Boolean(process.env.LINUXDO_CLIENT_ID && process.env.LINUXDO_CLIENT_SECRET),
         clientId: process.env.LINUXDO_CLIENT_ID || '',
         clientSecret: process.env.LINUXDO_CLIENT_SECRET || '',
         callbackUrl: process.env.LINUXDO_CALLBACK_URL || `${appOrigin}/auth/linuxdo/callback`,

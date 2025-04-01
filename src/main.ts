@@ -80,6 +80,8 @@ async function bootstrap() {
     cookie: {
       httpOnly: true,
     },
+    resave: false,
+    saveUninitialized: false,
     name: 'iszy_api.connect.sid',
     secret: configService.get<string>('auth.jwt.secret'),
   }
