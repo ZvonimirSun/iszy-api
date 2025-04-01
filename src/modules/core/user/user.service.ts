@@ -155,7 +155,7 @@ export class UserService {
     }))
   }
 
-  async activateUser(userId: number, updateUserId: number): Promise<RawUser> {
+  async activateUser(userId: number, updateUserId?: number): Promise<RawUser> {
     const user = await this.userModel.findByPk(userId)
     if (!user) {
       this.logger.error('用户不存在')
@@ -167,13 +167,13 @@ export class UserService {
     }
     await user.update({
       status: UserStatus.ENABLED,
-      updateBy: updateUserId,
+      updateBy: updateUserId ?? userId,
     })
     await this._clearCache(user)
     return this.findOne(userId)
   }
 
-  async disableUser(userId: number, updateUserId: number) {
+  async disableUser(userId: number, updateUserId?: number) {
     const user = await this.userModel.findByPk(userId)
     if (!user) {
       this.logger.error('用户不存在')
@@ -185,13 +185,13 @@ export class UserService {
     }
     await user.update({
       status: UserStatus.DISABLED,
-      updateBy: updateUserId,
+      updateBy: updateUserId ?? userId,
     })
     await this._clearCache(user)
     return this.findOne(userId)
   }
 
-  async updateUser(userProfile: Partial<RawUser>): Promise<RawUser> {
+  async updateUser(userProfile: Partial<RawUser>, updateUserId?: number): Promise<RawUser> {
     const { userId, ...profile } = userProfile
     const user = await this.userModel.findByPk(userId)
     if (!user) {
@@ -201,7 +201,10 @@ export class UserService {
     const oldUser = user.get({
       plain: true,
     })
-    await user.update(profile)
+    await user.update({
+      ...profile,
+      updateBy: updateUserId ?? userId,
+    })
     await this._clearCache(oldUser)
     return this.findOne(userId)
   }

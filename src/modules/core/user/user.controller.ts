@@ -88,9 +88,8 @@ export class UserController {
       newProfile.email = userProfile.email
     if (userProfile.mobile)
       newProfile.mobile = userProfile.mobile
-    newProfile.updateBy = req.user.userId
 
-    const updatedUser = await this.userService.updateUser(newProfile)
+    const updatedUser = await this.userService.updateUser(newProfile, req.user.userId)
     const { passwd, passwdSalt, ...result } = updatedUser
 
     return {
@@ -101,7 +100,7 @@ export class UserController {
   }
 
   @Post()
-  async createUser(@Body() registerDto: RegisterDto) {
+  async createUser(@Req() req: AuthRequest, @Body() registerDto: RegisterDto) {
     try {
       const user: Partial<RawUser> = {}
       user.userName = registerDto.userName.toLowerCase()
@@ -110,7 +109,7 @@ export class UserController {
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
       user.status = UserStatus.ENABLED
-      const newUser = await this.userService.create(user)
+      const newUser = await this.userService.create(user, req.user.userId)
       return {
         success: true,
         data: newUser,

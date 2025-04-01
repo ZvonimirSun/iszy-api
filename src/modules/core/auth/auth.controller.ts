@@ -8,6 +8,7 @@ import {
   Controller,
   Get,
   Logger,
+  Param,
   Post,
   Put,
   Query,
@@ -16,7 +17,6 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger'
 import { Public, RefreshToken } from '~core/decorator'
-import { UserService } from '~modules/core/user/user.service'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import { UpdateProfileDto } from './dto/updateProfile.dto'
@@ -28,7 +28,6 @@ import { LocalAuthGuard } from './local-auth.guard'
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UserService,
   ) {}
 
   private readonly logger = new Logger(AuthController.name)
@@ -46,6 +45,28 @@ export class AuthController {
       success: true,
       message: '登录成功',
       data: await this.authService.generateToken(req.user, req.deviceId),
+    }
+  }
+
+  @Post('logout')
+  async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
+    try {
+      await this.authService.logout(req.user.userId, req.deviceId, {
+        all: logoutDto.all,
+        other: logoutDto.other,
+      })
+      this.logger.log(`${req.user.userName} 登出成功`)
+      return {
+        success: true,
+        message: '登出成功',
+      }
+    }
+    catch (e) {
+      this.logger.error(e)
+      return {
+        success: false,
+        message: '登出失败',
+      }
     }
   }
 
@@ -85,18 +106,10 @@ export class AuthController {
 
   @Get('profile')
   async getProfile(@Req() req: AuthRequest): Promise<ResultDto<PublicUser>> {
-    try {
-      return {
-        success: true,
-        data: await this.authService.getProfile(req.user.userName),
-        message: '获取成功',
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      data: await this.authService.getProfile(req.user.userName),
+      message: '获取成功',
     }
   }
 
@@ -105,43 +118,26 @@ export class AuthController {
     @Req() req: AuthRequest,
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<ResultDto<PublicUser>> {
-    try {
-      return {
-        success: true,
-        data: await this.authService.updateProfile(
-          req.user.userName,
-          updateProfileDto,
-        ),
-        message: '更新成功',
-      }
-    }
-    catch (e) {
-      return {
-        success: false,
-        message: e.message,
-      }
+    return {
+      success: true,
+      data: await this.authService.updateProfile(
+        req.user.userName,
+        updateProfileDto,
+      ),
+      message: '更新成功',
     }
   }
 
-  @Post('logout')
-  async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
-    try {
-      await this.authService.logout(req.user.userId, req.deviceId, {
-        all: logoutDto.all,
-        other: logoutDto.other,
-      })
-      this.logger.log(`${req.user.userName} 登出成功`)
-      return {
-        success: true,
-        message: '登出成功',
-      }
-    }
-    catch (e) {
-      this.logger.error(e)
-      return {
-        success: false,
-        message: '登出失败',
-      }
+  @Post('bind/:type/:id')
+  async bind(
+    @Req() req: AuthRequest,
+    @Param('type') type: string,
+    @Param('id') id: string,
+  ): Promise<ResultDto<void>> {
+    await this.authService.bind(req.user.userId, type, id)
+    return {
+      success: true,
+      message: '绑定成功',
     }
   }
 }

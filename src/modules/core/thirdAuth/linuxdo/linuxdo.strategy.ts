@@ -8,7 +8,7 @@ import { LinuxdoAuthService } from './linuxdo-auth.service'
 
 @Injectable()
 export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
-  private _userProfileURL: string
+  private readonly _userProfileURL: string
 
   constructor(configService: ConfigService, private linuxdoAuthService: LinuxdoAuthService) {
     super({
