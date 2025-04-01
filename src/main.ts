@@ -12,6 +12,7 @@ import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import session from 'express-session'
 import { merge } from 'lodash'
+import ms from 'ms'
 import { HttpExceptionFilter } from '~core/filter/http-exception.filter'
 import { ConnectionService } from '~modules/core/connection/connection.service'
 import info from '../package.json'
@@ -82,6 +83,7 @@ async function bootstrap() {
   const sessionConfig: SessionOptions = {
     cookie: {
       httpOnly: true,
+      maxAge: ms('30m'),
     },
     name: 'iszy_api.connect.sid',
     resave: false,
