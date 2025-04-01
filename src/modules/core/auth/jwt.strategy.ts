@@ -22,9 +22,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly _jwtFromRequest: JwtFromRequestFunction
 
   constructor(configService: ConfigService, private redisCacheService: RedisCacheService, private userService: UserService) {
-    const jwtFromRequest = ExtractJwt.fromUrlQueryParameter('access_token')
+    const jwtFromRequest = ExtractJwt.fromExtractors([
+      ExtractJwt.fromUrlQueryParameter('access_token'),
+      ExtractJwt.fromBodyField('access_token'),
+      ExtractJwt.fromAuthHeaderAsBearerToken(),
+    ])
     super({
-      jwtFromRequest: ExtractJwt.fromUrlQueryParameter('access_token'),
+      jwtFromRequest,
       ignoreExpiration: false,
       secretOrKey: configService.get('auth.jwt.secret'),
       passReqToCallback: true,
