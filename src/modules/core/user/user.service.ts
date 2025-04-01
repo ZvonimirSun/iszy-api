@@ -4,6 +4,7 @@ import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { Group, Privilege, PublicUser, RawUser, Role, User } from '~entities/user'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
+import { OptionalExcept } from '~types/common'
 import { UserStatus } from './variables/user.status'
 
 @Injectable()
@@ -198,9 +199,10 @@ export class UserService {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
-    const oldUser = user.get({
-      plain: true,
-    })
+    const oldUser = {
+      userId: user.userId,
+      userName: user.userName,
+    }
     await user.update({
       ...profile,
       updateBy: updateUserId ?? userId,
@@ -236,12 +238,12 @@ export class UserService {
     }
   }
 
-  async _setCache(user: RawUser): Promise<void> {
+  async _setCache(user: OptionalExcept<RawUser, 'userId' | 'userName'>): Promise<void> {
     await this.redisCacheService.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
     await this.redisCacheService.set(`user:userName:${user.userName}:userId`, user.userId, 60 * 60 * 1000)
   }
 
-  async _clearCache(user: RawUser): Promise<void> {
+  async _clearCache(user: OptionalExcept<RawUser, 'userId' | 'userName'>): Promise<void> {
     await this.redisCacheService.del(`user:userId:${user.userId}`)
     await this.redisCacheService.del(`user:userName:${user.userName}:userId`)
   }
