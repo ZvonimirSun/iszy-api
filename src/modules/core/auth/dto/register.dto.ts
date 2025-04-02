@@ -1,20 +1,21 @@
+import type { RegisterUser } from '@zvonimirsun/iszy-common'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
-export class RegisterDto {
+export class RegisterDto implements RegisterUser {
   @ApiProperty({
     description: '用户名',
   })
-  userName!: string
+  userName: string
 
   @ApiProperty({
     description: '昵称',
   })
-  nickName!: string
+  nickName: string
 
   @ApiProperty({
     description: '密码',
   })
-  password!: string
+  passwd: string
 
   @ApiPropertyOptional({
     description: '手机号',

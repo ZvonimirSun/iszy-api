@@ -1,15 +1,21 @@
-import type { RegisterDto } from './dto/register.dto'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
-import { encodeUUID, PublicUser, RawUser, REGEX_EMAIL, REGEX_MOBILE_PHONE } from '@zvonimirsun/iszy-common'
+import {
+  encodeUUID,
+  PublicUser,
+  RawUser,
+  REGEX_EMAIL,
+  REGEX_MOBILE_PHONE,
+  RegisterUser,
+  UpdateUser,
+} from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import ms, { StringValue } from 'ms'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { encryptPassword } from '~utils/cryptogram'
 import { UserService } from '../user/user.service'
 import { UserStatus } from '../user/variables/user.status'
-import { UpdateProfileDto } from './dto/updateProfile.dto'
 import { JwtPayload, RefreshJwtPayload } from './jwt.strategy'
 
 @Injectable()
@@ -86,7 +92,7 @@ export class AuthService {
     }
   }
 
-  async register(registerDto: RegisterDto): Promise<boolean> {
+  async register(registerDto: RegisterUser): Promise<boolean> {
     try {
       this._normalizeUserInfo(registerDto)
 
@@ -95,7 +101,7 @@ export class AuthService {
       const user: Partial<RawUser> = {}
       user.userName = registerDto.userName
       user.nickName = registerDto.nickName
-      user.passwd = await bcrypt.hash(registerDto.password, 10)
+      user.passwd = await bcrypt.hash(registerDto.passwd, 10)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
       user.status = publicRegister ? UserStatus.ENABLED : UserStatus.DEACTIVATED
@@ -143,7 +149,7 @@ export class AuthService {
 
   async updateProfile(
     userName: string,
-    userProfile: UpdateProfileDto,
+    userProfile: UpdateUser,
   ): Promise<PublicUser> {
     const user = await this.userService.findOne(userName)
     if (!user) {
@@ -232,7 +238,7 @@ export class AuthService {
     })
   }
 
-  private _normalizeUserInfo(userProfile: RegisterDto | UpdateProfileDto) {
+  private _normalizeUserInfo(userProfile: RegisterUser | UpdateUser) {
     if (userProfile.userName) {
       if (!userProfile.userName.trim()) {
         throw new Error('用户名值非法')

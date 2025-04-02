@@ -1,11 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { RawUser } from '@zvonimirsun/iszy-common'
+import { UpdateUser } from '@zvonimirsun/iszy-common'
 
-export class UpdateProfileDto implements Partial<RawUser> {
+export class UpdateProfileDto implements UpdateUser {
   @ApiProperty({
     description: '用户名',
   })
-  userName: string
+  userName?: string
 
   @ApiProperty({
     description: '昵称',

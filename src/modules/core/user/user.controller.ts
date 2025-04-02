@@ -106,7 +106,7 @@ export class UserController {
       const user: Partial<RawUser> = {}
       user.userName = registerDto.userName.toLowerCase()
       user.nickName = registerDto.nickName
-      user.passwd = await bcrypt.hash(registerDto.password, 10)
+      user.passwd = await bcrypt.hash(registerDto.passwd, 10)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
       user.status = UserStatus.ENABLED
