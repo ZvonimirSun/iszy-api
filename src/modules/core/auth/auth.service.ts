@@ -12,6 +12,7 @@ import {
 } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import ms, { StringValue } from 'ms'
+import { LogoutDto } from '~modules/core/auth/dto/logout.dto'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { encryptPassword } from '~utils/cryptogram'
 import { UserService } from '../user/user.service'
@@ -188,10 +189,7 @@ export class AuthService {
     return result
   }
 
-  async logout(userId: number, deviceId: string, options: {
-    other?: boolean
-    all?: boolean
-  } = {}) {
+  async logout(userId: number, deviceId: string, options: LogoutDto = {}) {
     if (userId == null)
       return
 
@@ -200,6 +198,9 @@ export class AuthService {
     }
     else if (options.other) {
       await this._removeDevice(userId, deviceId, true)
+    }
+    else if (options.deviceId) {
+      await this._removeDevice(userId, options.deviceId)
     }
     else {
       await this._removeDevice(userId, deviceId)
@@ -236,6 +237,10 @@ export class AuthService {
       userId,
       [type]: null,
     })
+  }
+
+  async getDevices(userId: number) {
+    return await this.redisCacheService.get<string[]>(`device:userId:${userId}`) || []
   }
 
   private _normalizeUserInfo(userProfile: RegisterUser | UpdateUser) {

@@ -52,10 +52,7 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
     try {
-      await this.authService.logout(req.user.userId, req.deviceId, {
-        all: logoutDto.all,
-        other: logoutDto.other,
-      })
+      await this.authService.logout(req.user.userId, req.deviceId, logoutDto)
       this.logger.log(`${req.user.userName} 登出成功`)
       return {
         success: true,
@@ -151,6 +148,22 @@ export class AuthController {
     return {
       success: true,
       message: '解绑成功',
+    }
+  }
+
+  @Get('devices')
+  async getDevices(@Req() req: AuthRequest): Promise<ResultDto<{
+    devices: string[]
+    currentDevice: string
+  }>> {
+    const devices = await this.authService.getDevices(req.user.userId)
+    return {
+      success: true,
+      data: {
+        devices,
+        currentDevice: req.deviceId,
+      },
+      message: '获取成功',
     }
   }
 }

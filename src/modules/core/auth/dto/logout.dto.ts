@@ -2,6 +2,11 @@ import { ApiPropertyOptional } from '@nestjs/swagger'
 
 export class LogoutDto {
   @ApiPropertyOptional({
+    description: '登出指定设备',
+  })
+  readonly deviceId?: string
+
+  @ApiPropertyOptional({
     description: '登出所有',
   })
   readonly all?: boolean
