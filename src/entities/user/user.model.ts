@@ -1,3 +1,4 @@
+import type { RawUser } from '@zvonimirsun/iszy-common'
 import {
   AutoIncrement,
   BelongsToMany,
@@ -7,31 +8,10 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript'
-import { Group, RawGroup } from './group.model'
-import { RawPrivilege } from './privilege.model'
-import { RawRole, Role } from './role.model'
+import { Group } from './group.model'
+import { Role } from './role.model'
 import { UserGroup } from './user-group.model'
 import { UserRole } from './user_role.model'
-
-export interface RawUser {
-  userId: number
-  userName: string
-  nickName: string
-  passwd: string
-  passwdSalt?: string
-  mobile?: string
-  email?: string
-  roles?: RawRole[]
-  groups?: RawGroup[]
-  status: number
-  createBy: number
-  updateBy: number
-  privileges?: RawPrivilege[]
-  github?: string
-  linuxdo?: string
-}
-
-export type PublicUser = Omit<RawUser, 'passwd' | 'passwdSalt'>
 
 @Table
 export class User extends Model<RawUser> implements RawUser {

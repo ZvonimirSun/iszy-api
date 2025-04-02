@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common'
+import { RoleEnum } from '@zvonimirsun/iszy-common'
 import { MetaKeysEnum } from '~core/enum/metaKeys.enum'
-import { RoleEnum } from './enum/role.enum'
 
 export const Roles = (...roles: RoleEnum[]) => SetMetadata(MetaKeysEnum.ROLES_KEY, roles)
 export const Private = () => SetMetadata(MetaKeysEnum.IS_PRIVATE_KEY, true)

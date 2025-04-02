@@ -1,3 +1,4 @@
+import type { RawRole } from '@zvonimirsun/iszy-common'
 import {
   AutoIncrement,
   BelongsToMany,
@@ -8,19 +9,11 @@ import {
   Unique,
 } from 'sequelize-typescript'
 import { Group } from './group.model'
-import { Privilege, RawPrivilege } from './privilege.model'
+import { Privilege } from './privilege.model'
 import { RoleGroup } from './role-group.model'
 import { RolePrivilege } from './role-privilege.model'
 import { User } from './user.model'
 import { UserRole } from './user_role.model'
-
-export interface RawRole {
-  id?: number
-  name: string
-  alias: string
-  desc?: string
-  privileges?: RawPrivilege[]
-}
 
 @Table
 export class Role extends Model<RawRole> implements RawRole {

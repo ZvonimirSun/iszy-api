@@ -1,5 +1,5 @@
+import type { PublicUser } from '@zvonimirsun/iszy-common'
 import type { ResultDto } from '~core/dto/result.dto'
-import type { PublicUser } from '~entities/user'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { LogoutDto } from './dto/logout.dto'
 import type { RegisterDto } from './dto/register.dto'

@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { PublicUser } from '~entities/user'
+import { encodeUUID, PublicUser } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~modules/core/auth/auth.service'
 import { UserService } from '~modules/core/user/user.service'
-import { encodeUUID } from '~utils/uuid'
 
 @Injectable()
 export class GithubAuthService {

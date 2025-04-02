@@ -1,10 +1,10 @@
+import type { OptionalExcept, PublicUser, RawUser } from '@zvonimirsun/iszy-common'
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
-import { Group, Privilege, PublicUser, RawUser, Role, User } from '~entities/user'
+import { Group, Privilege, Role, User } from '~entities/user'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
-import { OptionalExcept } from '~types/common'
 import { UserStatus } from './variables/user.status'
 
 @Injectable()
