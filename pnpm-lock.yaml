@@ -51,8 +51,8 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0(@nestjs/common@11.0.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.12)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)
       '@zvonimirsun/iszy-common':
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^1.0.8
+        version: 1.0.8
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -1705,8 +1705,8 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  '@zvonimirsun/iszy-common@1.0.5':
-    resolution: {integrity: sha512-3v3MCCAT1exJUC8Y74w+jbvNhngdFG+3BQWTaHKF+Hl2L7REX3HswN00D9d0ZJ7Qn/mIHtjL9DT0SgD2/sVnDA==}
+  '@zvonimirsun/iszy-common@1.0.8':
+    resolution: {integrity: sha512-sNpG+IWnYlsZQiYW8shxEEuZ1M1XgjH7vT4PUHUsNEYBk6i8iLcGci2KTPpk3ZYun3jKEgvXGQaDKbAhWtCefg==}
 
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
@@ -7066,7 +7066,7 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@zvonimirsun/iszy-common@1.0.5':
+  '@zvonimirsun/iszy-common@1.0.8':
     dependencies:
       uuid: 11.1.0
 

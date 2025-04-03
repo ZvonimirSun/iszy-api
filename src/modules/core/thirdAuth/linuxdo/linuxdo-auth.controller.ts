@@ -41,7 +41,7 @@ export class LinuxdoAuthController {
           // 用户不存在
           req.user = await this.linuxdoAuthService.register(req.thirdPartProfile)
         }
-        msgInfo = await this.linuxdoAuthService.login(req.user, req.deviceId)
+        msgInfo = await this.linuxdoAuthService.login(req.user, req.device)
         this.logger.log(`${req.user.userName}通过 LINUX DO 登录成功`)
       }
       else {

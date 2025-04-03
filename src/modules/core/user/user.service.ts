@@ -1,11 +1,12 @@
 import type { OptionalExcept, PublicUser, RawUser } from '@zvonimirsun/iszy-common'
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
+import { UserStatus } from '@zvonimirsun/iszy-common'
 import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { Group, Privilege, Role, User } from '~entities/user'
+import { AuthService } from '~modules/core/auth/auth.service'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
-import { UserStatus } from './variables/user.status'
 
 @Injectable()
 export class UserService {
@@ -13,6 +14,7 @@ export class UserService {
     @InjectModel(User) private userModel: typeof User,
     private sequelize: Sequelize,
     private readonly redisCacheService: RedisCacheService,
+    private readonly authService: AuthService,
   ) {}
 
   private readonly logger = new Logger(UserService.name)
@@ -42,7 +44,7 @@ export class UserService {
   async findOne(userIdOrName: string | number): Promise<RawUser> {
     const cached = await this._getCache(userIdOrName)
     if (cached) {
-      this._setCache(cached)
+      await this._setCache(cached)
       return cached
     }
     let where: Partial<RawUser>
@@ -189,6 +191,9 @@ export class UserService {
       updateBy: updateUserId ?? userId,
     })
     await this._clearCache(user)
+    await this.authService.logout(userId, {
+      all: true,
+    })
     return this.findOne(userId)
   }
 

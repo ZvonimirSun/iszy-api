@@ -2,7 +2,7 @@ import type { AuthRequest } from '~types/AuthRequest'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { PublicUser } from '@zvonimirsun/iszy-common'
+import { PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
 import { ExtractJwt, JwtFromRequestFunction, Strategy } from 'passport-jwt'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { UserService } from '~modules/core/user/user.service'
@@ -37,15 +37,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(@Req() req: AuthRequest, payload: JwtPayload | RefreshJwtPayload) {
-    req.deviceId = payload.deviceId
+    const deviceId = payload.deviceId
+    req.device = {
+      id: deviceId,
+      ip: req.ip,
+    }
     if ('refreshUserId' in payload) {
       const token = this._jwtFromRequest(req)
-      const currentToken = await this.redisCacheService.get(`device:userId:${payload.refreshUserId}:${payload.deviceId}`)
-      if (token !== currentToken) {
+      const currentDevice = await this.redisCacheService.getDevice(deviceId)
+      if (!currentDevice || token !== currentDevice.refreshToken) {
         throw new UnauthorizedException()
       }
       const rawUser = await this.userService.findOne(payload.refreshUserId)
-      if (!rawUser) {
+      if (!rawUser || rawUser.status !== UserStatus.ENABLED) {
         throw new UnauthorizedException()
       }
       req.isRefresh = true

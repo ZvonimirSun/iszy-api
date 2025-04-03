@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import {
+  Device,
+  DeviceCache,
   encodeUUID,
   PublicUser,
   RawUser,
@@ -9,6 +11,7 @@ import {
   REGEX_MOBILE_PHONE,
   RegisterUser,
   UpdateUser,
+  UserStatus,
 } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import ms, { StringValue } from 'ms'
@@ -16,7 +19,6 @@ import { LogoutDto } from '~modules/core/auth/dto/logout.dto'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { encryptPassword } from '~utils/cryptogram'
 import { UserService } from '../user/user.service'
-import { UserStatus } from '../user/variables/user.status'
 import { JwtPayload, RefreshJwtPayload } from './jwt.strategy'
 
 @Injectable()
@@ -53,7 +55,7 @@ export class AuthService {
     return result
   }
 
-  async generateToken(user: PublicUser, deviceId?: string): Promise<{
+  async generateToken(user: PublicUser, device: Device): Promise<{
     access_token: string
     refresh_token: string
     profile: PublicUser
@@ -63,7 +65,7 @@ export class AuthService {
     }
 
     const userId = user.userId
-    deviceId = deviceId || encodeUUID()
+    const deviceId = device.id || encodeUUID()
 
     const jwtPayload: JwtPayload = {
       deviceId,
@@ -81,10 +83,13 @@ export class AuthService {
       expiresIn: this.refreshExpireTime,
     })
 
-    await this.redisCacheService.set(`device:userId:${userId}:${deviceId}`, refreshToken, this.refreshExpireMs)
+    const cacheDevice: DeviceCache = {
+      ...device,
+      refreshToken,
+      id: deviceId,
+    }
 
-    // 更新设备列表
-    this._addDevice(userId, deviceId).then()
+    await this.redisCacheService.addDevice(userId, cacheDevice)
 
     return {
       access_token: accessToken,
@@ -189,22 +194,11 @@ export class AuthService {
     return result
   }
 
-  async logout(userId: number, deviceId: string, options: LogoutDto = {}) {
+  async logout(userId: number, options: LogoutDto = {}) {
     if (userId == null)
       return
 
-    if (options.all) {
-      await this._removeDevice(userId)
-    }
-    else if (options.other) {
-      await this._removeDevice(userId, deviceId, true)
-    }
-    else if (options.deviceId) {
-      await this._removeDevice(userId, options.deviceId)
-    }
-    else {
-      await this._removeDevice(userId, deviceId)
-    }
+    await this.redisCacheService.removeDevice(userId, options)
   }
 
   async bind(userId: number, type: string, id: string) {
@@ -239,8 +233,8 @@ export class AuthService {
     })
   }
 
-  async getDevices(userId: number) {
-    return await this.redisCacheService.get<string[]>(`device:userId:${userId}`) || []
+  async getDevices(userId: number): Promise<Device[]> {
+    return await this.redisCacheService.getDevices(userId)
   }
 
   private _normalizeUserInfo(userProfile: RegisterUser | UpdateUser) {
@@ -304,58 +298,5 @@ export class AuthService {
       throw new Error('用户已禁用')
     }
     return true
-  }
-
-  private async _addDevice(userId: number, deviceId: string) {
-    const devices = (await this.redisCacheService.get<string[]>(`device:userId:${userId}`)) || []
-    const newDevices = [deviceId]
-    for (const device of devices) {
-      if (device === deviceId) {
-        continue
-      }
-      if (await this.redisCacheService.get<string>(`device:userId:${userId}:${device}`)) {
-        newDevices.push(device)
-      }
-    }
-    await this.redisCacheService.set(`device:userId:${userId}`, newDevices, this.refreshExpireMs)
-  }
-
-  private async _removeDevice(userId: number, deviceId?: string, other?: boolean) {
-    const devices = (await this.redisCacheService.get<string[]>(`device:userId:${userId}`)) || []
-    // 登出所有设备
-    if (!deviceId) {
-      for (const device of devices) {
-        await this.redisCacheService.del(`device:userId:${userId}:${device}`)
-      }
-      await this.redisCacheService.del(`device:userId:${userId}`)
-    }
-    // 登出其他设备
-    else if (other) {
-      for (const device of devices) {
-        if (device !== deviceId) {
-          await this.redisCacheService.del(`device:userId:${userId}:${device}`)
-        }
-      }
-      await this.redisCacheService.set(`device:userId:${userId}`, [deviceId], this.refreshExpireMs)
-    }
-    // 登出当前设备
-    else {
-      await this.redisCacheService.del(`device:userId:${userId}:${deviceId}`)
-      const newDevices: string[] = []
-      for (const device of devices) {
-        if (device === deviceId) {
-          continue
-        }
-        if (await this.redisCacheService.get<string>(`device:userId:${userId}:${device}`)) {
-          newDevices.push(device)
-        }
-      }
-      if (newDevices.length) {
-        await this.redisCacheService.set(`device:userId:${userId}`, newDevices, this.refreshExpireMs)
-      }
-      else {
-        await this.redisCacheService.del(`device:userId:${userId}`)
-      }
-    }
   }
 }

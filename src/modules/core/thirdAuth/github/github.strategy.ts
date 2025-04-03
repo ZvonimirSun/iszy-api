@@ -29,6 +29,9 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     _refreshToken: any,
     profile: any,
   ) {
+    req.device = {
+      ip: req.ip,
+    }
     req.thirdPartProfile = profile
     try {
       return await this.githubAuthService.validateUser(profile)

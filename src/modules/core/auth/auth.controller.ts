@@ -1,4 +1,4 @@
-import type { PublicUser } from '@zvonimirsun/iszy-common'
+import type { Device, PublicUser } from '@zvonimirsun/iszy-common'
 import type { ResultDto } from '~core/dto/result.dto'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { LogoutDto } from './dto/logout.dto'
@@ -45,14 +45,15 @@ export class AuthController {
     return {
       success: true,
       message: '登录成功',
-      data: await this.authService.generateToken(req.user, req.deviceId),
+      data: await this.authService.generateToken(req.user, req.device),
     }
   }
 
   @Post('logout')
-  async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto) {
+  async logout(@Req() req: AuthRequest, @Query() logoutDto: LogoutDto): Promise<ResultDto<void>> {
     try {
-      await this.authService.logout(req.user.userId, req.deviceId, logoutDto)
+      logoutDto.deviceId = logoutDto.deviceId || req.device.id
+      await this.authService.logout(req.user.userId, logoutDto)
       this.logger.log(`${req.user.userName} 登出成功`)
       return {
         success: true,
@@ -80,7 +81,7 @@ export class AuthController {
     return {
       success: true,
       message: '刷新成功',
-      data: await this.authService.generateToken(req.user, req.deviceId),
+      data: await this.authService.generateToken(req.user, req.device),
     }
   }
 
@@ -153,7 +154,7 @@ export class AuthController {
 
   @Get('devices')
   async getDevices(@Req() req: AuthRequest): Promise<ResultDto<{
-    devices: string[]
+    devices: Device[]
     currentDevice: string
   }>> {
     const devices = await this.authService.getDevices(req.user.userId)
@@ -161,7 +162,7 @@ export class AuthController {
       success: true,
       data: {
         devices,
-        currentDevice: req.deviceId,
+        currentDevice: req.device.id,
       },
       message: '获取成功',
     }

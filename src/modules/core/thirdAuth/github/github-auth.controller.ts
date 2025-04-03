@@ -41,7 +41,7 @@ export class GithubAuthController {
           // 用户不存在
           req.user = await this.githubAuthService.register(req.thirdPartProfile)
         }
-        msgInfo = await this.githubAuthService.login(req.user, req.deviceId)
+        msgInfo = await this.githubAuthService.login(req.user, req.device)
         this.logger.log(`${req.user.userName}通过 Github 登录成功`)
       }
       else {

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { encodeUUID, PublicUser } from '@zvonimirsun/iszy-common'
+import { Device, encodeUUID, PublicUser } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~modules/core/auth/auth.service'
 import { UserService } from '~modules/core/user/user.service'
 
@@ -23,8 +23,8 @@ export class LinuxdoAuthService {
     return result
   }
 
-  async login(user?: PublicUser, deviceId?: string) {
-    const data = await this.authService.generateToken(user, deviceId)
+  async login(user: PublicUser, device: Device) {
+    const data = await this.authService.generateToken(user, device)
     return {
       type: 'oauth_complete',
       data,

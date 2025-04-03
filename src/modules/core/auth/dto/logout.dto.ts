@@ -4,7 +4,7 @@ export class LogoutDto {
   @ApiPropertyOptional({
     description: '登出指定设备',
   })
-  readonly deviceId?: string
+  deviceId?: string
 
   @ApiPropertyOptional({
     description: '登出所有',

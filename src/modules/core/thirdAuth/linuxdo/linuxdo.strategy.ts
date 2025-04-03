@@ -50,6 +50,9 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
     _refreshToken: any,
     profile: any,
   ) {
+    req.device = {
+      ip: req.ip,
+    }
     req.thirdPartProfile = profile
     try {
       return await this.linuxdoAuthService.validateUser(profile)

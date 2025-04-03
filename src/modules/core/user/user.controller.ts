@@ -2,7 +2,7 @@ import type { PublicUser, RawUser } from '@zvonimirsun/iszy-common'
 import type { AuthRequest } from '~types/AuthRequest'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { RoleEnum } from '@zvonimirsun/iszy-common'
+import { RoleEnum, UserStatus } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import { Roles } from '~core/decorator'
 import { PageableDto } from '~core/dto/pageable.dto'
@@ -10,7 +10,6 @@ import { ResultDto } from '~core/dto/result.dto'
 import { User } from '~entities/user'
 import { RegisterDto } from '../auth/dto/register.dto'
 import { UserService } from './user.service'
-import { UserStatus } from './variables/user.status'
 
 @ApiTags('User')
 @Roles(RoleEnum.SUPERADMIN)
