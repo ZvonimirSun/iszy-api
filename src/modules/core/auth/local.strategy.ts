@@ -1,7 +1,7 @@
+import type { AuthRequest } from '~types/AuthRequest'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy } from 'passport-local'
-import { AuthRequest } from '~types/AuthRequest'
 import { AuthService } from './auth.service'
 
 @Injectable()
