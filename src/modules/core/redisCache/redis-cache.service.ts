@@ -1,4 +1,4 @@
-import type { Device, DeviceCache } from '@zvonimirsun/iszy-common'
+import type { Device, DeviceCache, OptionalExcept, RawUser } from '@zvonimirsun/iszy-common'
 import type { Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
@@ -106,5 +106,31 @@ export class RedisCacheService {
       }
     }
     return devices
+  }
+
+  async setUser(user: RawUser) {
+    await this.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
+    await this.set(`user:userName:${user.userName}:userId`, user.userId, 60 * 60 * 1000)
+  }
+
+  async getUser(userIdOrName: string | number): Promise<RawUser | null> {
+    if (typeof userIdOrName === 'number') {
+      const cacheKey = `user:userId:${userIdOrName}`
+      return this.get<RawUser>(cacheKey)
+    }
+    else {
+      const userIdKey = `user:userName:${userIdOrName}:userId`
+      const cachedUserId = await this.get<number>(userIdKey)
+      if (!cachedUserId) {
+        return null
+      }
+      const cacheKey = `user:userId:${cachedUserId}`
+      return this.get<RawUser>(cacheKey)
+    }
+  }
+
+  async removeUser(user: OptionalExcept<RawUser, 'userId' | 'userName'>): Promise<void> {
+    await this.del(`user:userId:${user.userId}`)
+    await this.del(`user:userName:${user.userName}:userId`)
   }
 }

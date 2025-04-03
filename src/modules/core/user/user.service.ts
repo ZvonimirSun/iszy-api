@@ -1,4 +1,4 @@
-import type { OptionalExcept, PublicUser, RawUser } from '@zvonimirsun/iszy-common'
+import type { PublicUser, RawUser } from '@zvonimirsun/iszy-common'
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { UserStatus } from '@zvonimirsun/iszy-common'
@@ -40,9 +40,9 @@ export class UserService {
   }
 
   async findOne(userIdOrName: string | number): Promise<RawUser> {
-    const cached = await this._getCache(userIdOrName)
+    const cached = await this.redisCacheService.getUser(userIdOrName)
     if (cached) {
-      await this._setCache(cached)
+      await this.redisCacheService.setUser(cached)
       return cached
     }
     let where: Partial<RawUser>
@@ -117,7 +117,7 @@ export class UserService {
       id: p.id,
       type: p.type,
     }))
-    this._setCache(rawUser).then()
+    await this.redisCacheService.setUser(rawUser)
     return rawUser
   }
 
@@ -170,7 +170,7 @@ export class UserService {
       status: UserStatus.ENABLED,
       updateBy: updateUserId ?? userId,
     })
-    await this._clearCache(user)
+    await this.redisCacheService.removeUser(user)
     return this.findOne(userId)
   }
 
@@ -188,7 +188,7 @@ export class UserService {
       status: UserStatus.DISABLED,
       updateBy: updateUserId ?? userId,
     })
-    await this._clearCache(user)
+    await this.redisCacheService.removeUser(user)
     await this.redisCacheService.removeDevice(userId, {
       all: true,
     })
@@ -202,15 +202,11 @@ export class UserService {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
-    const oldUser = {
-      userId: user.userId,
-      userName: user.userName,
-    }
+    await this.redisCacheService.removeUser(user)
     await user.update({
       ...profile,
       updateBy: updateUserId ?? userId,
     })
-    await this._clearCache(oldUser)
     return this.findOne(userId)
   }
 
@@ -221,33 +217,7 @@ export class UserService {
       throw new Error('用户不存在')
     }
     await user.destroy()
-    await this._clearCache(user)
+    await this.redisCacheService.removeUser(user)
     return true
-  }
-
-  async _getCache(userIdOrName: string | number): Promise<RawUser | null> {
-    if (typeof userIdOrName === 'number') {
-      const cacheKey = `user:userId:${userIdOrName}`
-      return await this.redisCacheService.get<RawUser>(cacheKey)
-    }
-    else {
-      const userIdKey = `user:userName:${userIdOrName}:userId`
-      const cachedUserId = await this.redisCacheService.get<number>(userIdKey)
-      if (!cachedUserId) {
-        return null
-      }
-      const cacheKey = `user:userId:${cachedUserId}`
-      return await this.redisCacheService.get<RawUser>(cacheKey)
-    }
-  }
-
-  async _setCache(user: OptionalExcept<RawUser, 'userId' | 'userName'>): Promise<void> {
-    await this.redisCacheService.set(`user:userId:${user.userId}`, user, 60 * 60 * 1000)
-    await this.redisCacheService.set(`user:userName:${user.userName}:userId`, user.userId, 60 * 60 * 1000)
-  }
-
-  async _clearCache(user: OptionalExcept<RawUser, 'userId' | 'userName'>): Promise<void> {
-    await this.redisCacheService.del(`user:userId:${user.userId}`)
-    await this.redisCacheService.del(`user:userName:${user.userName}:userId`)
   }
 }
