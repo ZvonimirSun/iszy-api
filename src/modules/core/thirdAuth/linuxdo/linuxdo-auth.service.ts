@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { Device, encodeUUID, PublicUser } from '@zvonimirsun/iszy-common'
+import { Device, encodeUUID, PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~modules/core/auth/auth.service'
 import { UserService } from '~modules/core/user/user.service'
 
@@ -42,7 +42,7 @@ export class LinuxdoAuthService {
         userName,
         nickName: profile.name,
         email: profile.email,
-        status: profile.ENABLED,
+        status: UserStatus.ENABLED,
         linuxdo: profile.id,
       })
     }
