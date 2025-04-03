@@ -5,7 +5,6 @@ import { UserStatus } from '@zvonimirsun/iszy-common'
 import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { Group, Privilege, Role, User } from '~entities/user'
-import { AuthService } from '~modules/core/auth/auth.service'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 
 @Injectable()
@@ -14,7 +13,6 @@ export class UserService {
     @InjectModel(User) private userModel: typeof User,
     private sequelize: Sequelize,
     private readonly redisCacheService: RedisCacheService,
-    private readonly authService: AuthService,
   ) {}
 
   private readonly logger = new Logger(UserService.name)
@@ -191,7 +189,7 @@ export class UserService {
       updateBy: updateUserId ?? userId,
     })
     await this._clearCache(user)
-    await this.authService.logout(userId, {
+    await this.redisCacheService.removeDevice(userId, {
       all: true,
     })
     return this.findOne(userId)
