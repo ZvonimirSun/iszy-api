@@ -33,6 +33,10 @@ export class AuthService {
     this.refreshExpireTime = this.configService.get<StringValue>('auth.jwt.refreshExpire')
     this.accessExpireMs = ms(this.accessExpireTime)
     this.refreshExpireMs = ms(this.refreshExpireTime)
+
+    if (this.refreshExpireMs <= this.accessExpireMs) {
+      throw new Error('refresh_token 过期时间必须大于 access_token 过期时间')
+    }
   }
 
   private readonly logger = new Logger(AuthService.name)
@@ -60,10 +64,6 @@ export class AuthService {
     refresh_token: string
     profile: PublicUser
   }> {
-    if (this.refreshExpireMs <= this.accessExpireMs) {
-      throw new Error('refresh_token 过期时间必须大于 access_token 过期时间')
-    }
-
     const userId = user.userId
     const deviceId = device.id || encodeUUID()
 
