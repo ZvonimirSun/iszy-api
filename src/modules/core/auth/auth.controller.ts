@@ -152,17 +152,16 @@ export class AuthController {
   }
 
   @Get('devices')
-  async getDevices(@Req() req: AuthRequest): Promise<ResultDto<{
-    devices: Device[]
-    currentDevice: string
-  }>> {
+  async getDevices(@Req() req: AuthRequest): Promise<ResultDto<Device[]>> {
     const devices = await this.authService.getDevices(req.user.userId)
     return {
       success: true,
-      data: {
-        devices,
-        currentDevice: req.device.id,
-      },
+      data: devices.map((device) => {
+        if (device.id === req.device.id) {
+          device.current = true
+        }
+        return device
+      }),
       message: '获取成功',
     }
   }
