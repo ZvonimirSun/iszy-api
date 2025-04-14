@@ -31,7 +31,7 @@
     "@nestjs/platform-express": "^11.0.12",
     "@nestjs/sequelize": "^11.0.0",
     "@nestjs/swagger": "^11.1.0",
-    "@zvonimirsun/iszy-common": "^1.0.9",
+    "@zvonimirsun/iszy-common": "^1.0.10",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",

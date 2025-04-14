@@ -1,4 +1,4 @@
-import type { ResultDto } from '~core/dto/result.dto'
+import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { ImportHolidayDto } from './dto/import_holiday.dto'
 import {
   Body,

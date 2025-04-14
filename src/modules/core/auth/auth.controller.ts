@@ -1,5 +1,4 @@
-import type { Device, PublicUser } from '@zvonimirsun/iszy-common'
-import type { ResultDto } from '~core/dto/result.dto'
+import type { Device, PublicUser, ResultDto } from '@zvonimirsun/iszy-common'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { LogoutDto } from './dto/logout.dto'
 import type { RegisterDto } from './dto/register.dto'

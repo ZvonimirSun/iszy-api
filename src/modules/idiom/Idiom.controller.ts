@@ -1,4 +1,4 @@
-import type { ResultDto } from '~core/dto/result.dto'
+import type { ResultDto } from '@zvonimirsun/iszy-common'
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator'

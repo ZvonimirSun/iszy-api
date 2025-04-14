@@ -1,5 +1,5 @@
+import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { Request, Response } from 'express'
-import type { ResultDto } from '~core/dto/result.dto'
 import type { MockData } from '~entities/mocks/mock_data.model'
 import type { MockPrj } from '~entities/mocks/mock_prj.model'
 import type { AuthRequest } from '~types/AuthRequest'

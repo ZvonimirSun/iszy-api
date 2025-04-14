@@ -1,4 +1,4 @@
-import type { ResultDto } from '~core/dto/result.dto'
+import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { JsoneditorModel } from '~entities/jsonEditor/jsoneditor.model'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { JsoneditorItemDto } from './dto/jsoneditor_item.dto'

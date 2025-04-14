@@ -1,4 +1,4 @@
-import type { ResultDto } from '~core/dto/result.dto'
+import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { TransformGeometryDto } from './dto/transform_geometry.dto'
 import type { TransformPointDto } from './dto/transform_point.dto'
 import { Body, Controller, Post } from '@nestjs/common'

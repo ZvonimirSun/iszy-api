@@ -2,8 +2,8 @@ import type {
   ArgumentsHost,
   ExceptionFilter,
 } from '@nestjs/common'
+import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { Response } from 'express'
-import type { ResultDto } from '../dto/result.dto'
 import {
   Catch,
   HttpException,
