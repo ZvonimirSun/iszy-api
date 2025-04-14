@@ -88,6 +88,7 @@ export class AuthService {
       refreshToken,
       id: deviceId,
     }
+    this.logger.log(`${user.userName}设备更新:${deviceId}:${cacheDevice.ip}`)
 
     await this.redisCacheService.addDevice(userId, cacheDevice)
 
