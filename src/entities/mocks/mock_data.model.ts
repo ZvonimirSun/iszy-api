@@ -51,6 +51,9 @@ export class MockData extends Model {
   })
   response?: string
 
+  @Column
+  contentType?: string
+
   @ForeignKey(() => MockPrj)
   @Column({
     allowNull: false,

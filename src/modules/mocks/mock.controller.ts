@@ -217,11 +217,15 @@ export class MockController {
       res.status(404)
       return
     }
+    if (req.method.toLowerCase() === 'head') {
+      res.status(204)
+      return
+    }
     if (mockData.type.toLowerCase() !== 'all' && mockData.type.toLowerCase() !== req.method.toLowerCase()) {
       res.status(405)
       return
     }
-    let json: any = mockData.response
+    let result: any
     try {
       const _req = {
         url: req.url,
@@ -239,8 +243,8 @@ export class MockController {
         signedCookies: req.signedCookies,
         header: req.header,
       }
-      const tmp: unknown = new Function(`return ${mockData.response}`)()
-      const tmp1 = JSON.stringify(tmp, (key, value) => {
+      const tmp: any = new Function(`return ${mockData.response}`)()
+      const tmp1 = JSON.stringify(tmp, (_key, value) => {
         if (typeof value === 'function') {
           try {
             return value.call(undefined, {
@@ -254,19 +258,23 @@ export class MockController {
         }
         return value
       })
-      json = Mock.mock(JSON.parse(tmp1))
+      result = Mock.mock(JSON.parse(tmp1))
     }
     catch (e) {
-      // console.log(e)
+      if (mockData.contentType) {
+        res.type(mockData.contentType)
+      }
+      result = mockData.response
     }
     if (mockData.delay)
       await _sleep(mockData.delay)
 
     const responseStatus = req.header('response-status')
-    if (responseStatus != null)
+    if (responseStatus != null) {
       res.status(Number.parseInt(responseStatus))
+    }
 
-    return json
+    return result
   }
 }
 
