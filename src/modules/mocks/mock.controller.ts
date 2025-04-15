@@ -36,7 +36,7 @@ export class MockController {
     return {
       success: true,
       message: '创建mock项目成功',
-      data: await this.mockService.createMockPrj(req.user.userId, mockPrjDto),
+      data: await this.mockService.createMockPrj(req.user.userId, _normalizeDto(mockPrjDto)),
     }
   }
 
