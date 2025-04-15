@@ -257,7 +257,7 @@ export class MockController {
       json = Mock.mock(JSON.parse(tmp1))
     }
     catch (e) {
-      console.log(e)
+      // console.log(e)
     }
     if (mockData.delay)
       await _sleep(mockData.delay)
