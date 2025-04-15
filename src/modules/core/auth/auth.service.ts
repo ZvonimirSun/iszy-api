@@ -65,7 +65,11 @@ export class AuthService {
     profile: PublicUser
   }> {
     const userId = user.userId
-    const deviceId = device.id || encodeUUID()
+    let deviceId = device.id
+    if (!deviceId) {
+      deviceId = encodeUUID()
+      this.logger.error(`${user.userName}新设备:${device.ip}`)
+    }
 
     const jwtPayload: JwtPayload = {
       deviceId,
@@ -88,7 +92,7 @@ export class AuthService {
       refreshToken,
       id: deviceId,
     }
-    this.logger.log(`${user.userName}设备更新:${deviceId}:${cacheDevice.ip}`)
+    this.logger.log(`${user.userName}设备更新:${deviceId}:${device.ip}`)
 
     await this.redisCacheService.addDevice(userId, cacheDevice)
 
