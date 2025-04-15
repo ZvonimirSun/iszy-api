@@ -269,9 +269,19 @@ export class MockController {
     if (mockData.delay)
       await _sleep(mockData.delay)
 
-    const responseStatus = req.header('response-status')
-    if (responseStatus != null) {
-      res.status(Number.parseInt(responseStatus))
+    let hasStatus = false
+    if (result?._res && typeof result._res === 'object') {
+      if (typeof result._res.status === 'number') {
+        hasStatus = true
+        res.status(result._res.status)
+      }
+      delete result._res
+    }
+    if (!hasStatus) {
+      const responseStatus = req.header('response-status')
+      if (responseStatus != null) {
+        res.status(Number.parseInt(responseStatus))
+      }
     }
 
     return result
