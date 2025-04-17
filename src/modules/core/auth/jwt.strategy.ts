@@ -6,6 +6,7 @@ import { PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
 import { ExtractJwt, JwtFromRequestFunction, Strategy } from 'passport-jwt'
 import { RedisCacheService } from '~modules/core/redisCache/redis-cache.service'
 import { UserService } from '~modules/core/user/user.service'
+import { generateDevice } from '~utils/generateDevice'
 
 export interface JwtPayload {
   deviceId: string
@@ -39,8 +40,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(@Req() req: AuthRequest, payload: JwtPayload | RefreshJwtPayload) {
     const deviceId = payload.deviceId
     req.device = {
+      ...generateDevice(req),
       id: deviceId,
-      ip: req.ip,
     }
     if ('refreshUserId' in payload) {
       const token = this._jwtFromRequest(req)

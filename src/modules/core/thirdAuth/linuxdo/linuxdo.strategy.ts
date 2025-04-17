@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { InternalOAuthError, Strategy } from 'passport-oauth2'
+import { generateDevice } from '~utils/generateDevice'
 import { LinuxdoAuthService } from './linuxdo-auth.service'
 
 @Injectable()
@@ -50,9 +51,7 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
     _refreshToken: any,
     profile: any,
   ) {
-    req.device = {
-      ip: req.ip,
-    }
+    req.device = generateDevice(req)
     req.thirdPartProfile = profile
     try {
       return await this.linuxdoAuthService.validateUser(profile)

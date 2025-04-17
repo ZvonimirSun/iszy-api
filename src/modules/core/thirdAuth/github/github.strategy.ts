@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Strategy } from 'passport-github2'
+import { generateDevice } from '~utils/generateDevice'
 import { GithubAuthService } from './github-auth.service'
 
 @Injectable()
@@ -29,9 +30,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     _refreshToken: any,
     profile: any,
   ) {
-    req.device = {
-      ip: req.ip,
-    }
+    req.device = generateDevice(req)
     req.thirdPartProfile = profile
     try {
       return await this.githubAuthService.validateUser(profile)
