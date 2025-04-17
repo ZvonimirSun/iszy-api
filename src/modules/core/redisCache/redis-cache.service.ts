@@ -33,7 +33,7 @@ export class RedisCacheService {
   async addDevice(userId: number, deviceCache: DeviceCache): Promise<void> {
     const cachedDevice = await this.get<DeviceCache>(`device:${deviceCache.id}`)
     if (cachedDevice) {
-      deviceCache.createdAt = cachedDevice.createdAt
+      deviceCache.createdAt = cachedDevice.createdAt || deviceCache.createdAt
     }
     await this.set<DeviceCache>(`device:${deviceCache.id}`, deviceCache, this.refreshExpireMs)
     const devices = (await this.get<string[]>(`device:userId:${userId}`)) || []
