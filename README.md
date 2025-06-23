@@ -1,6 +1,7 @@
 # ISZY API
 
 [![build](https://github.com/ZvonimirSun/iszy-api/actions/workflows/docker.yml/badge.svg)](https://github.com/ZvonimirSun/iszy-api/actions/workflows/docker.yml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FZvonimirSun%2Fiszy-api.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FZvonimirSun%2Fiszy-api?ref=badge_shield)
 
 [![Nest 10.x](https://img.shields.io/badge/Nest-10.x-blue)](https://nestjs.com/) [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
 
@@ -38,3 +39,6 @@ pnpm run start:prod
 ## License
 
 [GNU version 3.0 licensed](LICENSE).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FZvonimirSun%2Fiszy-api.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FZvonimirSun%2Fiszy-api?ref=badge_large)
