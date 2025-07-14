@@ -68,7 +68,7 @@ export class AuthService {
     let deviceId = device.id
     if (!deviceId) {
       deviceId = encodeUUID()
-      this.logger.error(`${user.userName}新设备:${device.name}:${device.ip}`)
+      this.logger.log(`${user.userName}新设备:${device.name}:${device.ip}`)
     }
     else {
       this.logger.log(`${user.userName}设备更新:${device.name}:${device.ip}`)
