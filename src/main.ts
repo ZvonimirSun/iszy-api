@@ -44,7 +44,7 @@ async function bootstrap() {
     origin(requestOrigin, callback) {
       const origins = configService.get<string[]>('app.allowOrigins')
       if (origins != null) {
-        if (requestOrigin.includes(requestOrigin))
+        if (origins.includes(requestOrigin))
           callback(null, requestOrigin)
         else
           callback(new Error(`Not allow origin ${requestOrigin}`))
