@@ -63,12 +63,12 @@ export default () => {
     writeFileSync(ymlFilePath, ymlContent, 'utf-8')
   }
 
-  const config = yaml.load(readFileSync(ymlFilePath, 'utf-8')) as any || {}
+  const configFileData = yaml.load(readFileSync(ymlFilePath, 'utf-8')) as any || {}
 
-  const appPort = config.app?.port || 3000
-  const appOrigin = config.app?.origin || `http://localhost:${appPort}`
+  const appPort = configFileData.app?.port || 3000
+  const appOrigin = configFileData.app?.origin || `http://localhost:${appPort}`
 
-  return merge(
+  const config = merge(
     // 默认配置
     {
       database: {
@@ -119,20 +119,24 @@ export default () => {
       systemProxy: '',
     },
     // 用户配置
-    config,
+    configFileData,
     // 配置后处理
     {
+      app: {
+        allowOrigins: configFileData.app?.allowOrigins ? configFileData.app.allowOrigins.split(',') : null,
+      },
       auth: {
-        app: {
-          allowOrigins: config.app?.allowOrigins ? config.app.allowOrigins.split(',') : null,
-        },
         github: {
-          callbackUrl: config.github?.callbackUrl || `${appOrigin}/auth/github/callback`,
+          callbackUrl: configFileData.github?.callbackUrl || `${appOrigin}/auth/github/callback`,
         },
         linuxdo: {
-          callbackUrl: config.linuxdo?.callbackUrl || `${appOrigin}/auth/linuxdo/callback`,
+          callbackUrl: configFileData.linuxdo?.callbackUrl || `${appOrigin}/auth/linuxdo/callback`,
         },
       },
     },
   )
+  if (config.development) {
+    console.log(config)
+  }
+  return config
 }

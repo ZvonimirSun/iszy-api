@@ -29,7 +29,7 @@ async function bootstrap() {
   dayjs.tz.setDefault('Asia/Shanghai')
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: getLogLevels(process.env.DEVELOPMENT === 'true'),
+    logger: getLogLevels(process.env.DEVELOPMENT !== 'true'),
   })
 
   const configService: ConfigService = app.get(ConfigService)
