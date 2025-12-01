@@ -39,7 +39,7 @@
     "cheerio": "1.0.0",
     "connect-redis": "^9.0.0",
     "dayjs": "^1.11.13",
-    "express": "^5.1.0",
+    "express": "^5.2.0",
     "express-session": "^1.18.1",
     "geoip-lite": "^1.4.10",
     "https-proxy-agent": "^7.0.6",
