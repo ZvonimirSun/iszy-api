@@ -12,8 +12,8 @@ import { Group } from './group.model'
 import { Privilege } from './privilege.model'
 import { RoleGroup } from './role-group.model'
 import { RolePrivilege } from './role-privilege.model'
+import { UserRole } from './user-role.model'
 import { User } from './user.model'
-import { UserRole } from './user_role.model'
 
 @Table
 export class Role extends Model<RawRole> implements RawRole {

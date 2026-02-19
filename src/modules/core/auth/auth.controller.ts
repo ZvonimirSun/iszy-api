@@ -73,10 +73,10 @@ export class AuthController {
   async refreshToken(
     @Req() req: AuthRequest,
   ): Promise<ResultDto<{
-      access_token: string
-      refresh_token: string
-      profile: PublicUser
-    }>> {
+    access_token: string
+    refresh_token: string
+    profile: PublicUser
+  }>> {
     return {
       success: true,
       message: '刷新成功',
