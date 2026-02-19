@@ -46,7 +46,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if ('refreshUserId' in payload) {
       const token = this._jwtFromRequest(req)
       const currentDevice = await this.redisCacheService.getDevice(deviceId)
-      if (!currentDevice || token !== currentDevice.refreshToken) {
+      if (!currentDevice) {
+        throw new UnauthorizedException()
+      }
+      if (token !== currentDevice.refreshToken) {
+        // 刷新令牌不匹配，可能是被盗用，删除设备缓存
+        await this.redisCacheService.removeDevice(payload.refreshUserId, { deviceId })
         throw new UnauthorizedException()
       }
       const rawUser = await this.userService.findOne(payload.refreshUserId)

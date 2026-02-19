@@ -36,17 +36,17 @@ export class RedisCacheService {
       deviceCache.createdAt = cachedDevice.createdAt || deviceCache.createdAt
     }
     await this.set<DeviceCache>(`device:${deviceCache.id}`, deviceCache, this.refreshExpireMs)
-    const devices = (await this.get<string[]>(`device:userId:${userId}`)) || []
-    const newDevices = [deviceCache.id]
-    for (const device of devices) {
-      if (device === deviceCache.id) {
+    const oldDeviceIds = (await this.get<string[]>(`device:userId:${userId}`)) || []
+    const deviceIds = [deviceCache.id]
+    for (const deviceId of oldDeviceIds) {
+      if (deviceId === deviceCache.id) {
         continue
       }
-      if (await this.get<DeviceCache>(`device:${device}`)) {
-        newDevices.push(device)
+      if (await this.get<DeviceCache>(`device:${deviceId}`)) {
+        deviceIds.push(deviceId)
       }
     }
-    await this.set(`device:userId:${userId}`, newDevices, this.refreshExpireMs)
+    await this.set(`device:userId:${userId}`, deviceIds, this.refreshExpireMs)
   }
 
   async getDevice(deviceId: string): Promise<DeviceCache | null> {
