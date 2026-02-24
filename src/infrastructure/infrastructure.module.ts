@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import configs from '~/configs'
-import { RedisService } from './cache/redis.service'
+import { RedisModule } from './cache/redis.module'
 import { DatabaseModule } from './database/database.module'
 
 @Module({
@@ -11,7 +11,7 @@ import { DatabaseModule } from './database/database.module'
       load: [configs],
       cache: true,
     }),
-    RedisService,
+    RedisModule,
     DatabaseModule,
   ],
 })
