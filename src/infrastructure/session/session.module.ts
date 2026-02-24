@@ -1,42 +1,63 @@
 import type { SessionOptions } from 'express-session'
-import { Module } from '@nestjs/common'
+import { Logger, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { RedisStore } from 'connect-redis'
+import Redis from 'ioredis'
 import { merge } from 'lodash'
 import ms from 'ms'
-import { SessionService } from './session.service'
 
 @Module({
-  imports: [
-    SessionService,
-  ],
   providers: [
-    SessionService,
     {
       provide: 'SESSION_CONFIG',
-      useFactory: (sessionService: SessionService, configService: ConfigService): SessionOptions => {
-        const sessionConfig: SessionOptions = {
-          cookie: {
-            httpOnly: true,
-            maxAge: ms('30m'),
-          },
-          name: 'iszy_api.connect.sid',
-          resave: false,
-          rolling: true,
-          saveUninitialized: false,
-          secret: configService.get<string>('auth.jwt.secret'),
-          // 使用redis存储session
-          store: sessionService.getStore(),
-        }
+      useFactory: (configService: ConfigService): SessionOptions => {
+        const logger = new Logger('SessionModule')
 
-        if (!configService.get<boolean>('development')) {
-          sessionConfig.cookie = merge({}, sessionConfig.cookie, {
-            secure: true,
+        try {
+          const redisClient = new Redis(
+            configService.get<number>('redis.port'),
+            configService.get<string>('redis.host'),
+            {
+              password: configService.get<string>('redis.password'),
+            },
+          )
+          const sessionStore = new RedisStore({
+            client: redisClient,
           })
-        }
+          logger.log(
+            `Session连接 Redis {redis://.:***@${configService.get<string>(
+              'redis.host',
+            )}:${configService.get<number>('redis.port')}} 成功`,
+          )
 
-        return sessionConfig
+          const sessionConfig: SessionOptions = {
+            cookie: {
+              httpOnly: true,
+              maxAge: ms('30m'),
+            },
+            name: 'iszy_api.connect.sid',
+            resave: false,
+            rolling: true,
+            saveUninitialized: false,
+            secret: configService.get<string>('auth.jwt.secret'),
+            // 使用redis存储session
+            store: sessionStore,
+          }
+
+          if (!configService.get<boolean>('development')) {
+            sessionConfig.cookie = merge({}, sessionConfig.cookie, {
+              secure: true,
+            })
+          }
+
+          return sessionConfig
+        }
+        catch (e) {
+          logger.error(`连接 Redis 失败，${e.message}`)
+          throw e
+        }
       },
-      inject: [SessionService, ConfigService],
+      inject: [ConfigService],
     },
   ],
   exports: ['SESSION_CONFIG'],
