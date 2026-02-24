@@ -1,11 +1,12 @@
 import type { SessionOptions } from 'express-session'
-import { Logger, Module } from '@nestjs/common'
+import { Global, Logger, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { RedisStore } from 'connect-redis'
 import Redis from 'ioredis'
 import { merge } from 'lodash'
 import ms from 'ms'
 
+@Global()
 @Module({
   providers: [
     {
