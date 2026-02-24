@@ -11,10 +11,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import session from 'express-session'
-import { merge } from 'lodash'
-import ms from 'ms'
 import { HttpExceptionFilter } from '~core/filter/http-exception.filter'
-import { ConnectionService } from '~modules/core/connection/connection.service'
 import info from '../package.json'
 import { AppModule } from './app.module'
 import getLogLevels from './core/getLogLevels'
@@ -33,7 +30,6 @@ async function bootstrap() {
   })
 
   const configService: ConfigService = app.get(ConfigService)
-  const connectionService: ConnectionService = app.get(ConnectionService)
 
   const bodyLimit = configService.get<string>('app.bodyLimit')
   app.use(json({ limit: bodyLimit }))
@@ -80,26 +76,7 @@ async function bootstrap() {
     }
   }
 
-  const sessionConfig: SessionOptions = {
-    cookie: {
-      httpOnly: true,
-      maxAge: ms('30m'),
-    },
-    name: 'iszy_api.connect.sid',
-    resave: false,
-    rolling: true,
-    saveUninitialized: false,
-    secret: configService.get<string>('auth.jwt.secret'),
-    // 使用redis存储session
-    store: connectionService.getSessionStore(),
-  }
-
-  if (!configService.get<boolean>('development')) {
-    sessionConfig.cookie = merge({}, sessionConfig.cookie, {
-      secure: true,
-    })
-  }
-
+  const sessionConfig = app.get<SessionOptions>('SESSION_CONFIG')
   app.use(session(sessionConfig))
 
   const documentConfig = new DocumentBuilder()

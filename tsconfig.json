@@ -10,9 +10,8 @@
       "~/*": ["src/*"],
       "~types/*": ["src/types/*"],
       "~core/*": ["src/core/*"],
-      "~modules/*": ["src/modules/*"],
       "~entities/*": ["src/entities/*"],
-      "~utils/*": ["src/utils/*"]
+      "~domains/*": ["src/domains/*"]
     },
     "resolveJsonModule": true,
     "declaration": true,

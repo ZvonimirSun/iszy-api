@@ -1,7 +1,6 @@
-import type { Device } from '@zvonimirsun/iszy-common'
+import type { Device, PublicUser } from '@zvonimirsun/iszy-common'
 import type { Request } from 'express'
 import type { Session } from 'express-session'
-import type { PublicUser } from '~entities/user/user.model'
 
 interface AuthSession extends Session {
   bindGithub?: boolean
