@@ -1,6 +1,6 @@
 import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { Request, Response } from 'express'
-import type { PaginationDto } from '~core/dto/pagination.dto'
+import type { PaginationDto } from '~dto/pagination.dto'
 import type { AuthRequest } from '~types/AuthRequest'
 import type { CreateDto } from './dto/create.dto'
 import type { PaginationQueryDto } from './dto/pagination_query.dto'

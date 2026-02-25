@@ -8,10 +8,10 @@
     "module": "commonjs",
     "paths": {
       "~/*": ["src/*"],
-      "~types/*": ["src/types/*"],
       "~core/*": ["src/core/*"],
-      "~entities/*": ["src/entities/*"],
-      "~domains/*": ["src/domains/*"]
+      "~domains/*": ["src/domains/*"],
+      "~types/*": ["src/shared/types/*"],
+      "~dto/*": ["src/shared/dto/*"]
     },
     "resolveJsonModule": true,
     "declaration": true,

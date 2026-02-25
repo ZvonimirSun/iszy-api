@@ -16,9 +16,10 @@ import {
 import bcrypt from 'bcrypt'
 import ms, { StringValue } from 'ms'
 import { UserService } from '~domains/user/user.service'
+import { JWTPayload, RefreshJWTPayload } from '~types/jwt'
+import { MinimalUser } from '~types/user'
 import { LogoutDto } from './dto/logout.dto'
 import { DeviceStore } from './store/device-store'
-import { JwtPayload, RefreshJwtPayload } from './strategy/jwt.strategy'
 import { encryptPassword } from './utils/cryptogram'
 
 @Injectable()
@@ -59,30 +60,34 @@ export class AuthService {
     return result
   }
 
-  async generateToken(user: PublicUser, device: Device): Promise<{
+  async generateToken(user: MinimalUser, device: Device): Promise<{
     access_token: string
     refresh_token: string
     profile: PublicUser
   }> {
-    const userId = user.userId
-    let deviceId = device.id
+    const { userId, userName, nickName } = user
+    let { id: deviceId, name: deviceName, ip: deviceIp } = device
     if (!deviceId) {
       deviceId = encodeUUID()
-      this.logger.log(`${user.userName}新设备:${device.name}:${device.ip}`)
+      this.logger.log(`${userName}新设备:${deviceName}:${deviceIp}`)
     }
     else {
-      this.logger.log(`${user.userName}设备更新:${device.name}:${device.ip}`)
+      this.logger.log(`${userName}设备更新:${deviceName}:${deviceIp}`)
     }
 
-    const jwtPayload: JwtPayload = {
+    const jwtPayload: JWTPayload = {
       deviceId,
-      profile: user,
+      profile: {
+        userId,
+        userName,
+        nickName,
+      },
     }
     const accessToken = this.jwtService.sign(jwtPayload, {
       expiresIn: this.accessExpireTime,
     })
 
-    const refreshJwtPayload: RefreshJwtPayload = {
+    const refreshJwtPayload: RefreshJWTPayload = {
       deviceId,
       refreshUserId: userId,
     }
@@ -98,10 +103,12 @@ export class AuthService {
 
     await this.deviceStore.addDevice(userId, cacheDevice)
 
+    const { passwd, passwdSalt, ...userProfile } = await this.userService.findOne(userId)
+
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      profile: user,
+      profile: userProfile,
     }
   }
 

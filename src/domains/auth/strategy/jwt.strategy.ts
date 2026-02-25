@@ -2,21 +2,12 @@ import type { AuthRequest } from '~types/AuthRequest'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
+import { UserStatus } from '@zvonimirsun/iszy-common'
 import { ExtractJwt, JwtFromRequestFunction, Strategy } from 'passport-jwt'
 import { UserService } from '~domains/user/user.service'
+import { JWTPayload, RefreshJWTPayload } from '~types/jwt'
 import { DeviceStore } from '../store/device-store'
 import { generateDevice } from '../utils/generateDevice'
-
-export interface JwtPayload {
-  deviceId: string
-  profile: PublicUser
-}
-
-export interface RefreshJwtPayload {
-  deviceId: string
-  refreshUserId: PublicUser['userId']
-}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -37,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     this._jwtFromRequest = jwtFromRequest
   }
 
-  async validate(@Req() req: AuthRequest, payload: JwtPayload | RefreshJwtPayload) {
+  async validate(@Req() req: AuthRequest, payload: JWTPayload | RefreshJWTPayload) {
     const deviceId = payload.deviceId
     req.device = {
       ...generateDevice(req),

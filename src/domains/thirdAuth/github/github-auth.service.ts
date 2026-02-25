@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Device, encodeUUID, PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
 import { UserService } from '~domains/user/user.service'
+import { MinimalUser } from '~types/user'
 
 @Injectable()
 export class GithubAuthService {
@@ -23,7 +24,7 @@ export class GithubAuthService {
     return result
   }
 
-  async login(user: PublicUser, device: Device) {
+  async login(user: MinimalUser, device: Device) {
     const data = await this.authService.generateToken(user, device)
     return {
       type: 'oauth_complete',

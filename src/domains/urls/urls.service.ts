@@ -1,6 +1,6 @@
 import type { Cache } from 'cache-manager'
 import type { Request } from 'express'
-import type { PaginationDto } from '~core/dto/pagination.dto'
+import type { PaginationDto } from '~dto/pagination.dto'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
