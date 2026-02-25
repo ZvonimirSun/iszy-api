@@ -74,7 +74,7 @@ export class GithubAuthService {
     }
   }
 
-  async bind(profile: any) {
+  async bind(user: MinimalUser, profile: any) {
     const tmpUser = await this.userService.find({
       github: profile.id,
     })
@@ -85,10 +85,21 @@ export class GithubAuthService {
       }
     }
     else {
+      await this.userService.updateUser({
+        userId: user.userId,
+        github: profile.id,
+      })
       return {
         type: 'bind_success',
         data: profile.id,
       }
     }
+  }
+
+  async unbind(user: MinimalUser) {
+    await this.userService.updateUser({
+      userId: user.userId,
+      github: null,
+    })
   }
 }

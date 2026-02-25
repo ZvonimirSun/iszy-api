@@ -8,7 +8,6 @@ import {
   PublicUser,
   RawUser,
   RegisterUser,
-  UpdateUser,
   UserStatus,
 } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
@@ -152,92 +151,11 @@ export class AuthService {
     }
   }
 
-  async getProfile(userName: string): Promise<PublicUser> {
-    const user = await this.userService.findOne(userName)
-    if (!user) {
-      this.logger.error('用户不存在')
-      throw new Error('用户不存在')
-    }
-    return toPublicUser(user)
-  }
-
-  async updateProfile(
-    userName: string,
-    userProfile: UpdateUser,
-  ): Promise<PublicUser> {
-    const user = await this.userService.findOne(userName)
-    if (!user) {
-      this.logger.error('用户不存在')
-      throw new Error('用户不存在')
-    }
-    const newProfile: Partial<RawUser> = {}
-    this.userService.normalizeUserInfo(userProfile)
-    if (userProfile.passwd) {
-      if (!user.passwd) {
-        // 用户初始设置密码
-        newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
-      }
-      else {
-        const checkResult = await this.userService.checkUser(user, userProfile.oldPasswd, false)
-        if (!checkResult) {
-          this.logger.error('密码错误')
-          throw new Error('密码错误')
-        }
-        newProfile.passwdSalt = ''
-        newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
-      }
-    }
-    newProfile.userId = user.userId
-    if (userProfile.userName)
-      newProfile.userName = userProfile.userName
-    if (userProfile.nickName)
-      newProfile.nickName = userProfile.nickName
-    if (userProfile.email)
-      newProfile.email = userProfile.email
-    if (userProfile.mobile)
-      newProfile.mobile = userProfile.mobile
-    newProfile.updateBy = user.userId
-    const updatedUser = await this.userService.updateUser(newProfile)
-    return toPublicUser(updatedUser)
-  }
-
   async logout(userId: number, options: LogoutDto = {}) {
     if (userId == null)
       return
 
     await this.deviceStore.removeDevice(userId, options)
-  }
-
-  async bind(userId: number, type: string, id: string) {
-    const types = ['github', 'linuxdo']
-    if (!types.includes(type)) {
-      throw new Error('不支持的绑定类型')
-    }
-    const user = await this.userService.findOne(userId)
-    if (!user) {
-      this.logger.error('用户不存在')
-      throw new Error('用户不存在')
-    }
-    await this.userService.updateUser({
-      userId,
-      [type]: id,
-    })
-  }
-
-  async unbind(userId: number, type: string) {
-    const types = ['github', 'linuxdo']
-    if (!types.includes(type)) {
-      throw new Error('不支持的绑定类型')
-    }
-    const user = await this.userService.findOne(userId)
-    if (!user) {
-      this.logger.error('用户不存在')
-      throw new Error('用户不存在')
-    }
-    await this.userService.updateUser({
-      userId,
-      [type]: null,
-    })
   }
 
   async getDevices(userId: number): Promise<Device[]> {

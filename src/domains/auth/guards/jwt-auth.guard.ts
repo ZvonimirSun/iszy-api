@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable } from '@nestjs/common'
+import { ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common'
 import { GUARDS_METADATA } from '@nestjs/common/constants'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard as DefaultAuthGuard } from '@nestjs/passport'
@@ -23,15 +23,6 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
 
     const req: AuthRequest = context.switchToHttp().getRequest()
 
-    // jwt验证
-    let activeError: Error
-    try {
-      await super.canActivate(context)
-    }
-    catch (e) {
-      activeError = e
-    }
-
     const isPublic = getMetaValue<boolean>(MetaKeysEnum.IS_PUBLIC_KEY)
     const isPrivate = getMetaValue<boolean>(MetaKeysEnum.IS_PRIVATE_KEY)
     // 私有设置优先级高于公共设置
@@ -46,17 +37,20 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
         return true
     }
 
-    if (activeError)
-      throw activeError
+    // jwt验证
+    await super.canActivate(context)
 
     const useRefreshToken = getMetaValue<boolean>(MetaKeysEnum.USE_REFRESH_TOKEN_KEY)
-    if (useRefreshToken)
-      return Boolean(req.isRefresh)
+    if (useRefreshToken) {
+      if (!req.isRefresh) {
+        throw new ForbiddenException('仅支持使用刷新令牌访问')
+      }
+    }
 
     const { user } = req
 
     if (!user)
-      return false
+      throw new ForbiddenException('未找到用户信息')
 
     // 角色验证
     const requiredRoles = getMetaValue<string[]>(MetaKeysEnum.ROLES_KEY)
@@ -66,8 +60,13 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
 
     const rawUser = await this.userService.findOne(user.userId)
 
-    return requiredRoles.some(role => rawUser.roles?.map((item: Role) => {
+    const haveRole = requiredRoles.some(role => rawUser.roles?.map((item: Role) => {
       return item.name
     }).includes(role))
+
+    if (!haveRole) {
+      throw new ForbiddenException('权限不足')
+    }
+    return true
   }
 }

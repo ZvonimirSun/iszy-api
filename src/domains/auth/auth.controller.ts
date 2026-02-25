@@ -5,19 +5,15 @@ import type { RegisterDto } from './dto/register.dto'
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Logger,
-  Param,
   Post,
-  Put,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger'
 import { Public, RefreshToken } from '~core/decorator'
-import { UpdateUserDto } from '~domains/user/dto/updateUser.dto'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import { LocalAuthGuard } from './guards/local-auth.guard'
@@ -99,67 +95,6 @@ export class AuthController {
         success: false,
         message: `用户创建失败, ${e.message}`,
       }
-    }
-  }
-
-  /**
-   * @deprecated
-   */
-  @Get('profile')
-  async getProfile(@Req() req: AuthRequest): Promise<ResultDto<PublicUser>> {
-    return {
-      success: true,
-      data: await this.authService.getProfile(req.user.userName),
-      message: '获取成功',
-    }
-  }
-
-  /**
-   * @deprecated
-   */
-  @Put('profile')
-  async updateProfile(
-    @Req() req: AuthRequest,
-    @Body() updateProfileDto: UpdateUserDto,
-  ): Promise<ResultDto<PublicUser>> {
-    return {
-      success: true,
-      data: await this.authService.updateProfile(
-        req.user.userName,
-        updateProfileDto,
-      ),
-      message: '更新成功',
-    }
-  }
-
-  /**
-   * @deprecated
-   */
-  @Post('bind/:type/:id')
-  async bind(
-    @Req() req: AuthRequest,
-    @Param('type') type: string,
-    @Param('id') id: string,
-  ): Promise<ResultDto<void>> {
-    await this.authService.bind(req.user.userId, type, id)
-    return {
-      success: true,
-      message: '绑定成功',
-    }
-  }
-
-  /**
-   * @deprecated
-   */
-  @Delete('bind/:type')
-  async unbind(
-    @Req() req: AuthRequest,
-    @Param('type') type: string,
-  ): Promise<ResultDto<void>> {
-    await this.authService.unbind(req.user.userId, type)
-    return {
-      success: true,
-      message: '解绑成功',
     }
   }
 

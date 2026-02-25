@@ -13,6 +13,7 @@ export interface AuthRequest extends Request {
   device?: Device
   isRefresh?: boolean
 
-  session?: AuthSession
+  state?: string
+  isBind?: boolean
   thirdPartProfile?: any
 }

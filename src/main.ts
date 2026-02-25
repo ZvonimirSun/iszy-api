@@ -1,5 +1,4 @@
 import type { NestExpressApplication } from '@nestjs/platform-express'
-import type { SessionOptions } from 'express-session'
 import * as process from 'node:process'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -10,7 +9,6 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
-import session from 'express-session'
 import { HttpExceptionFilter } from '~core/filter/http-exception.filter'
 import info from '../package.json'
 import { AppModule } from './app.module'
@@ -75,9 +73,6 @@ async function bootstrap() {
       app.set('trust proxy', true)
     }
   }
-
-  const sessionConfig = app.get<SessionOptions>('SESSION_CONFIG')
-  app.use(session(sessionConfig))
 
   const documentConfig = new DocumentBuilder()
     .addBearerAuth()

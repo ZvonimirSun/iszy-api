@@ -36,7 +36,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
       return await this.githubAuthService.validateUser(profile)
     }
     catch (e) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('Github 认证失败')
     }
   }
 }

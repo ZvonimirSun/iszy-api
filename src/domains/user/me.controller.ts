@@ -1,5 +1,5 @@
 import type { AuthRequest } from '~types/AuthRequest'
-import { Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common'
+import { Body, Controller, Get, Put, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { PublicUser, RawUser, ResultDto } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
@@ -66,55 +66,6 @@ export class MeController {
       success: true,
       data: toPublicUser(updatedUser),
       message: '更新成功',
-    }
-  }
-
-  @Post('bind/:type/:id')
-  async bind(
-    @Req() req: AuthRequest,
-    @Param('type') type: string,
-    @Param('id') id: string,
-  ): Promise<ResultDto<void>> {
-    const types = ['github', 'linuxdo']
-    if (!types.includes(type)) {
-      throw new Error('不支持的绑定类型')
-    }
-    const userId = req.user.userId
-    const user = await this.userService.findOne(userId)
-    if (!user) {
-      throw new Error('用户不存在')
-    }
-    await this.userService.updateUser({
-      userId,
-      [type]: id,
-    })
-    return {
-      success: true,
-      message: '绑定成功',
-    }
-  }
-
-  @Delete('bind/:type')
-  async unbind(
-    @Req() req: AuthRequest,
-    @Param('type') type: string,
-  ): Promise<ResultDto<void>> {
-    const types = ['github', 'linuxdo']
-    if (!types.includes(type)) {
-      throw new Error('不支持的绑定类型')
-    }
-    const userId = req.user.userId
-    const user = await this.userService.findOne(userId)
-    if (!user) {
-      throw new Error('用户不存在')
-    }
-    await this.userService.updateUser({
-      userId,
-      [type]: null,
-    })
-    return {
-      success: true,
-      message: '解绑成功',
     }
   }
 }

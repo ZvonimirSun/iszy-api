@@ -57,7 +57,7 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
       return await this.linuxdoAuthService.validateUser(profile)
     }
     catch (e) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('Linuxdo 认证失败')
     }
   }
 }

@@ -1,8 +1,8 @@
 import type { AuthRequest } from '~types/AuthRequest'
-import { promisify } from 'node:util'
-import { Controller, Get, Logger, Req, UseGuards } from '@nestjs/common'
+import { Controller, Get, Logger, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ResultDto } from '@zvonimirsun/iszy-common'
 import { Public } from '~core/decorator'
 import { LinuxdoAuthGuard } from './linuxdo-auth.guard'
 import { LinuxdoAuthService } from './linuxdo-auth.service'
@@ -18,12 +18,15 @@ export class LinuxdoAuthController {
 
   @Public()
   @Get('callback')
-  async linuxdoLoginCallback(@Req() req: AuthRequest) {
+  async loginCallback(@Req() req: AuthRequest) {
     let bodyInfo = ''
     let msgInfo: any
     // 绑定linuxdo
-    if (req.session.bindLinuxdo) {
-      const data = await this.linuxdoAuthService.bind(req.thirdPartProfile)
+    if (req.isBind) {
+      if (!req.user) {
+        throw new UnauthorizedException('用户未登录，无法绑定')
+      }
+      const data = await this.linuxdoAuthService.bind(req.user, req.thirdPartProfile)
       if (data.type === 'bind_success') {
         bodyInfo = '验证成功'
         msgInfo = data
@@ -32,7 +35,6 @@ export class LinuxdoAuthController {
         bodyInfo = data.data
         msgInfo = data
       }
-      await promisify(req.session.destroy.bind(req.session))()
     }
     // 登录
     else {
@@ -67,10 +69,19 @@ export class LinuxdoAuthController {
 
   @Public()
   @Get()
-  linuxdoLogin() {
+  login() {
     // 自动跳转到 LINUX DO 授权页面
   }
 
   @Get('bind')
-  linuxdoBind() {}
+  bind() {}
+
+  @Post('unbind')
+  async unbind(@Req() req: AuthRequest): Promise<ResultDto<void>> {
+    await this.linuxdoAuthService.unbind(req.user)
+    return {
+      success: true,
+      message: '解绑成功',
+    }
+  }
 }

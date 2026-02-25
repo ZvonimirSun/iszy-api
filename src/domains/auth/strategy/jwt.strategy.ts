@@ -40,16 +40,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       const token = this._jwtFromRequest(req)
       const currentDevice = await this.deviceStore.getDevice(deviceId)
       if (!currentDevice) {
-        throw new UnauthorizedException()
+        throw new UnauthorizedException('设备未找到，可能已被删除')
       }
       if (token !== currentDevice.refreshToken && !(await bcrypt.compare(token, currentDevice.refreshToken))) {
         // 刷新令牌不匹配，可能是被盗用，删除设备缓存
         await this.deviceStore.removeDevice(payload.refreshUserId, { deviceId })
-        throw new UnauthorizedException()
+        throw new UnauthorizedException('刷新令牌无效，可能已被盗用，设备已被删除')
       }
       const rawUser = await this.userService.findOne(payload.refreshUserId)
       if (!rawUser || rawUser.status !== UserStatus.ENABLED) {
-        throw new UnauthorizedException()
+        throw new UnauthorizedException('用户未找到或已被禁用')
       }
       req.isRefresh = true
       return toMinimalUser(rawUser)
@@ -58,7 +58,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return payload.profile
     }
     else {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('无效的令牌载荷')
     }
   }
 }

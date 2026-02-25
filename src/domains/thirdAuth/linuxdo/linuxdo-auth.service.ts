@@ -74,7 +74,7 @@ export class LinuxdoAuthService {
     }
   }
 
-  async bind(profile: any) {
+  async bind(user: MinimalUser, profile: any) {
     const tmpUser = await this.userService.find({
       linuxdo: profile.id,
     })
@@ -85,10 +85,21 @@ export class LinuxdoAuthService {
       }
     }
     else {
+      await this.userService.updateUser({
+        userId: user.userId,
+        linuxdo: profile.id,
+      })
       return {
         type: 'bind_success',
         data: profile.id,
       }
     }
+  }
+
+  async unbind(user: MinimalUser) {
+    await this.userService.updateUser({
+      userId: user.userId,
+      linuxdo: null,
+    })
   }
 }
