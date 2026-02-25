@@ -4,11 +4,12 @@ import { Reflector } from '@nestjs/core'
 import { AuthGuard as DefaultAuthGuard } from '@nestjs/passport'
 import { MetaKeysEnum } from '~core/enum/metaKeys.enum'
 import { Role } from '~domains/user/entities'
+import { UserService } from '~domains/user/user.service'
 import { AuthRequest } from '~types/AuthRequest'
 
 @Injectable()
 export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
-  constructor(private reflector: Reflector) {
+  constructor(private reflector: Reflector, private userService: UserService) {
     super()
   }
 
@@ -63,7 +64,9 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
     if (!requiredRoles || !requiredRoles.length)
       return true
 
-    return requiredRoles.some(role => user.roles?.map((item: Role) => {
+    const rawUser = await this.userService.findOne(user.userId)
+
+    return requiredRoles.some(role => rawUser.roles?.map((item: Role) => {
       return item.name
     }).includes(role))
   }
