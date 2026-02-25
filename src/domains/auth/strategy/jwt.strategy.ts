@@ -3,6 +3,7 @@ import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { UserStatus } from '@zvonimirsun/iszy-common'
+import bcrypt from 'bcrypt'
 import { ExtractJwt, JwtFromRequestFunction, Strategy } from 'passport-jwt'
 import { UserService } from '~domains/user/user.service'
 import { JWTPayload, RefreshJWTPayload } from '~types/jwt'
@@ -40,7 +41,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       if (!currentDevice) {
         throw new UnauthorizedException()
       }
-      if (token !== currentDevice.refreshToken) {
+      if (token !== currentDevice.refreshToken && !(await bcrypt.compare(token, currentDevice.refreshToken))) {
         // 刷新令牌不匹配，可能是被盗用，删除设备缓存
         await this.deviceStore.removeDevice(payload.refreshUserId, { deviceId })
         throw new UnauthorizedException()

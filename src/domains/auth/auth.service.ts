@@ -97,7 +97,7 @@ export class AuthService {
 
     const cacheDevice: DeviceCache = {
       ...device,
-      refreshToken,
+      refreshToken: await bcrypt.hash(refreshToken, 10),
       id: deviceId,
     }
 
