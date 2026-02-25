@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt'
 import { ExtractJwt, JwtFromRequestFunction, Strategy } from 'passport-jwt'
 import { UserService } from '~domains/user/user.service'
 import { JWTPayload, RefreshJWTPayload } from '~types/jwt'
+import { toMinimalUser } from '~utils/user'
 import { DeviceStore } from '../store/device-store'
 import { generateDevice } from '../utils/generateDevice'
 
@@ -51,8 +52,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException()
       }
       req.isRefresh = true
-      const { passwd, passwdSalt, ...publicUser } = rawUser
-      return publicUser
+      return toMinimalUser(rawUser)
     }
     else if ('profile' in payload) {
       return payload.profile

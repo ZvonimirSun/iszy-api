@@ -2,11 +2,12 @@ import type { AuthRequest } from '~types/AuthRequest'
 import { promisify } from 'node:util'
 import { Controller, Get, Logger, Req, UseGuards } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator'
 import { LinuxdoAuthGuard } from './linuxdo-auth.guard'
 import { LinuxdoAuthService } from './linuxdo-auth.service'
 
+@ApiBearerAuth()
 @ApiTags('Auth')
 @UseGuards(LinuxdoAuthGuard)
 @Controller('auth/linuxdo')

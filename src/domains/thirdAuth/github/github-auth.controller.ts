@@ -2,11 +2,12 @@ import type { AuthRequest } from '~types/AuthRequest'
 import { promisify } from 'node:util'
 import { Controller, Get, Logger, Req, UseGuards } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Public } from '~core/decorator'
 import { GithubAuthGuard } from './github-auth.guard'
 import { GithubAuthService } from './github-auth.service'
 
+@ApiBearerAuth()
 @ApiTags('Auth')
 @UseGuards(GithubAuthGuard)
 @Controller('auth/github')

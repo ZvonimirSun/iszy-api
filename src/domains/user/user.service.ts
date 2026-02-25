@@ -1,12 +1,22 @@
-import type { PublicUser, RawUser } from '@zvonimirsun/iszy-common'
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { UserStatus } from '@zvonimirsun/iszy-common'
+import {
+  PublicUser,
+  RawUser,
+  REGEX_EMAIL,
+  REGEX_MOBILE_PHONE,
+  RegisterUser,
+  UpdateUser,
+  UserStatus,
+} from '@zvonimirsun/iszy-common'
+import bcrypt from 'bcrypt'
 import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { DeviceStore } from '~domains/auth/store/device-store'
+import { MinimalUser } from '~types/user'
 import { Group, Privilege, Role, User } from './entities'
 import { UserStore } from './store/user-store'
+import { encryptPassword } from './utils/cryptogram'
 
 @Injectable()
 export class UserService {
@@ -91,6 +101,7 @@ export class UserService {
     }
     const user = await this.userModel.findOne(options)
     if (!user) {
+      this.logger.error('用户不存在')
       return null
     }
     const rawUser = user.get({ plain: true })
@@ -135,7 +146,7 @@ export class UserService {
     })
   }
 
-  async searchUserName(userName: string, limit: number = 10): Promise<Pick<PublicUser, 'userId' | 'userName' | 'nickName'>[]> {
+  async searchUserName(userName: string, limit: number = 10): Promise<MinimalUser[]> {
     if (!userName)
       return []
 
@@ -220,6 +231,69 @@ export class UserService {
     }
     await user.destroy()
     await this.userStore.removeUser(user)
+    return true
+  }
+
+  normalizeUserInfo(userProfile: RegisterUser | UpdateUser) {
+    if (userProfile.userName) {
+      if (!userProfile.userName.trim()) {
+        throw new Error('用户名值非法')
+      }
+      userProfile.userName = userProfile.userName.trim().toLowerCase()
+    }
+    if (userProfile.nickName) {
+      if (!userProfile.nickName.trim()) {
+        throw new Error('昵称值非法')
+      }
+      userProfile.nickName = userProfile.nickName.trim()
+    }
+    if (userProfile.email) {
+      if (!userProfile.email.trim()) {
+        throw new Error('邮箱值非法')
+      }
+      userProfile.email = userProfile.email.trim().toLowerCase()
+      if (!REGEX_EMAIL.test(userProfile.email)) {
+        throw new Error('邮箱值非法')
+      }
+    }
+    if (userProfile.mobile) {
+      if (!userProfile.mobile.trim()) {
+        throw new Error('手机号值非法')
+      }
+      userProfile.mobile = userProfile.mobile.trim()
+      if (!REGEX_MOBILE_PHONE.test(userProfile.mobile)) {
+        throw new Error('手机号值非法')
+      }
+    }
+  }
+
+  async checkUser(user: RawUser, passwd: string = '', checkStatus = true): Promise<boolean> {
+    if (user == null) {
+      this.logger.error('用户不存在')
+      return false
+    }
+    let checkResult: boolean
+    if (!user.passwdSalt) {
+      checkResult = await bcrypt.compare(passwd, user.passwd)
+    }
+    else {
+      checkResult = user.passwd === encryptPassword(passwd, user.passwdSalt)
+    }
+    if (!checkResult) {
+      this.logger.error('密码错误')
+      return false
+    }
+    if (!checkStatus) {
+      return true
+    }
+    if (user.status === UserStatus.DEACTIVATED) {
+      this.logger.error('用户待激活')
+      throw new Error('用户待激活')
+    }
+    else if (user.status === UserStatus.DISABLED) {
+      this.logger.error('用户已禁用')
+      throw new Error('用户已禁用')
+    }
     return true
   }
 }

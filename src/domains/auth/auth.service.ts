@@ -7,8 +7,6 @@ import {
   encodeUUID,
   PublicUser,
   RawUser,
-  REGEX_EMAIL,
-  REGEX_MOBILE_PHONE,
   RegisterUser,
   UpdateUser,
   UserStatus,
@@ -18,9 +16,9 @@ import ms, { StringValue } from 'ms'
 import { UserService } from '~domains/user/user.service'
 import { JWTPayload, RefreshJWTPayload } from '~types/jwt'
 import { MinimalUser } from '~types/user'
+import { toPublicUser } from '~utils/user'
 import { LogoutDto } from './dto/logout.dto'
 import { DeviceStore } from './store/device-store'
-import { encryptPassword } from './utils/cryptogram'
 
 @Injectable()
 export class AuthService {
@@ -51,13 +49,12 @@ export class AuthService {
     password: string,
   ): Promise<PublicUser> {
     const user = await this.userService.findOne(username.toLowerCase())
-    const checkResult = await this._checkUser(user, password)
+    const checkResult = await this.userService.checkUser(user, password)
     if (!checkResult) {
       throw new Error('用户名或密码错误')
     }
     // 密码正确
-    const { passwd, passwdSalt, ...result } = user
-    return result
+    return toPublicUser(user)
   }
 
   async generateToken(user: MinimalUser, device: Device): Promise<{
@@ -103,18 +100,16 @@ export class AuthService {
 
     await this.deviceStore.addDevice(userId, cacheDevice)
 
-    const { passwd, passwdSalt, ...userProfile } = await this.userService.findOne(userId)
-
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      profile: userProfile,
+      profile: toPublicUser(await this.userService.findOne(userId)),
     }
   }
 
   async register(registerDto: RegisterUser): Promise<boolean> {
     try {
-      this._normalizeUserInfo(registerDto)
+      this.userService.normalizeUserInfo(registerDto)
 
       const publicRegister = this.configService.get<boolean>('auth.publicRegister')
 
@@ -163,8 +158,7 @@ export class AuthService {
       this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
-    const { passwd, passwdSalt, ...result } = user
-    return result
+    return toPublicUser(user)
   }
 
   async updateProfile(
@@ -177,14 +171,14 @@ export class AuthService {
       throw new Error('用户不存在')
     }
     const newProfile: Partial<RawUser> = {}
-    this._normalizeUserInfo(userProfile)
+    this.userService.normalizeUserInfo(userProfile)
     if (userProfile.passwd) {
       if (!user.passwd) {
         // 用户初始设置密码
         newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
       }
       else {
-        const checkResult = await this._checkUser(user, userProfile.oldPasswd, false)
+        const checkResult = await this.userService.checkUser(user, userProfile.oldPasswd, false)
         if (!checkResult) {
           this.logger.error('密码错误')
           throw new Error('密码错误')
@@ -204,8 +198,7 @@ export class AuthService {
       newProfile.mobile = userProfile.mobile
     newProfile.updateBy = user.userId
     const updatedUser = await this.userService.updateUser(newProfile)
-    const { passwd, passwdSalt, ...result } = updatedUser
-    return result
+    return toPublicUser(updatedUser)
   }
 
   async logout(userId: number, options: LogoutDto = {}) {
@@ -249,68 +242,5 @@ export class AuthService {
 
   async getDevices(userId: number): Promise<Device[]> {
     return await this.deviceStore.getDevices(userId)
-  }
-
-  private _normalizeUserInfo(userProfile: RegisterUser | UpdateUser) {
-    if (userProfile.userName) {
-      if (!userProfile.userName.trim()) {
-        throw new Error('用户名值非法')
-      }
-      userProfile.userName = userProfile.userName.trim().toLowerCase()
-    }
-    if (userProfile.nickName) {
-      if (!userProfile.nickName.trim()) {
-        throw new Error('昵称值非法')
-      }
-      userProfile.nickName = userProfile.nickName.trim()
-    }
-    if (userProfile.email) {
-      if (!userProfile.email.trim()) {
-        throw new Error('邮箱值非法')
-      }
-      userProfile.email = userProfile.email.trim().toLowerCase()
-      if (!REGEX_EMAIL.test(userProfile.email)) {
-        throw new Error('邮箱值非法')
-      }
-    }
-    if (userProfile.mobile) {
-      if (!userProfile.mobile.trim()) {
-        throw new Error('手机号值非法')
-      }
-      userProfile.mobile = userProfile.mobile.trim()
-      if (!REGEX_MOBILE_PHONE.test(userProfile.mobile)) {
-        throw new Error('手机号值非法')
-      }
-    }
-  }
-
-  private async _checkUser(user: RawUser, passwd: string = '', checkStatus = true): Promise<boolean> {
-    if (user == null) {
-      this.logger.error('用户不存在')
-      return false
-    }
-    let checkResult: boolean
-    if (!user.passwdSalt) {
-      checkResult = await bcrypt.compare(passwd, user.passwd)
-    }
-    else {
-      checkResult = user.passwd === encryptPassword(passwd, user.passwdSalt)
-    }
-    if (!checkResult) {
-      this.logger.error('密码错误')
-      return false
-    }
-    if (!checkStatus) {
-      return true
-    }
-    if (user.status === UserStatus.DEACTIVATED) {
-      this.logger.error('用户待激活')
-      throw new Error('用户待激活')
-    }
-    else if (user.status === UserStatus.DISABLED) {
-      this.logger.error('用户已禁用')
-      throw new Error('用户已禁用')
-    }
-    return true
   }
 }

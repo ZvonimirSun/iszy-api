@@ -3,6 +3,7 @@ import { Device, encodeUUID, PublicUser, UserStatus } from '@zvonimirsun/iszy-co
 import { AuthService } from '~domains/auth/auth.service'
 import { UserService } from '~domains/user/user.service'
 import { MinimalUser } from '~types/user'
+import { toPublicUser } from '~utils/user'
 
 @Injectable()
 export class LinuxdoAuthService {
@@ -20,8 +21,7 @@ export class LinuxdoAuthService {
     if (!user) {
       throw new Error('用户不存在')
     }
-    const { passwd, passwdSalt, ...result } = user
-    return result
+    return toPublicUser(user)
   }
 
   async login(user: MinimalUser, device: Device) {

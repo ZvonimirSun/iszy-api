@@ -17,9 +17,9 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger'
 import { Public, RefreshToken } from '~core/decorator'
+import { UpdateUserDto } from '~domains/user/dto/updateUser.dto'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
-import { UpdateProfileDto } from './dto/updateProfile.dto'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 
 @ApiBearerAuth()
@@ -102,6 +102,9 @@ export class AuthController {
     }
   }
 
+  /**
+   * @deprecated
+   */
   @Get('profile')
   async getProfile(@Req() req: AuthRequest): Promise<ResultDto<PublicUser>> {
     return {
@@ -111,10 +114,13 @@ export class AuthController {
     }
   }
 
+  /**
+   * @deprecated
+   */
   @Put('profile')
   async updateProfile(
     @Req() req: AuthRequest,
-    @Body() updateProfileDto: UpdateProfileDto,
+    @Body() updateProfileDto: UpdateUserDto,
   ): Promise<ResultDto<PublicUser>> {
     return {
       success: true,
@@ -126,6 +132,9 @@ export class AuthController {
     }
   }
 
+  /**
+   * @deprecated
+   */
   @Post('bind/:type/:id')
   async bind(
     @Req() req: AuthRequest,
@@ -139,6 +148,9 @@ export class AuthController {
     }
   }
 
+  /**
+   * @deprecated
+   */
   @Delete('bind/:type')
   async unbind(
     @Req() req: AuthRequest,

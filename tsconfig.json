@@ -11,7 +11,8 @@
       "~core/*": ["src/core/*"],
       "~domains/*": ["src/domains/*"],
       "~types/*": ["src/shared/types/*"],
-      "~dto/*": ["src/shared/dto/*"]
+      "~dto/*": ["src/shared/dto/*"],
+      "~utils/*": ["src/shared/utils/*"]
     },
     "resolveJsonModule": true,
     "declaration": true,

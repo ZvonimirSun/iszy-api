@@ -1,15 +1,17 @@
 import type { PublicUser, RawUser } from '@zvonimirsun/iszy-common'
 import type { AuthRequest } from '~types/AuthRequest'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ResultDto, RoleEnum, UserStatus } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import { Roles } from '~core/decorator'
+import { CreateUserDto } from '~domains/user/dto/createUser.dto'
 import { PageableDto } from '~dto/pageable.dto'
-import { RegisterDto } from '../auth/dto/register.dto'
-import { User } from './entities'
+import { MinimalUser } from '~types/user'
+import { toPublicUser } from '~utils/user'
 import { UserService } from './user.service'
 
+@ApiBearerAuth()
 @ApiTags('User')
 @Roles(RoleEnum.SUPERADMIN)
 @Controller('user')
@@ -47,7 +49,7 @@ export class UserController {
   }
 
   @Get('search')
-  async searchUserName(@Query('userName') userName: string): Promise<ResultDto<Pick<User, 'userId' | 'userName' | 'nickName'>[]>> {
+  async searchUserName(@Query('userName') userName: string): Promise<ResultDto<MinimalUser[]>> {
     return {
       success: true,
       message: '搜索成功',
@@ -59,7 +61,7 @@ export class UserController {
   async getUserById(@Param('id') id: number): Promise<ResultDto<PublicUser>> {
     return {
       success: true,
-      data: await this.userService.findOne(id),
+      data: toPublicUser(await this.userService.findOne(id)),
       message: '获取成功',
     }
   }
@@ -89,17 +91,16 @@ export class UserController {
       newProfile.mobile = userProfile.mobile
 
     const updatedUser = await this.userService.updateUser(newProfile, req.user.userId)
-    const { passwd, passwdSalt, ...result } = updatedUser
 
     return {
       success: true,
-      data: result,
+      data: toPublicUser(updatedUser),
       message: '更新成功',
     }
   }
 
   @Post()
-  async createUser(@Req() req: AuthRequest, @Body() registerDto: RegisterDto) {
+  async createUser(@Req() req: AuthRequest, @Body() registerDto: CreateUserDto): Promise<ResultDto<PublicUser>> {
     try {
       const user: Partial<RawUser> = {}
       user.userName = registerDto.userName.toLowerCase()
@@ -111,7 +112,7 @@ export class UserController {
       const newUser = await this.userService.create(user, req.user.userId)
       return {
         success: true,
-        data: newUser,
+        data: toPublicUser(newUser),
         message: '创建成功',
       }
     }
