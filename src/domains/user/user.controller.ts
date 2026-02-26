@@ -1,14 +1,11 @@
 import type { PublicUser, RawUser } from '@zvonimirsun/iszy-common'
-import type { AuthRequest } from '~types/AuthRequest'
+import type { AuthRequest, MinimalUser } from '~shared'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ResultDto, RoleEnum, UserStatus } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
-import { Roles } from '~core/decorator'
 import { CreateUserDto } from '~domains/user/dto/createUser.dto'
-import { PageableDto } from '~dto/pageable.dto'
-import { MinimalUser } from '~types/user'
-import { toPublicUser } from '~utils/user'
+import { PageableDto, Roles, toPublicUser } from '~shared'
 import { UserService } from './user.service'
 
 @ApiBearerAuth()

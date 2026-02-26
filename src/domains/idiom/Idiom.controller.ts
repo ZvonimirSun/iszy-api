@@ -1,7 +1,7 @@
 import type { ResultDto } from '@zvonimirsun/iszy-common'
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Public } from '~core/decorator'
+import { Public } from '~shared'
 import { IdiomService } from './Idiom.service'
 
 @Public()

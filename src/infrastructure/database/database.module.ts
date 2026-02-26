@@ -1,7 +1,8 @@
 import type { Dialect } from 'sequelize'
-import { Logger, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
+import { Logger } from '~shared'
 
 @Module({
   imports: [

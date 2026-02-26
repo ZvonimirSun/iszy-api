@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import {
@@ -13,9 +13,7 @@ import {
 import bcrypt from 'bcrypt'
 import ms, { StringValue } from 'ms'
 import { UserService } from '~domains/user/user.service'
-import { JWTPayload, RefreshJWTPayload } from '~types/jwt'
-import { MinimalUser } from '~types/user'
-import { toPublicUser } from '~utils/user'
+import { JWTPayload, Logger, MinimalUser, RefreshJWTPayload, toPublicUser } from '~shared'
 import { LogoutDto } from './dto/logout.dto'
 import { DeviceStore } from './store/device-store'
 

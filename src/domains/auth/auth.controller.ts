@@ -1,19 +1,17 @@
 import type { Device, PublicUser, ResultDto } from '@zvonimirsun/iszy-common'
-import type { AuthRequest } from '~types/AuthRequest'
 import type { LogoutDto } from './dto/logout.dto'
 import type { RegisterDto } from './dto/register.dto'
 import {
   Body,
   Controller,
   Get,
-  Logger,
   Post,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger'
-import { Public, RefreshToken } from '~core/decorator'
+import { AuthRequest, Logger, Public, RefreshToken } from '~shared'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import { LocalAuthGuard } from './guards/local-auth.guard'

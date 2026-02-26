@@ -1,9 +1,8 @@
-import type { AuthRequest } from '~types/AuthRequest'
-import { Controller, Get, Logger, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ResultDto } from '@zvonimirsun/iszy-common'
-import { Public } from '~core/decorator'
+import { AuthRequest, Logger, Public } from '~shared'
 import { LinuxdoAuthGuard } from './linuxdo-auth.guard'
 import { LinuxdoAuthService } from './linuxdo-auth.service'
 

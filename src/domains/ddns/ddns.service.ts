@@ -1,8 +1,9 @@
 import Alidns20150109, * as $Alidns20150109 from '@alicloud/alidns20150109'
 import * as $OpenApi from '@alicloud/openapi-client'
 import * as $Util from '@alicloud/tea-util'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import axios from 'axios'
+import { Logger } from '~shared'
 import { DDNSUpdateDto } from './dto/ddns_update.dto'
 
 @Injectable()

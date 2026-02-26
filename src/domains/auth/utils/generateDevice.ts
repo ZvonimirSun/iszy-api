@@ -1,4 +1,4 @@
-import type { AuthRequest } from '~types/AuthRequest'
+import type { AuthRequest } from '~shared'
 import { Device } from '@zvonimirsun/iszy-common'
 import { UAParser } from 'ua-parser-js'
 

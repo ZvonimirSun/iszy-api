@@ -1,6 +1,6 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport'
-import { AuthRequest } from '~types/AuthRequest'
+import { AuthRequest } from '~shared'
 import { OauthStore } from '../oauth-csrf/store/oauth-store'
 
 @Injectable()

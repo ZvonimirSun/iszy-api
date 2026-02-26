@@ -1,30 +1,18 @@
 import type { NestExpressApplication } from '@nestjs/platform-express'
-import * as process from 'node:process'
-import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
-import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
-import timezone from 'dayjs/plugin/timezone'
-import utc from 'dayjs/plugin/utc'
-import { HttpExceptionFilter } from '~core/filter/http-exception.filter'
+import { Logger } from '~shared'
 import info from '../package.json'
 import { AppModule } from './app.module'
-import getLogLevels from './core/getLogLevels'
 import SwaggerPublic from './swagger.public'
 import 'dayjs/locale/zh-cn'
 
+const logger = new Logger()
 async function bootstrap() {
-  dayjs.locale('zh-cn')
-  dayjs.extend(utc)
-  dayjs.extend(timezone)
-  dayjs.extend(customParseFormat)
-  dayjs.tz.setDefault('Asia/Shanghai')
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: getLogLevels(process.env.DEVELOPMENT !== 'true'),
+    logger,
   })
 
   const configService: ConfigService = app.get(ConfigService)
@@ -49,13 +37,6 @@ async function bootstrap() {
     },
     credentials: true,
   })
-  app.useGlobalFilters(new HttpExceptionFilter())
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  )
 
   const behindProxy = configService.get<boolean>('behindProxy')
   const trustProxy = configService.get<string>('trustProxy')
@@ -96,8 +77,6 @@ async function bootstrap() {
 
   return configService
 }
-bootstrap().then((configService: ConfigService) =>
-  console.log(
-    `Server is running on port ${configService.get<number>('app.port')}`,
-  ),
-)
+bootstrap().then((configService: ConfigService) => {
+  logger.log(`Server is running on port ${configService.get<number>('app.port')}`)
+})

@@ -9,7 +9,7 @@ import {
   Post,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { Private, Public } from '~core/decorator'
+import { Private, Public } from '~shared'
 import { HolidayService } from './holiday.service'
 
 @Public()

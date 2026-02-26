@@ -2,10 +2,9 @@ import { ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common
 import { GUARDS_METADATA } from '@nestjs/common/constants'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard as DefaultAuthGuard } from '@nestjs/passport'
-import { MetaKeysEnum } from '~core/enum/metaKeys.enum'
 import { Role } from '~domains/user/entities'
 import { UserService } from '~domains/user/user.service'
-import { AuthRequest } from '~types/AuthRequest'
+import { AuthRequest, MetaKeysEnum } from '~shared'
 
 @Injectable()
 export class JwtAuthGuard extends DefaultAuthGuard('jwt') {

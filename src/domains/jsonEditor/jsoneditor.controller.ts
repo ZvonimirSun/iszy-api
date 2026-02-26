@@ -1,5 +1,5 @@
 import type { ResultDto } from '@zvonimirsun/iszy-common'
-import type { AuthRequest } from '~types/AuthRequest'
+import type { AuthRequest } from '~shared'
 import type { JsoneditorItemDto } from './dto/jsoneditor_item.dto'
 import type { JsoneditorModel } from './entities/jsoneditor.model'
 import {

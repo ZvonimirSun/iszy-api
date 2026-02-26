@@ -1,4 +1,4 @@
-import type { AuthRequest } from '~types/AuthRequest'
+import type { AuthRequest } from '~shared'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'

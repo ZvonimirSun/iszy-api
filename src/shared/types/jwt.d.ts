@@ -1,4 +1,4 @@
-import { MinimalUser } from '~types/user'
+import { MinimalUser } from '~shared'
 
 export interface JWTPayload {
   deviceId: string

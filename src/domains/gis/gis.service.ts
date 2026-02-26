@@ -1,8 +1,9 @@
 import type { TransformGeometryDto } from './dto/transform_geometry.dto'
 import type { TransformPointDto } from './dto/transform_point.dto'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { QueryTypes } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
+import { Logger } from '~shared'
 
 @Injectable()
 export class GisService {

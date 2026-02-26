@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import {
   PublicUser,
@@ -13,7 +13,7 @@ import bcrypt from 'bcrypt'
 import { FindOptions, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { DeviceStore } from '~domains/auth/store/device-store'
-import { MinimalUser } from '~types/user'
+import { Logger, MinimalUser } from '~shared'
 import { Group, Privilege, Role, User } from './entities'
 import { UserStore } from './store/user-store'
 import { encryptPassword } from './utils/cryptogram'

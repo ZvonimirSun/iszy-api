@@ -1,7 +1,6 @@
 import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { Request, Response } from 'express'
-import type { PaginationDto } from '~dto/pagination.dto'
-import type { AuthRequest } from '~types/AuthRequest'
+import type { AuthRequest, PaginationDto } from '~shared'
 import type { CreateDto } from './dto/create.dto'
 import type { PaginationQueryDto } from './dto/pagination_query.dto'
 import type { UpdateDto } from './dto/update.dto'
@@ -19,7 +18,7 @@ import {
   Res,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { Public } from '~core/decorator'
+import { Public } from '~shared'
 import { UrlsService } from './urls.service'
 
 @ApiBearerAuth()

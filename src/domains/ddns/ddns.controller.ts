@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Public } from '~core/decorator'
+import { Public } from '~shared'
 import { DDNSService } from './ddns.service'
 import { DDNSUpdateDto } from './dto/ddns_update.dto'
 

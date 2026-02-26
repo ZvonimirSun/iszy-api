@@ -2,7 +2,7 @@ import type { Cache } from 'cache-manager'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import ms from 'ms'
-import { StateData } from '~types/oauth'
+import { StateData } from '~shared'
 
 @Injectable()
 export class OauthStore {

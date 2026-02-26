@@ -1,6 +1,6 @@
 import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { Request, Response } from 'express'
-import type { AuthRequest } from '~types/AuthRequest'
+import type { AuthRequest } from '~shared'
 import type { MockDataDto } from './dtos/mock_data.dto'
 import type { MockProjDto } from './dtos/mock_proj.dto'
 import type { MockData } from './entities/mock_data.model'
@@ -19,7 +19,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger'
 import Mock from 'mockjs'
-import { Public } from '~core/decorator'
+import { Public } from '~shared'
 import { MockService } from './mock.service'
 
 @ApiBearerAuth()

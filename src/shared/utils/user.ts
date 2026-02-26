@@ -1,5 +1,5 @@
 import { Optional, PublicUser, RawUser } from '@zvonimirsun/iszy-common'
-import { MinimalUser } from '~types/user'
+import { MinimalUser } from '~shared'
 
 export function toPublicUser(user: Optional<RawUser, 'passwd' | 'passwdSalt'>): PublicUser {
   const { passwd, passwdSalt, ...result } = user

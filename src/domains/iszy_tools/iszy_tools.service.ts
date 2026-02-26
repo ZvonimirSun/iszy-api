@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
+import { Logger } from '~shared'
 import { Settings } from './entities/settings.model'
 
 @Injectable()

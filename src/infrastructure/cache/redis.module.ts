@@ -2,8 +2,9 @@ import type { CacheModuleOptions } from '@nestjs/cache-manager'
 import type { RedisOptions } from 'ioredis'
 import KeyvRedis from '@keyv/redis'
 import { CacheModule } from '@nestjs/cache-manager'
-import { Logger, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Logger } from '~shared'
 
 @Module({
   imports: [

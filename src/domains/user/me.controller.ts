@@ -1,9 +1,9 @@
-import type { AuthRequest } from '~types/AuthRequest'
+import type { AuthRequest } from '~shared'
 import { Body, Controller, Get, Put, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { PublicUser, RawUser, ResultDto } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
-import { toPublicUser } from '~utils/user'
+import { toPublicUser } from '~shared'
 import { UpdateUserDto } from './dto/updateUser.dto'
 import { UserService } from './user.service'
 
