@@ -7,7 +7,7 @@ export function generateDevice(req: AuthRequest): Device {
   // 获取设备名称，如 Chrome 103 on Windows 11
   const data = UAParser(ua)
   return {
-    name: `${data.browser.name} ${data.browser.version.split('.')[0]} on ${data.os.name} ${data.os.version}`,
+    name: `${data.os.name} · ${data.browser.name}`,
     ip: req.ip,
     createdAt: new Date(),
     updatedAt: new Date(),
