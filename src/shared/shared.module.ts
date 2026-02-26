@@ -4,7 +4,8 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
-import { AppValidationPipe, HttpExceptionFilter } from '~shared'
+import { AppValidationPipe, HttpExceptionFilter, Logger } from '~shared'
+import 'dayjs/locale/zh-cn'
 
 @Global()
 @Module({
@@ -14,7 +15,10 @@ import { AppValidationPipe, HttpExceptionFilter } from '~shared'
   ],
 })
 export class SharedModule implements OnModuleInit {
+  private readonly logger = new Logger()
+
   onModuleInit() {
+    this.logger.log('初始化dayjs功能')
     // 全局配置 dayjs
     dayjs.locale('zh-cn') // 全局中文
     dayjs.extend(utc) // 扩展 UTC 功能

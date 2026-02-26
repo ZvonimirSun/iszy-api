@@ -3,11 +3,10 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { json, urlencoded } from 'body-parser'
+import { PublicDomains } from '~domains/domains'
 import { Logger } from '~shared'
 import info from '../package.json'
 import { AppModule } from './app.module'
-import SwaggerPublic from './swagger.public'
-import 'dayjs/locale/zh-cn'
 
 const logger = new Logger()
 async function bootstrap() {
@@ -62,16 +61,10 @@ async function bootstrap() {
     .setVersion(info.version)
     .build()
 
-  if (configService.get<boolean>('development')) {
-    const document = SwaggerModule.createDocument(app, documentConfig)
-    SwaggerModule.setup('api', app, document)
-  }
-  else {
-    const document = SwaggerModule.createDocument(app, documentConfig, {
-      include: SwaggerPublic,
-    })
-    SwaggerModule.setup('api', app, document)
-  }
+  const document = SwaggerModule.createDocument(app, documentConfig, {
+    include: configService.get<boolean>('development') ? undefined : PublicDomains,
+  })
+  SwaggerModule.setup('api', app, document)
 
   await app.listen(configService.get<number>('app.port'))
 
