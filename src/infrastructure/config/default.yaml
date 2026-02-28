@@ -1,0 +1,44 @@
+# Default Configuration
+# 使用规范化的配置结构
+
+database:
+  dialect: postgres
+  host: 127.0.0.1
+  port: 5432
+  username: ''
+  password: ''
+  database: ''
+  schema: public
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: ''
+
+app:
+  port: 3000
+  origin: ''
+  title: ''
+  description: ''
+  allowOrigins: ''
+  bodyLimit: 200mb
+
+auth:
+  publicRegister: false
+  jwt:
+    secret: ''
+    expire: 1d
+    refreshExpire: 7d
+  github:
+    clientId: ''
+    clientSecret: ''
+    callbackUrl: ''
+  linuxdo:
+    clientId: ''
+    clientSecret: ''
+    callbackUrl: ''
+
+behindProxy: false
+trustProxy: ''
+development: false
+systemProxy: ''
