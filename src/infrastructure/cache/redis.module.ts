@@ -1,32 +1,28 @@
 import type { CacheModuleOptions } from '@nestjs/cache-manager'
-import type { RedisOptions } from 'ioredis'
 import KeyvRedis from '@keyv/redis'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Logger } from '~shared'
+import { Logger, RedisConfig } from '~shared'
 
 @Module({
   imports: [
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: (configService: ConfigService): CacheModuleOptions<RedisOptions> => {
+      useFactory: (configService: ConfigService): CacheModuleOptions => {
         const logger = new Logger('RedisModule')
+        const redisConfig = configService.get<RedisConfig>('redis')
 
         try {
           const cacheStore = new KeyvRedis({
-            url: `redis://${configService.get<string>('redis.host')}:${configService.get<number>('redis.port')}`,
-            password: configService.get<string>('redis.password'),
+            url: `redis://${redisConfig.host}:${redisConfig.port}`,
+            password: redisConfig.password,
           })
           logger.log(
-            `缓存连接 Redis {redis://.:***@${configService.get<string>(
-              'redis.host',
-            )}:${configService.get<number>('redis.port')}} 成功`,
+            `缓存连接 Redis {redis://.:***@${redisConfig.host}:${redisConfig.port}} 成功`,
           )
           return {
-            stores: [
-              cacheStore,
-            ],
+            stores: cacheStore,
           }
         }
         catch (e) {

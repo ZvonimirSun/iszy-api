@@ -8,7 +8,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import { PublicDomains } from '~domains/domains'
-import { Logger } from '~shared'
+import { AppConfig, Logger } from '~shared'
 import info from '../../package.json'
 import 'dayjs/locale/zh-cn'
 
@@ -35,13 +35,15 @@ export class AppConfigService {
   }
 
   async startUp(app: NestExpressApplication) {
-    const port = this.configService.get<number>('app.port')
+    const config = this.configService.get<AppConfig>('app')
+    const port = config.port
     await app.listen(port)
     this.logger.log(`Server is running on port ${port}`)
   }
 
   private configureGeneral(app: NestExpressApplication) {
-    const bodyLimit = this.configService.get<string>('app.bodyLimit')
+    const config = this.configService.get<AppConfig>('app')
+    const bodyLimit = config.bodyLimit
     app.use(json({ limit: bodyLimit }))
     app.use(urlencoded({ limit: bodyLimit, extended: true }))
     app.set('query parser', 'extended')
@@ -49,10 +51,12 @@ export class AppConfigService {
   }
 
   private configureCors(app: NestExpressApplication) {
-    const origins = this.configService.get<string[]>('app.allowOrigins')
+    const config = this.configService.get<AppConfig>('app')
+    const origins = config.allowOrigins
     app.enableCors({
       origin(requestOrigin, callback) {
-        if (origins != null) {
+        if (origins) {
+          const allowOrigins = origins.split(',')
           if (origins.includes(requestOrigin))
             callback(null, requestOrigin)
           else
@@ -86,10 +90,11 @@ export class AppConfigService {
   }
 
   private configureSwagger(app: NestExpressApplication) {
+    const config = this.configService.get<AppConfig>('app')
     const documentConfig = new DocumentBuilder()
       .addBearerAuth()
-      .setTitle(this.configService.get<string>('app.title'))
-      .setDescription(this.configService.get<string>('app.description'))
+      .setTitle(config.title)
+      .setDescription(config.description)
       .setVersion(info.version)
       .build()
 

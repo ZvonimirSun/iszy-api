@@ -1,4 +1,4 @@
-import type { AuthRequest } from '~shared'
+import type { AuthRequest, JwtConfig } from '~shared'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest,
       ignoreExpiration: false,
-      secretOrKey: configService.get('auth.jwt.secret'),
+      secretOrKey: configService.get<JwtConfig>('auth.jwt').secret,
       passReqToCallback: true,
     })
     this._jwtFromRequest = jwtFromRequest

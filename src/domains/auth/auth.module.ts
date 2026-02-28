@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
+import { JwtConfig } from '~shared'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
@@ -17,7 +18,7 @@ import { LocalStrategy } from './strategy/local.strategy'
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         return {
-          secret: configService.get<string>('auth.jwt.secret'),
+          secret: configService.get<JwtConfig>('auth.jwt').secret,
         }
       },
     }),

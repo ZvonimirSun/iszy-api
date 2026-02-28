@@ -1,4 +1,4 @@
-import type { AuthRequest } from '~shared'
+import type { AppConfig, AuthRequest, OAuthProviderConfig } from '~shared'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
@@ -12,13 +12,15 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
   private readonly _userProfileURL: string
 
   constructor(configService: ConfigService, private linuxdoAuthService: LinuxdoAuthService) {
+    const appConfig = configService.get<AppConfig>('app')
+    const oauthConfig = configService.get<OAuthProviderConfig>('auth.linuxdo')
     super({
       passReqToCallback: true,
       authorizationURL: 'https://connect.linux.do/oauth2/authorize',
       tokenURL: 'https://connect.linux.do/oauth2/token',
-      clientID: configService.get<string>('auth.linuxdo.clientId'),
-      clientSecret: configService.get<string>('auth.linuxdo.clientSecret'),
-      callbackURL: configService.get<string>('auth.linuxdo.callbackUrl'),
+      clientID: oauthConfig.clientId,
+      clientSecret: oauthConfig.clientSecret,
+      callbackURL: `${appConfig.origin}/auth/linuxdo/callback`,
     })
     const systemProxy = configService.get<string>('systemProxy')
     if (systemProxy) {

@@ -13,7 +13,7 @@ import {
 import bcrypt from 'bcrypt'
 import ms, { StringValue } from 'ms'
 import { UserService } from '~domains/user/user.service'
-import { JWTPayload, Logger, MinimalUser, RefreshJWTPayload, toPublicUser } from '~shared'
+import { AuthConfig, JwtConfig, JWTPayload, Logger, MinimalUser, RefreshJWTPayload, toPublicUser } from '~shared'
 import { LogoutDto } from './dto/logout.dto'
 import { DeviceStore } from './store/device-store'
 
@@ -25,8 +25,9 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly deviceStore: DeviceStore,
   ) {
-    this.accessExpireTime = this.configService.get<StringValue>('auth.jwt.expire')
-    this.refreshExpireTime = this.configService.get<StringValue>('auth.jwt.refreshExpire')
+    const jwtConfig = this.configService.get<JwtConfig>('auth.jwt')
+    this.accessExpireTime = jwtConfig.expire
+    this.refreshExpireTime = jwtConfig.refreshExpire
     this.accessExpireMs = ms(this.accessExpireTime)
     this.refreshExpireMs = ms(this.refreshExpireTime)
 
@@ -108,7 +109,7 @@ export class AuthService {
     try {
       this.userService.normalizeUserInfo(registerDto)
 
-      const publicRegister = this.configService.get<boolean>('auth.publicRegister')
+      const publicRegister = this.configService.get<AuthConfig>('auth').publicRegister
 
       const user: Partial<RawUser> = {}
       user.userName = registerDto.userName

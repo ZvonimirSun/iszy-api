@@ -4,6 +4,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Device, DeviceCache } from '@zvonimirsun/iszy-common'
 import ms, { StringValue } from 'ms'
+import { JwtConfig } from '~shared'
 
 @Injectable()
 export class DeviceStore {
@@ -14,7 +15,7 @@ export class DeviceStore {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly configService: ConfigService,
   ) {
-    this.refreshExpireTime = this.configService.get<StringValue>('auth.jwt.refreshExpire')
+    this.refreshExpireTime = this.configService.get<JwtConfig>('auth.jwt').refreshExpire
     this.refreshExpireMs = ms(this.refreshExpireTime)
   }
 

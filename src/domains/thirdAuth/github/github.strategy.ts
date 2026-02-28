@@ -1,20 +1,23 @@
-import type { AuthRequest } from '~shared'
+import type { AppConfig } from '~shared'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Strategy } from 'passport-github2'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
+import { AuthRequest, OAuthProviderConfig } from '~shared'
 import { GithubAuthService } from './github-auth.service'
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy) {
   constructor(configService: ConfigService, private githubAuthService: GithubAuthService) {
+    const appConfig = configService.get<AppConfig>('app')
+    const oauthConfig = configService.get<OAuthProviderConfig>('auth.github')
     super({
       passReqToCallback: true,
-      clientID: configService.get<string>('auth.github.clientId'),
-      clientSecret: configService.get<string>('auth.github.clientSecret'),
-      callbackURL: configService.get<string>('auth.github.callbackUrl'),
+      clientID: oauthConfig.clientId,
+      clientSecret: oauthConfig.clientSecret,
+      callbackURL: `${appConfig.origin}/auth/github/callback`,
       scope: ['user:email'],
     })
     const systemProxy = configService.get<string>('systemProxy')

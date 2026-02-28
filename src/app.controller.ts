@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Public } from '~shared'
+import { AppConfig, Public } from '~shared'
 
 @Public()
 @Controller()
@@ -9,6 +9,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return `Hello World! ${this.configService.get<string>('app.title')}!`
+    const appConfig = this.configService.get<AppConfig>('app')
+    return `Hello World! ${appConfig.title}!`
   }
 }

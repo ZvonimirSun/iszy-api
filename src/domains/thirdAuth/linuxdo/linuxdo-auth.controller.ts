@@ -2,7 +2,7 @@ import { Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@n
 import { ConfigService } from '@nestjs/config'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ResultDto } from '@zvonimirsun/iszy-common'
-import { AuthRequest, Logger, Public } from '~shared'
+import { AuthConfig, AuthRequest, Logger, Public } from '~shared'
 import { LinuxdoAuthGuard } from './linuxdo-auth.guard'
 import { LinuxdoAuthService } from './linuxdo-auth.service'
 
@@ -37,7 +37,7 @@ export class LinuxdoAuthController {
     }
     // 登录
     else {
-      if (req.user || this.configService.get<boolean>('auth.publicRegister')) {
+      if (req.user || this.configService.get<AuthConfig>('auth').publicRegister) {
         bodyInfo = '登录完成'
         if (!req.user) {
           // 用户不存在
