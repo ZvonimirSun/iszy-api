@@ -2,7 +2,7 @@
 
 [![build](https://github.com/ZvonimirSun/iszy-api/actions/workflows/docker.yml/badge.svg)](https://github.com/ZvonimirSun/iszy-api/actions/workflows/docker.yml)
 
-[![Nest 10.x](https://img.shields.io/badge/Nest-10.x-blue)](https://nestjs.com/) [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
+[![Nest 11.x](https://img.shields.io/badge/Nest-11.x-blue)](https://nestjs.com/) [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
 
 ISZY API集合，基于 [NestJS](http://nestjs.com/) 开发，主要为 [ISZY 工具集合](https://github.com/zvonimirsun/iszy-tools) 提供后端支持。
 
