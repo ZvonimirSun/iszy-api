@@ -6,9 +6,16 @@ export const DefaultConfig: AppConfiguration = {
     host: 'localhost',
     port: 5432,
     schema: 'public',
+    models: [],
     pool: {
       max: 10,
+      min: 1, // 连接池中最小连接数量
+      acquire: 30000,
+      idle: 10000, // 如果一个线程 10 秒钟内没有被使用过的话，那么就释放线程
     },
+    timezone: '+08:00',
+
+    autoLoadModels: true,
     logging: false,
   },
   redis: {
