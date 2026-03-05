@@ -1,6 +1,6 @@
 {
   "name": "iszy-api",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "private": true,
   "packageManager": "pnpm@10.30.2",
   "description": "",
