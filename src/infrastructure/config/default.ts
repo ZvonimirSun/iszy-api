@@ -50,5 +50,4 @@ export const DefaultConfig: AppConfiguration = {
   behindProxy: false,
   trustProxy: undefined,
   development: false,
-  systemProxy: undefined,
 }

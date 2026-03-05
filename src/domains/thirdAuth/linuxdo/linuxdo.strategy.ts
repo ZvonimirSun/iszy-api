@@ -2,7 +2,6 @@ import type { AppConfig, AuthRequest, OAuthProviderConfig } from '~shared'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import { InternalOAuthError, Strategy } from 'passport-oauth2'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
 import { LinuxdoAuthService } from './linuxdo-auth.service'
@@ -22,11 +21,6 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
       clientSecret: oauthConfig.clientSecret,
       callbackURL: `${appConfig.origin}/auth/linuxdo/callback`,
     })
-    const systemProxy = configService.get<string>('systemProxy')
-    if (systemProxy) {
-      const httpsProxyAgent = new HttpsProxyAgent(systemProxy)
-      this._oauth2.setAgent(httpsProxyAgent)
-    }
     this._userProfileURL = 'https://connect.linux.do/api/user'
     this._oauth2.useAuthorizationHeaderforGET(true)
   }

@@ -2,7 +2,7 @@ import Alidns20150109, * as $Alidns20150109 from '@alicloud/alidns20150109'
 import * as $OpenApi from '@alicloud/openapi-client'
 import * as $Util from '@alicloud/tea-util'
 import { Injectable } from '@nestjs/common'
-import axios from 'axios'
+import { $fetch } from 'ofetch'
 import { Logger } from '~shared'
 import { DDNSUpdateDto } from './dto/ddns_update.dto'
 
@@ -94,14 +94,20 @@ export class DDNSService {
     const { hostname, ip, username: zone, password: key } = query
     const cloudflareAPI = 'https://api.cloudflare.com/client/v4'
     try {
-      const res = await axios.get(`${cloudflareAPI}/zones/${zone}/dns_records?type=A&name=${hostname}`, {
+      const res = await $fetch<{
+        result?: {
+          id?: string
+          content?: string
+        }[]
+      }>(`${cloudflareAPI}/zones/${zone}/dns_records?type=A&name=${hostname}`, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${key}`,
           'Content-Type': 'application/json',
         },
       })
-      const recordId: string | null = ((res.data.result ?? [])[0] ?? {}).id ?? null
-      const currentIP: string | '' = ((res.data.result ?? [])[0] ?? {}).content ?? ''
+      const recordId: string | null = ((res.result ?? [])[0] ?? {}).id ?? null
+      const currentIP: string | '' = ((res.result ?? [])[0] ?? {}).content ?? ''
       if (currentIP === ip)
         return 'nochg'
 
@@ -114,32 +120,30 @@ export class DDNSService {
       }
 
       if (recordId == null) {
-        const creationResponse = await axios.post(
-          `${cloudflareAPI}/zones/${zone}/dns_records`,
-          dataToSend,
-          {
-            headers: {
-              'Authorization': `Bearer ${key}`,
-              'Content-Type': 'application/json',
-            },
+        const creationResponse = await $fetch<{
+          success?: boolean
+        }>(`${cloudflareAPI}/zones/${zone}/dns_records?type=A&name=${hostname}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${key}`,
           },
-        )
-        if (creationResponse.data.success === false)
+          body: dataToSend,
+        })
+        if (creationResponse.success === false)
           return 'badauth'
         return 'good'
       }
       else {
-        const updateResponse = await axios.put(
-          `${cloudflareAPI}/zones/${zone}/dns_records/${recordId}`,
-          dataToSend,
-          {
-            headers: {
-              'Authorization': `Bearer ${key}`,
-              'Content-Type': 'application/json',
-            },
+        const updateResponse = await $fetch<{
+          success?: boolean
+        }>(`${cloudflareAPI}/zones/${zone}/dns_records/${recordId}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${key}`,
           },
-        )
-        if (updateResponse.data.success === false)
+          body: dataToSend,
+        })
+        if (updateResponse.success === false)
           return 'badauth'
         return 'good'
       }

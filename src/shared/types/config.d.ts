@@ -79,7 +79,6 @@ export interface SystemConfig {
   behindProxy?: boolean
   trustProxy?: string
   development?: boolean
-  systemProxy?: string
 }
 
 /**

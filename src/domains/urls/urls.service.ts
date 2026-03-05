@@ -3,9 +3,9 @@ import type { Request } from 'express'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import axios from 'axios'
 import { load } from 'cheerio'
 import geoip from 'geoip-lite'
+import { $fetch } from 'ofetch'
 import { Sequelize } from 'sequelize-typescript'
 import { Logger, PaginationDto } from '~shared'
 import { LogModel } from './entities/log.model'
@@ -315,11 +315,12 @@ export class UrlsService {
 
   private async _getUrlTitle(data: UrlModel): Promise<void> {
     try {
-      const res = await axios.get(data.url, {
+      const res = await $fetch(data.url, {
+        method: 'GET',
         timeout: 5000,
       })
-      if (typeof res.data === 'string') {
-        const $ = load(res.data)
+      if (typeof res === 'string') {
+        const $ = load(res)
         const title = $('title').text()
         await data.update({
           title,

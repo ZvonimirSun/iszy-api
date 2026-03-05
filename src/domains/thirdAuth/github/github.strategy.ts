@@ -2,7 +2,6 @@ import type { AppConfig } from '~shared'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Strategy } from 'passport-github2'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
 import { AuthRequest, OAuthProviderConfig } from '~shared'
@@ -20,11 +19,6 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
       callbackURL: `${appConfig.origin}/auth/github/callback`,
       scope: ['user:email'],
     })
-    const systemProxy = configService.get<string>('systemProxy')
-    if (systemProxy) {
-      const httpsProxyAgent = new HttpsProxyAgent(systemProxy)
-      this._oauth2.setAgent(httpsProxyAgent)
-    }
   }
 
   async validate(
