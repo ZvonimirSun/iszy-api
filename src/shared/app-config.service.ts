@@ -53,18 +53,20 @@ export class AppConfigService {
   private configureCors(app: NestExpressApplication) {
     const config = this.configService.get<AppConfig>('app')
     const origins = config.allowOrigins
+    const origin = config.origin
     app.enableCors({
       origin(requestOrigin, callback) {
-        if (origins) {
-          const allowOrigins = origins.split(',')
-          if (origins.includes(requestOrigin))
-            callback(null, requestOrigin)
-          else
-            callback(new Error(`Not allow origin ${requestOrigin}`))
+        if (!requestOrigin) {
+          return callback(null, true) // 直接允许
         }
-        else {
+        if (!origins) {
+          return callback(null, requestOrigin) // 直接允许
+        }
+        const allowOrigins = origins.split(',').map(item => item.trim()).filter(Boolean)
+        if (allowOrigins.includes(requestOrigin) || requestOrigin === origin)
           callback(null, requestOrigin)
-        }
+        else
+          callback(new Error(`Not allow origin ${requestOrigin}`))
       },
       credentials: true,
     })
