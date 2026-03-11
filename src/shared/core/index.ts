@@ -1,4 +1,6 @@
 export * from './app-validation.pipe'
 export * from './decorator'
 export * from './http-exception.filter'
+export * from './jwt-auth.guard'
+export * from './jwt.strategy'
 export * from './Logger'

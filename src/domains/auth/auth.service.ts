@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt'
 import {
   Device,
   DeviceCache,
-  encodeUUID,
   PublicUser,
   RawUser,
   RegisterUser,
@@ -13,7 +12,16 @@ import {
 import bcrypt from 'bcrypt'
 import ms, { StringValue } from 'ms'
 import { UserService } from '~domains/user/user.service'
-import { AuthConfig, JwtConfig, JWTPayload, Logger, MinimalUser, RefreshJWTPayload, toPublicUser } from '~shared'
+import {
+  AuthConfig,
+  JwtConfig,
+  JWTPayload,
+  Logger,
+  MinimalUser,
+  random,
+  RefreshJWTPayload,
+  toPublicUser,
+} from '~shared'
 import { LogoutDto } from './dto/logout.dto'
 import { DeviceStore } from './store/device-store'
 
@@ -63,7 +71,7 @@ export class AuthService {
     const { userId, userName, nickName } = user
     let { id: deviceId, name: deviceName, ip: deviceIp } = device
     if (!deviceId) {
-      deviceId = encodeUUID()
+      deviceId = random(6)
       this.logger.log(`${userName}新设备:${deviceName}:${deviceIp}`)
     }
     else {

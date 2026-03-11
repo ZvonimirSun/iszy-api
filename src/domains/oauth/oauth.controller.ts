@@ -1,24 +1,22 @@
 import type { PublicUser, ResultDto } from '@zvonimirsun/iszy-common'
-import { Controller, Post, Req } from '@nestjs/common'
+import { Body, Controller, Post, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { AuthService } from '~domains/auth/auth.service'
-import { TicketStore } from '~domains/auth/store/ticket-store'
-import { AuthRequest, TicketOnly } from '~shared'
+import { AuthRequest, ProviderType, TicketOnly } from '~shared'
+import { OauthService } from './oauth.service'
 
 @ApiBearerAuth()
 @ApiTags('OAuth')
 @Controller('oauth')
 export class OauthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly ticketStore: TicketStore,
+    private readonly oauthService: OauthService,
   ) {}
 
   @Post('code')
   async getCode(@Req() req: AuthRequest): Promise<ResultDto<string>> {
     return {
       success: true,
-      data: await this.ticketStore.createTicket(req.user.userId),
+      data: await this.oauthService.getCode(req.user),
       message: '生成成功',
     }
   }
@@ -33,7 +31,16 @@ export class OauthController {
     return {
       success: true,
       message: '获取成功',
-      data: await this.authService.generateToken(req.user, req.device),
+      data: await this.oauthService.getToken(req.user, req.device),
+    }
+  }
+
+  @Post('unbind')
+  async unbind(@Req() req: AuthRequest, @Body() body: { provider: ProviderType }) {
+    await this.oauthService.unbind(req.user, body.provider)
+    return {
+      success: true,
+      message: '解绑成功',
     }
   }
 }

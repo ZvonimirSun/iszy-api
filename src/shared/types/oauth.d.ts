@@ -1,5 +1,5 @@
 import type { Request } from 'express'
-import { Device, RawUser } from '@zvonimirsun/iszy-common'
+import { Device } from '@zvonimirsun/iszy-common'
 import { MinimalUser } from '~shared'
 
 export interface OauthCallbackData {
@@ -23,7 +23,4 @@ export interface AuthRequest extends Request {
   thirdPartProfile?: any
 }
 
-export interface OauthProvider {
-  bind: (user: MinimalUser, profile: any) => Promise<{ type: string, data?: any }>
-  register: (profile: any) => Promise<RawUser>
-}
+export type ProviderType = 'github' | 'linuxdo'

@@ -1,14 +1,14 @@
-import type { AuthRequest, JwtConfig } from '~shared'
+import type { AuthRequest, JwtConfig } from '~/shared'
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { UserStatus } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import { ExtractJwt, JwtFromRequestFunction, Strategy } from 'passport-jwt'
+import { DeviceStore } from '~domains/auth/store/device-store'
+import { generateDevice } from '~domains/auth/utils/generateDevice'
 import { UserService } from '~domains/user/user.service'
-import { JWTPayload, RefreshJWTPayload, toMinimalUser } from '~shared'
-import { DeviceStore } from '../store/device-store'
-import { generateDevice } from '../utils/generateDevice'
+import { JWTPayload, RefreshJWTPayload, toMinimalUser } from '~/shared'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

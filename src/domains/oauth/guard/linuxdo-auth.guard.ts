@@ -1,11 +1,11 @@
 import { ExecutionContext, Injectable } from '@nestjs/common'
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport'
+import { OauthService } from '~domains/oauth/oauth.service'
 import { AuthRequest } from '~shared'
-import { OauthHelperService } from '../oauth-helper/oauth-helper.service'
 
 @Injectable()
 export class LinuxdoAuthGuard extends AuthGuard('linuxdo') {
-  constructor(private oauthService: OauthHelperService) {
+  constructor(private oauthService: OauthService) {
     super()
   }
 

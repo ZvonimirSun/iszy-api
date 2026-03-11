@@ -4,13 +4,13 @@ import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { InternalOAuthError, Strategy } from 'passport-oauth2'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
-import { LinuxdoAuthService } from './linuxdo-auth.service'
+import { OauthService } from '~domains/oauth/oauth.service'
 
 @Injectable()
 export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
   private readonly _userProfileURL: string
 
-  constructor(configService: ConfigService, private linuxdoAuthService: LinuxdoAuthService) {
+  constructor(configService: ConfigService, private oauthService: OauthService) {
     const appConfig = configService.get<AppConfig>('app')
     const oauthConfig = configService.get<OAuthProviderConfig>('auth.linuxdo')
     super({
@@ -19,7 +19,7 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
       tokenURL: 'https://connect.linux.do/oauth2/token',
       clientID: oauthConfig.clientId,
       clientSecret: oauthConfig.clientSecret,
-      callbackURL: `${appConfig.origin}/auth/linuxdo/callback`,
+      callbackURL: `${appConfig.origin}/oauth/linuxdo/callback`,
     })
     this._userProfileURL = 'https://connect.linux.do/api/user'
     this._oauth2.useAuthorizationHeaderforGET(true)
@@ -50,7 +50,7 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
     req.device = generateDevice(req)
     req.thirdPartProfile = profile
     try {
-      return await this.linuxdoAuthService.validateUser(profile)
+      return await this.oauthService.validateUser('linuxdo', profile.id)
     }
     catch (e) {
       throw new UnauthorizedException('Linuxdo 认证失败')

@@ -1,14 +1,11 @@
 import { Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { APP_GUARD } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 import { JwtConfig } from '~shared'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { JwtAuthGuard } from './guards/jwt-auth.guard'
 import { DeviceStore } from './store/device-store'
 import { TicketStore } from './store/ticket-store'
-import { JwtStrategy } from './strategy/jwt.strategy'
 import { LocalStrategy } from './strategy/local.strategy'
 
 @Global()
@@ -30,11 +27,6 @@ import { LocalStrategy } from './strategy/local.strategy'
     DeviceStore,
     TicketStore,
     LocalStrategy,
-    JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
   ],
   exports: [AuthService, DeviceStore, TicketStore],
 })

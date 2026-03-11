@@ -1,15 +1,15 @@
 import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { GUARDS_METADATA } from '@nestjs/common/constants'
 import { Reflector } from '@nestjs/core'
-import { AuthGuard as DefaultAuthGuard } from '@nestjs/passport'
+import { AuthGuard } from '@nestjs/passport'
 import { TicketStore } from '~domains/auth/store/ticket-store'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
 import { Role } from '~domains/user/entities'
 import { UserService } from '~domains/user/user.service'
-import { AuthRequest, MetaKeysEnum, toMinimalUser } from '~shared'
+import { AuthRequest, MetaKeysEnum, toMinimalUser } from '~/shared'
 
 @Injectable()
-export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector, private userService: UserService, private ticketStore: TicketStore) {
     super()
   }

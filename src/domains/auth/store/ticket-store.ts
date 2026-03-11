@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import ms from 'ms'
+import { random } from '~shared'
 
 @Injectable()
 export class TicketStore {
@@ -12,7 +13,7 @@ export class TicketStore {
   ) {}
 
   async createTicket(userId: number) {
-    const ticket = crypto.randomUUID()
+    const ticket = random()
     await this.cacheManager.set(`ticket:${ticket}`, userId, ms('5m'))
     return ticket
   }
