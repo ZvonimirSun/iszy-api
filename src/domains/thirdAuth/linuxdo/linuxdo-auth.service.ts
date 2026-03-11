@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { Device, encodeUUID, PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
+import { encodeUUID, PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
 import { UserService } from '~domains/user/user.service'
-import { Logger, MinimalUser, toPublicUser } from '~shared'
+import { Logger, MinimalUser, OauthProvider, toPublicUser } from '~shared'
 
 @Injectable()
-export class LinuxdoAuthService {
+export class LinuxdoAuthService implements OauthProvider {
   constructor(
     private readonly userService: UserService,
     private authService: AuthService,
@@ -21,14 +21,6 @@ export class LinuxdoAuthService {
       throw new Error('用户不存在')
     }
     return toPublicUser(user)
-  }
-
-  async login(user: MinimalUser, device: Device) {
-    const data = await this.authService.generateToken(user, device)
-    return {
-      type: 'oauth_complete',
-      data,
-    }
   }
 
   async register(profile: any) {

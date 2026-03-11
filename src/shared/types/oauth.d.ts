@@ -1,5 +1,5 @@
-import type { Device } from '@zvonimirsun/iszy-common'
 import type { Request } from 'express'
+import { Device, RawUser } from '@zvonimirsun/iszy-common'
 import { MinimalUser } from '~shared'
 
 export interface OauthCallbackData {
@@ -21,4 +21,9 @@ export interface AuthRequest extends Request {
   state?: string
   isBind?: boolean
   thirdPartProfile?: any
+}
+
+export interface OauthProvider {
+  bind: (user: MinimalUser, profile: any) => Promise<{ type: string, data?: any }>
+  register: (profile: any) => Promise<RawUser>
 }
