@@ -1,14 +1,16 @@
-import { ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common'
+import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { GUARDS_METADATA } from '@nestjs/common/constants'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard as DefaultAuthGuard } from '@nestjs/passport'
+import { TicketStore } from '~domains/auth/store/ticket-store'
+import { generateDevice } from '~domains/auth/utils/generateDevice'
 import { Role } from '~domains/user/entities'
 import { UserService } from '~domains/user/user.service'
-import { AuthRequest, MetaKeysEnum } from '~shared'
+import { AuthRequest, MetaKeysEnum, toMinimalUser } from '~shared'
 
 @Injectable()
 export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
-  constructor(private reflector: Reflector, private userService: UserService) {
+  constructor(private reflector: Reflector, private userService: UserService, private ticketStore: TicketStore) {
     super()
   }
 
@@ -36,8 +38,19 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
         return true
     }
 
-    // jwt验证
-    await super.canActivate(context)
+    const ticketOnly = getMetaValue<boolean>(MetaKeysEnum.TICKET_ONLY_KEY)
+    if (ticketOnly) {
+      await this.checkTicket(req)
+    }
+    else {
+      try {
+        // jwt验证
+        await super.canActivate(context)
+      }
+      catch (e) {
+        await this.checkTicket(req)
+      }
+    }
 
     const useRefreshToken = getMetaValue<boolean>(MetaKeysEnum.USE_REFRESH_TOKEN_KEY)
     if (useRefreshToken) {
@@ -67,5 +80,18 @@ export class JwtAuthGuard extends DefaultAuthGuard('jwt') {
       throw new ForbiddenException('权限不足')
     }
     return true
+  }
+
+  async checkTicket(req: AuthRequest) {
+    const ticket = req.query.access_token as string | undefined
+    if (!ticket) {
+      throw new UnauthorizedException('未找到访问令牌')
+    }
+    const ticketUserId = await this.ticketStore.checkTicket(ticket)
+    if (ticketUserId == null) {
+      throw new UnauthorizedException('访问令牌无效')
+    }
+    req.user = toMinimalUser(await this.userService.findOne(ticketUserId))
+    req.device = generateDevice(req)
   }
 }

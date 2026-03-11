@@ -6,3 +6,4 @@ export const Roles = (...roles: RoleEnum[]) => SetMetadata(MetaKeysEnum.ROLES_KE
 export const Private = () => SetMetadata(MetaKeysEnum.IS_PRIVATE_KEY, true)
 export const Public = () => SetMetadata(MetaKeysEnum.IS_PUBLIC_KEY, true)
 export const RefreshToken = () => SetMetadata(MetaKeysEnum.USE_REFRESH_TOKEN_KEY, true)
+export const TicketOnly = () => SetMetadata(MetaKeysEnum.TICKET_ONLY_KEY, true)

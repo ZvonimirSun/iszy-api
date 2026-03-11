@@ -1,44 +1,17 @@
-import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
+import { ExecutionContext, Injectable } from '@nestjs/common'
 import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport'
 import { AuthRequest } from '~shared'
-import { OauthStore } from '../oauth-csrf/store/oauth-store'
+import { OauthHelperService } from '../oauth-helper/oauth-helper.service'
 
 @Injectable()
 export class GithubAuthGuard extends AuthGuard('github') {
-  constructor(private oauthStore: OauthStore) {
+  constructor(private oauthService: OauthHelperService) {
     super()
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req: AuthRequest = context.switchToHttp().getRequest()
-    const path = req.path
-    if (path.endsWith('/unbind')) {
-      return true
-    }
-    if (path.endsWith('/callback')) {
-      const { state } = req.query
-      if (typeof state !== 'string') {
-        throw new UnauthorizedException('缺少 state 参数')
-      }
-      const stateData = await this.oauthStore.getState(state)
-      if (!stateData) {
-        throw new UnauthorizedException('无效的 state 参数')
-      }
-      req.isBind = !!stateData.user
-      if (req.isBind) {
-        req.user = stateData.user
-      }
-      await this.oauthStore.removeState(state)
-    }
-    else {
-      const state = crypto.randomUUID()
-      await this.oauthStore.setState(state, path.endsWith('/bind')
-        ? {
-            user: req.user,
-          }
-        : {})
-      req.state = state
-    }
+    await this.oauthService.canActive(req)
     try {
       await super.canActivate(context)
     }
