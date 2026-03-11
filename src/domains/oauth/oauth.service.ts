@@ -154,7 +154,8 @@ export class OauthService {
         throw new UnauthorizedException('用户未登录，无法绑定')
       }
       try {
-        await this.bind(req.user, req.thirdPartProfile, provider)
+        const userData = Provider[provider].normalizeProfile(req.thirdPartProfile)
+        await this.bind(req.user, provider, userData[provider])
         if (req.oauthCallbackData) {
           const { state, redirect_uri } = req.oauthCallbackData
           return res.redirect(302, `${redirect_uri}?state=${state}`)
