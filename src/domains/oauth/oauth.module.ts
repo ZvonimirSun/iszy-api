@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
+import { AuthModule } from '~domains/auth/auth.module'
 import { UserModule } from '~domains/user/user.module'
 import { GithubController } from './github.controller'
 import { GithubAuthGuard } from './guard/github-auth.guard'
@@ -11,8 +12,9 @@ import { StateStore } from './store/state-store'
 import { GithubStrategy } from './strategy/github.strategy'
 import { LinuxdoStrategy } from './strategy/linuxdo.strategy'
 
+@Global()
 @Module({
-  imports: [UserModule, UserModule],
+  imports: [UserModule, AuthModule],
   controllers: [OauthController, GithubController, LinuxdoController],
   providers: [
     OauthService,
