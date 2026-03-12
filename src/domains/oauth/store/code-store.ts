@@ -6,19 +6,19 @@ import ms from 'ms'
 import { random } from '~shared'
 
 @Injectable()
-export class TicketStore {
+export class CodeStore {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
   ) {}
 
-  async createTicket(userId: number) {
+  async createCode(userId: number) {
     const ticket = random()
     await this.cacheManager.set(`ticket:${ticket}`, userId, ms('5m'))
     return ticket
   }
 
-  async checkTicket(ticket: string): Promise<number | null> {
+  async checkCode(ticket: string): Promise<number | null> {
     const userId = await this.cacheManager.get<number>(`ticket:${ticket}`)
     if (userId) {
       await this.cacheManager.del(`ticket:${ticket}`)

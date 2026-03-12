@@ -5,7 +5,7 @@ import ms from 'ms'
 import { StateData } from '~shared'
 
 @Injectable()
-export class OauthStore {
+export class StateStore {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}

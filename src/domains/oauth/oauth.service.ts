@@ -3,8 +3,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Device, PublicUser } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
-import { TicketStore } from '~domains/auth/store/ticket-store'
-import { OauthStore } from '~domains/oauth/store/oauth-store'
 import { UserService } from '~domains/user/user.service'
 import {
   AppConfig,
@@ -18,6 +16,8 @@ import {
   toPublicUser,
 } from '~shared'
 import Provider from './providers'
+import { CodeStore } from './store/code-store'
+import { StateStore } from './store/state-store'
 
 @Injectable()
 export class OauthService {
@@ -25,14 +25,14 @@ export class OauthService {
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly oauthStore: OauthStore,
-    private readonly ticketStore: TicketStore,
+    private readonly oauthStore: StateStore,
+    private readonly codeStore: CodeStore,
   ) {}
 
   private readonly logger = new Logger(OauthService.name)
 
   async getCode(user: MinimalUser) {
-    return this.ticketStore.createTicket(user.userId)
+    return this.codeStore.createCode(user.userId)
   }
 
   async getToken(user: MinimalUser, device: Device) {
@@ -183,7 +183,7 @@ export class OauthService {
         this.logger.log(`${req.user.userName}通过 ${Provider[provider].title} 登录成功`)
         if (req.oauthCallbackData) {
           const { state, redirect_uri } = req.oauthCallbackData
-          const ticket = await this.ticketStore.createTicket(req.user.userId)
+          const ticket = await this.codeStore.createCode(req.user.userId)
           return res.redirect(302, `${redirect_uri}?state=${state}&code=${ticket}`)
         }
         msgInfo = {

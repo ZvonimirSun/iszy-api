@@ -6,7 +6,8 @@ import { LinuxdoAuthGuard } from './guard/linuxdo-auth.guard'
 import { LinuxdoController } from './linuxdo.controller'
 import { OauthController } from './oauth.controller'
 import { OauthService } from './oauth.service'
-import { OauthStore } from './store/oauth-store'
+import { CodeStore } from './store/code-store'
+import { StateStore } from './store/state-store'
 import { GithubStrategy } from './strategy/github.strategy'
 import { LinuxdoStrategy } from './strategy/linuxdo.strategy'
 
@@ -19,12 +20,11 @@ import { LinuxdoStrategy } from './strategy/linuxdo.strategy'
     LinuxdoStrategy,
     GithubAuthGuard,
     LinuxdoAuthGuard,
-    OauthStore,
+    StateStore,
+    CodeStore,
   ],
   exports: [
-    OauthService,
-    GithubAuthGuard,
-    LinuxdoAuthGuard,
+    CodeStore,
   ],
 })
 export class OauthModule {}

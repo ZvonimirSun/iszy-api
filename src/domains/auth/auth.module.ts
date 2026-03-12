@@ -5,7 +5,6 @@ import { JwtConfig } from '~shared'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { DeviceStore } from './store/device-store'
-import { TicketStore } from './store/ticket-store'
 import { LocalStrategy } from './strategy/local.strategy'
 
 @Global()
@@ -25,9 +24,8 @@ import { LocalStrategy } from './strategy/local.strategy'
   providers: [
     AuthService,
     DeviceStore,
-    TicketStore,
     LocalStrategy,
   ],
-  exports: [AuthService, DeviceStore, TicketStore],
+  exports: [AuthService, DeviceStore],
 })
 export class AuthModule {}

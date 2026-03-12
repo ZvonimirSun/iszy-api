@@ -2,15 +2,15 @@ import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException
 import { GUARDS_METADATA } from '@nestjs/common/constants'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
-import { TicketStore } from '~domains/auth/store/ticket-store'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
+import { CodeStore } from '~domains/oauth/store/code-store'
 import { Role } from '~domains/user/entities'
 import { UserService } from '~domains/user/user.service'
 import { AuthRequest, MetaKeysEnum, toMinimalUser } from '~/shared'
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private reflector: Reflector, private userService: UserService, private ticketStore: TicketStore) {
+  constructor(private reflector: Reflector, private userService: UserService, private codeStore: CodeStore) {
     super()
   }
 
@@ -87,7 +87,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (!ticket) {
       throw new UnauthorizedException('未找到访问令牌')
     }
-    const ticketUserId = await this.ticketStore.checkTicket(ticket)
+    const ticketUserId = await this.codeStore.checkCode(ticket)
     if (ticketUserId == null) {
       throw new UnauthorizedException('访问令牌无效')
     }
