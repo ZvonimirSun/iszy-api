@@ -35,18 +35,23 @@ export class UserService {
   async create(user: Partial<RawUser>, userId?: number): Promise<RawUser> {
     const userItem = await this.sequelize.transaction(async (t) => {
       const transactionHost = { transaction: t }
+      let userEntity: User
       if (userId != null) {
-        return await this.userModel.create(
+        userEntity = await this.userModel.create(
           { ...user, createBy: userId, updateBy: userId },
           transactionHost,
         )
       }
       else {
-        const userEntity = await this.userModel.create(user, transactionHost)
+        userEntity = await this.userModel.create(user, transactionHost)
         return await userEntity.update({
           createBy: userEntity.id,
           updateBy: userEntity.id,
         }, transactionHost)
+      }
+      const defaultRole = await this.roleModel.findByPk(0)
+      if (defaultRole) {
+        await userEntity.$add('roles', defaultRole)
       }
     })
     return userItem.get({
