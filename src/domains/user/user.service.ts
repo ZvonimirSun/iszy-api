@@ -10,7 +10,7 @@ import {
   UserStatus,
 } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
-import { FindOptions, Op } from 'sequelize'
+import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { DeviceStore } from '~domains/auth/store/device-store'
 import { Logger, MinimalUser } from '~shared'
@@ -22,6 +22,9 @@ import { encryptPassword } from './utils/cryptogram'
 export class UserService {
   constructor(
     @InjectModel(User) private userModel: typeof User,
+    @InjectModel(Role) private roleModel: typeof Role,
+    @InjectModel(Group) private groupModel: typeof Group,
+    @InjectModel(Privilege) private privilegeModel: typeof Privilege,
     private sequelize: Sequelize,
     private readonly userStore: UserStore,
     private readonly deviceStore: DeviceStore,
@@ -72,57 +75,63 @@ export class UserService {
   }
 
   async find(where: Partial<RawUser>) {
-    const options: FindOptions<RawUser> = {
-      where: { ...where },
+    const user = await this.userModel.findOne({
+      where,
       include: [
         {
           model: Role,
-          attributes: ['name', 'alias'],
+          attributes: ['id', 'name', 'alias'],
           through: { attributes: [] },
-          include: [{
-            model: Privilege,
-            attributes: ['id', 'type'],
-            through: { attributes: [] },
-          }],
         },
         {
           model: Group,
-          attributes: ['name', 'alias'],
-          include: [{
-            model: Role,
-            through: { attributes: [] },
-            include: [{
-              model: Privilege,
-              attributes: ['id', 'type'],
-            }],
-          }],
+          attributes: ['id', 'name', 'alias'],
+          through: { attributes: [] },
         },
       ],
-    }
-    const user = await this.userModel.findOne(options)
+    })
+
     if (!user) {
       this.logger.error('用户不存在')
       return null
     }
-    const rawUser = user.get({ plain: true })
-    // 合并角色并去重
-    const allRoles = [
-      ...user.roles,
-      ...user.groups.flatMap(g => g.roles),
-    ]
-    const uniqueRoles = Array.from(
-      new Map(allRoles.map(r => [r.name, r])).values(),
-    )
-    const allPrivileges = uniqueRoles.flatMap(r => r.privileges)
+    const userId = user.userId
+
+    const directRoleIds = user.roles.map(r => r.id)
+
+    const allGroupIds = await this.getGroupIdsWithRecursiveParent(userId)
+    const groupRoleIds = allGroupIds.length
+      ? (await this.roleModel.findAll({
+          attributes: ['id'],
+          include: [{
+            model: Group,
+            where: { id: allGroupIds },
+            through: { attributes: [] },
+          }],
+        })).map(r => r.id)
+      : []
+
+    const allPermissionRoleIds = Array.from(new Set([...directRoleIds, ...groupRoleIds]))
+
+    const privileges = allPermissionRoleIds.length
+      ? await this.privilegeModel.findAll({
+          include: [{
+            model: Role,
+            where: { id: allPermissionRoleIds },
+            through: { attributes: [] },
+          }],
+        })
+      : []
     const uniquePrivileges = Array.from(
-      new Map(allPrivileges.map(p => [p.id, p])).values(),
+      new Map(privileges.map(p => [p.id, p])).values(),
     )
-    // 构建最终结果
-    rawUser.roles = uniqueRoles.map(role => ({
+
+    const rawUser = user.get({ plain: true })
+    rawUser.roles = (rawUser.roles ?? []).map(role => ({
       name: role.name,
       alias: role.alias,
     }))
-    rawUser.groups = user.groups.map(g => ({
+    rawUser.groups = (rawUser.groups ?? []).map(g => ({
       alias: g.alias,
       name: g.name,
     }))
@@ -132,6 +141,30 @@ export class UserService {
     }))
     await this.userStore.setUser(rawUser)
     return rawUser
+  }
+
+  async getGroupIdsWithRecursiveParent(userId: number): Promise<number[]> {
+    const groupMap = new Map<number, boolean>()
+    // 查用户直接组
+    const groups = await this.groupModel.findAll({
+      include: [{ model: User, where: { userId }, through: { attributes: [] } }],
+    })
+
+    const stack = [...groups]
+    while (stack.length) {
+      const g = stack.pop()!
+      if (groupMap.has(g.id))
+        continue
+      groupMap.set(g.id, true)
+
+      if (g.parentId) {
+        const parent = await this.groupModel.findByPk(g.parentId)
+        if (parent)
+          stack.push(parent)
+      }
+    }
+
+    return Array.from(groupMap.keys())
   }
 
   async findAllByPage(pageIndex: number = 1, pageSize: number = 10): Promise<PublicUser[]> {
