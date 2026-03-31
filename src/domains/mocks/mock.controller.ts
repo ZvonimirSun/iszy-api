@@ -261,7 +261,7 @@ export class MockController {
       result = Mock.mock(JSON.parse(tmp1))
     }
     catch (e) {
-      if (mockData.contentType) {
+      if (mockData.contentType && mockData.contentType !== 'auto') {
         res.type(mockData.contentType)
       }
       result = mockData.response
