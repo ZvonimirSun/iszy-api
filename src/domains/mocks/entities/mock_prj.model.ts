@@ -8,13 +8,14 @@ import {
   Table,
 } from 'sequelize-typescript'
 import { User } from '~domains/user/entities'
+import { uuidV7 } from '~shared'
 
 @Table
 export class MockPrj extends Model {
   @PrimaryKey
   @Column({
     type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
+    defaultValue: () => uuidV7(),
   })
   declare id?: string
 
