@@ -72,6 +72,9 @@ importers:
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
+      defu:
+        specifier: ^6.1.7
+        version: 6.1.7
       destr:
         specifier: ^2.0.5
         version: 2.0.5
@@ -90,9 +93,6 @@ importers:
       keyv:
         specifier: ^5.6.0
         version: 5.6.0
-      lodash:
-        specifier: ^4.17.23
-        version: 4.17.23
       mockjs:
         specifier: ^1.1.0
         version: 1.1.0
@@ -190,9 +190,6 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
-      '@types/lodash':
-        specifier: ^4.17.24
-        version: 4.17.24
       '@types/mockjs':
         specifier: ^1.0.10
         version: 1.0.10
@@ -1463,9 +1460,6 @@ packages:
   '@types/jsonwebtoken@9.0.10':
     resolution: {integrity: sha512-asx5hIG9Qmf/1oStypjanR7iKTv0gXQ1Ov/jfrX6kS/EO0OFni8orbmGCn0672NHR3kXHwpAwR+B368ZGN/2rA==}
 
-  '@types/lodash@4.17.24':
-    resolution: {integrity: sha512-gIW7lQLZbue7lRSWEFql49QJJWThrTFFeIMJdp3eH4tKoxm1OvEPg02rm4wCCSHS0cL3/Fizimb35b7k8atwsQ==}
-
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
@@ -2411,8 +2405,8 @@ packages:
     resolution: {integrity: sha512-4tvttepXG1VaYGrRibk5EwJd1t4udunSOVMdLSAL6mId1ix438oPwPZMALY41FCijukO1L0twNcGsdzS7dHgDg==}
     engines: {node: '>=10'}
 
-  defu@6.1.4:
-    resolution: {integrity: sha512-mEQCMmwJu317oSz8CwdIOdwf3xMif1ttiM8LTufzc3g6kR+9Pe236twL8j3IYT1F7GfRgGcW6MWxzZjLIkuHIg==}
+  defu@6.1.7:
+    resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
 
   depd@2.0.0:
     resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
@@ -6419,8 +6413,6 @@ snapshots:
       '@types/ms': 2.1.0
       '@types/node': 25.3.0
 
-  '@types/lodash@4.17.24': {}
-
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
@@ -7461,7 +7453,7 @@ snapshots:
 
   defer-to-connect@2.0.1: {}
 
-  defu@6.1.4: {}
+  defu@6.1.7: {}
 
   depd@2.0.0: {}
 
@@ -10232,7 +10224,7 @@ snapshots:
   unconfig@7.5.0:
     dependencies:
       '@quansync/fs': 1.0.0
-      defu: 6.1.4
+      defu: 6.1.7
       jiti: 2.6.1
       quansync: 1.0.0
       unconfig-core: 7.5.0

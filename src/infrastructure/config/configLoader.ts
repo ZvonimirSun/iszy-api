@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import * as process from 'node:process'
+import { defu } from 'defu'
 import * as yaml from 'js-yaml'
-import { merge } from 'lodash'
 import { AppConfiguration } from '~shared'
 import { DefaultConfig } from './default'
 import { applyEnv } from './utils'
@@ -25,8 +25,8 @@ export default (): AppConfiguration => {
     userConfig = yaml.load(readFileSync(userConfigPath, 'utf-8')) || {}
   }
 
-  // Merge configurations: default <- user
-  let config: AppConfiguration = merge({}, DefaultConfig, userConfig)
+  // Default configurations: user <- default
+  let config: AppConfiguration = defu({}, userConfig, DefaultConfig)
 
   // Apply environment variables recursively
   config = applyEnv<AppConfiguration>(config, {
