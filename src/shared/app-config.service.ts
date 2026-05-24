@@ -38,7 +38,7 @@ export class AppConfigService {
     const config = this.configService.get<AppConfig>('app')
     const port = config.port
     await app.listen(port)
-    this.logger.log(`Server is running on port ${port}`)
+    this.logger.log(`服务已启动，监听端口 ${port}`)
   }
 
   private configureGeneral(app: NestExpressApplication) {

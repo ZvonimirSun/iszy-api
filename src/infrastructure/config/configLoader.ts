@@ -3,9 +3,11 @@ import { join } from 'node:path'
 import * as process from 'node:process'
 import { defu } from 'defu'
 import * as yaml from 'js-yaml'
-import { AppConfiguration } from '~shared'
+import { AppConfiguration, Logger } from '~shared'
 import { DefaultConfig } from './default'
 import { applyEnv } from './utils'
+
+const logger = new Logger('ConfigLoader')
 
 /**
  * Configuration loader with priority chain:
@@ -36,7 +38,25 @@ export default (): AppConfiguration => {
 
   // Debug output in development mode
   if (config.development) {
-    console.log('[Config] Loaded configuration:', config)
+    logger.debug('已加载配置', {
+      app: {
+        port: config.app.port,
+        origin: config.app.origin,
+        allowOrigins: config.app.allowOrigins,
+      },
+      database: {
+        dialect: config.database.dialect,
+        host: config.database.host,
+        port: config.database.port,
+        schema: config.database.schema,
+      },
+      redis: {
+        host: config.redis.host,
+        port: config.redis.port,
+      },
+      behindProxy: config.behindProxy,
+      development: config.development,
+    })
   }
 
   return config

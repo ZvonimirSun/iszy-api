@@ -83,9 +83,12 @@ export class DDNSService {
       }
     }
     catch (error) {
-      this.logger.error(error.name)
-      this.logger.error(error.message)
-      this.logger.error(error.data.Recommend)
+      this.logger.error(error, '阿里云 DDNS 更新失败', {
+        hostname,
+        domainName,
+        keyword,
+        recommend: error?.data?.Recommend,
+      })
       return 'badauth'
     }
   }
@@ -149,7 +152,11 @@ export class DDNSService {
       }
     }
     catch (e) {
-      this.logger.error(e.response.data)
+      this.logger.error(e, 'Cloudflare DDNS 更新失败', {
+        hostname,
+        zone,
+        response: e?.response?.data,
+      })
       return 'badauth'
     }
   }

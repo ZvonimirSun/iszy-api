@@ -34,7 +34,12 @@ export class AuthController {
     refresh_token: string
     profile: PublicUser
   }>> {
-    this.logger.log(`${req.user.userName} 登陆成功`)
+    this.logger.audit('用户登录成功', {
+      userId: req.user.userId,
+      userName: req.user.userName,
+      deviceId: req.device.id,
+      ip: req.device.ip,
+    })
     return {
       success: true,
       message: '登录成功',
@@ -47,14 +52,21 @@ export class AuthController {
     try {
       logoutDto.deviceId = logoutDto.deviceId || req.device.id
       await this.authService.logout(req.user.userId, logoutDto)
-      this.logger.log(`${req.user.userName} 登出成功`)
+      this.logger.audit('用户登出成功', {
+        userId: req.user.userId,
+        userName: req.user.userName,
+        deviceId: logoutDto.deviceId,
+      })
       return {
         success: true,
         message: '登出成功',
       }
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, '用户登出失败', {
+        userId: req.user?.userId,
+        deviceId: logoutDto.deviceId,
+      })
       return {
         success: false,
         message: '登出失败',

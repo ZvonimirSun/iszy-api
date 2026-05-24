@@ -48,7 +48,7 @@ export class UrlsService {
       }
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, '短链缓存读取失败', { keyword })
     }
     return null
   }
@@ -95,7 +95,7 @@ export class UrlsService {
       else
         message = e.message
 
-      this.logger.error(message)
+      this.logger.debug('短链创建失败', { userId, keyword, message })
       throw new Error(message)
     }
   }
@@ -133,7 +133,7 @@ export class UrlsService {
       return urlModel
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, '短链更新失败', { userId, keyword })
       throw new Error(e.message)
     }
   }
@@ -154,7 +154,7 @@ export class UrlsService {
       this._clearLog(keyword).then()
     }
     catch (e) {
-      this.logger.log(e)
+      this.logger.error(e, '短链删除失败', { userId, keyword })
       throw new Error(e.message)
     }
   }
@@ -190,7 +190,7 @@ export class UrlsService {
           })
         }
         catch (e) {
-          this.logger.error(e)
+          this.logger.debug('短链访问日志记录失败', { keyword })
         }
       })().then()
     }
@@ -220,7 +220,7 @@ export class UrlsService {
       }
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, '短链列表获取失败', { userId, pageIndex, pageSize })
     }
     return null
   }
@@ -274,7 +274,7 @@ export class UrlsService {
       })
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, '短链递增关键字保存失败', { keyword })
       return false
     }
   }
@@ -328,7 +328,7 @@ export class UrlsService {
       }
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.debug('短链标题获取失败', { keyword: data.keyword, url: data.url })
     }
   }
 
@@ -357,7 +357,7 @@ export class UrlsService {
       return true
     }
     catch (e) {
-      this.logger.log(e)
+      this.logger.debug('短链访问日志清理失败', { keyword })
       return false
     }
   }

@@ -72,7 +72,11 @@ export class OauthService {
       if (e.name === 'SequelizeUniqueConstraintError') {
         const error = e.errors[0]
         if (error) {
-          this.logger.error(error.message)
+          this.logger.debug('OAuth 注册触发唯一约束', {
+            provider,
+            path: error.path,
+            message: error.message,
+          })
           switch (error.path) {
             case 'email': {
               throw new Error('邮箱已被绑定')
@@ -166,6 +170,11 @@ export class OauthService {
         }
       }
       catch (err) {
+        this.logger.debug('OAuth 账号绑定失败', {
+          provider,
+          userId: req.user.userId,
+          error: err instanceof Error ? err.message : err,
+        })
         bodyInfo = '绑定失败'
         msgInfo = {
           success: false,
@@ -180,7 +189,11 @@ export class OauthService {
           // 用户不存在
           req.user = await this.register(provider, req.thirdPartProfile)
         }
-        this.logger.log(`${req.user.userName}通过 ${Provider[provider].title} 登录成功`)
+        this.logger.audit('OAuth 登录成功', {
+          provider,
+          userId: req.user.userId,
+          userName: req.user.userName,
+        })
         if (req.oauthCallbackData) {
           const { state, redirect_uri } = req.oauthCallbackData
           const ticket = await this.codeStore.createCode(req.user.userId)

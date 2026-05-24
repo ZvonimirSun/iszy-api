@@ -72,10 +72,22 @@ export class AuthService {
     let { id: deviceId, name: deviceName, ip: deviceIp } = device
     if (!deviceId) {
       deviceId = random(6)
-      this.logger.log(`${userName}新设备:${deviceName}:${deviceIp}`)
+      this.logger.audit('用户新设备已创建', {
+        userId,
+        userName,
+        deviceId,
+        deviceName,
+        deviceIp,
+      })
     }
     else {
-      this.logger.log(`${userName}设备更新:${deviceName}:${deviceIp}`)
+      this.logger.audit('用户设备已刷新', {
+        userId,
+        userName,
+        deviceId,
+        deviceName,
+        deviceIp,
+      })
     }
 
     const jwtPayload: JWTPayload = {
@@ -134,7 +146,10 @@ export class AuthService {
       if (e.name === 'SequelizeUniqueConstraintError') {
         const error = e.errors[0]
         if (error) {
-          this.logger.error(error.message)
+          this.logger.debug('用户注册触发唯一约束', {
+            path: error.path,
+            message: error.message,
+          })
           switch (error.path) {
             case 'userName': {
               throw new Error('用户已存在')

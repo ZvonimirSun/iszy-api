@@ -57,7 +57,7 @@ export class IdiomService {
       }
     }
     catch (e) {
-      this.logger.error(e.message)
+      this.logger.error(e, '成语处理记录获取失败')
       throw new Error(e.message)
     }
   }

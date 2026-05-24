@@ -102,7 +102,6 @@ export class UserService {
     })
 
     if (!user) {
-      this.logger.error('用户不存在')
       return null
     }
     const userId = user.userId
@@ -217,11 +216,9 @@ export class UserService {
   async activateUser(userId: number, updateUserId?: number): Promise<RawUser> {
     const user = await this.userModel.findByPk(userId)
     if (!user) {
-      this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
     if (user.status === UserStatus.ENABLED) {
-      this.logger.error('用户已激活')
       throw new Error('用户已激活')
     }
     await user.update({
@@ -235,11 +232,9 @@ export class UserService {
   async disableUser(userId: number, updateUserId?: number) {
     const user = await this.userModel.findByPk(userId)
     if (!user) {
-      this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
     if (user.status === UserStatus.DISABLED) {
-      this.logger.error('用户已禁用')
       return this.findOne(userId)
     }
     await user.update({
@@ -257,7 +252,6 @@ export class UserService {
     const { userId, ...profile } = userProfile
     const user = await this.userModel.findByPk(userId)
     if (!user) {
-      this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
     await this.userStore.removeUser(user)
@@ -271,7 +265,6 @@ export class UserService {
   async removeUser(userId: number) {
     const user = await this.userModel.findByPk(userId)
     if (!user) {
-      this.logger.error('用户不存在')
       throw new Error('用户不存在')
     }
     await user.destroy()
@@ -596,7 +589,6 @@ export class UserService {
 
   async checkUser(user: RawUser, passwd: string = '', checkStatus = true): Promise<boolean> {
     if (user == null) {
-      this.logger.error('用户不存在')
       return false
     }
     let checkResult: boolean
@@ -607,18 +599,15 @@ export class UserService {
       checkResult = user.passwd === encryptPassword(passwd, user.passwdSalt)
     }
     if (!checkResult) {
-      this.logger.error('密码错误')
       return false
     }
     if (!checkStatus) {
       return true
     }
     if (user.status === UserStatus.DEACTIVATED) {
-      this.logger.error('用户待激活')
       throw new Error('用户待激活')
     }
     else if (user.status === UserStatus.DISABLED) {
-      this.logger.error('用户已禁用')
       throw new Error('用户已禁用')
     }
     return true

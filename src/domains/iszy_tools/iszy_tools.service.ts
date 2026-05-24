@@ -46,7 +46,7 @@ export class IszyToolsService {
           return result.get({ plain: true }).settings
       }
       catch (e) {
-        this.logger.error(e)
+        this.logger.error(e, '工具设置上传失败', { userId, key })
       }
     }
     return null
@@ -66,7 +66,7 @@ export class IszyToolsService {
         return null
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, '工具设置下载失败', { userId, key })
     }
     return null
   }

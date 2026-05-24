@@ -32,7 +32,10 @@ export class GisService {
       }
     }
     catch (e) {
-      this.logger.error(e.message)
+      this.logger.error(e, '点坐标转换失败', {
+        sourceSrs: transformPointDto.s_srs,
+        targetSrs: transformPointDto.t_srs,
+      })
       return null
     }
   }
@@ -54,7 +57,9 @@ export class GisService {
         return null
     }
     catch (e) {
-      this.logger.error(e.message)
+      this.logger.error(e, '几何对象转换失败', {
+        targetSrs: transformGeometryDto.t_srs,
+      })
       return null
     }
   }

@@ -24,7 +24,7 @@ export class JsoneditorService {
       })
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, 'JSON 编辑器列表获取失败', { userId })
       return []
     }
   }
@@ -37,7 +37,7 @@ export class JsoneditorService {
     json: any,
   ): Promise<boolean> {
     if (!(name != null || text != null || json != null)) {
-      this.logger.warn('未更新')
+      this.logger.debug('JSON 编辑器记录未更新：没有可更新内容', { userId, key })
       return false
     }
     try {
@@ -82,7 +82,7 @@ export class JsoneditorService {
       return true
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, 'JSON 编辑器记录保存失败', { userId, key })
       return false
     }
   }
@@ -100,7 +100,7 @@ export class JsoneditorService {
       return true
     }
     catch (e) {
-      this.logger.error(e)
+      this.logger.error(e, 'JSON 编辑器记录删除失败', { userId, key })
       return false
     }
   }
