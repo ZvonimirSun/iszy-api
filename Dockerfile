@@ -1,13 +1,16 @@
-FROM node:lts
+FROM node:24-bookworm-slim
 
-# Create app directory
 WORKDIR /usr/src/app
 
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--use-system-ca --use-env-proxy"
+
 COPY package.json ./
+# GitHub Actions builds the app and prunes dev dependencies before docker build.
 COPY node_modules ./node_modules
 COPY dist ./dist
 
-ENV NODE_OPTIONS="--use-system-ca --use-env-proxy"
+USER node
 
 EXPOSE 3000
 
