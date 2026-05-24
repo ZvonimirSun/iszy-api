@@ -6,6 +6,7 @@ import { ResultDto, RoleEnum, UserStatus } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import { CreateUserDto } from '~domains/user/dto/createUser.dto'
 import { PageableDto, Roles, toPublicUser } from '~shared'
+import { SetGroupIdsDto, SetRoleIdsDto } from './dto/rbac.dto'
 import { UserService } from './user.service'
 
 @ApiBearerAuth()
@@ -69,6 +70,35 @@ export class UserController {
     return {
       success: true,
       message: '删除成功',
+    }
+  }
+
+  // Role and group endpoints replace the user's complete RBAC relation set.
+  @Put(':id/roles')
+  async setUserRoles(
+    @Req() req: AuthRequest,
+    @Param('id') id: number,
+    @Body() setRoleIdsDto: SetRoleIdsDto,
+  ): Promise<ResultDto<PublicUser>> {
+    const updatedUser = await this.userService.setUserRoles(id, setRoleIdsDto.roleIds, req.user.userId)
+    return {
+      success: true,
+      data: toPublicUser(updatedUser),
+      message: '更新成功',
+    }
+  }
+
+  @Put(':id/groups')
+  async setUserGroups(
+    @Req() req: AuthRequest,
+    @Param('id') id: number,
+    @Body() setGroupIdsDto: SetGroupIdsDto,
+  ): Promise<ResultDto<PublicUser>> {
+    const updatedUser = await this.userService.setUserGroups(id, setGroupIdsDto.groupIds, req.user.userId)
+    return {
+      success: true,
+      data: toPublicUser(updatedUser),
+      message: '更新成功',
     }
   }
 

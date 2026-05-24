@@ -64,20 +64,35 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (!user)
       throw new ForbiddenException('未找到用户信息')
 
-    // 角色验证
     const requiredRoles = getMetaValue<string[]>(MetaKeysEnum.ROLES_KEY)
+    const requiredPrivileges = getMetaValue<string[]>(MetaKeysEnum.PRIVILEGES_KEY)
 
-    if (!requiredRoles || !requiredRoles.length)
+    if ((!requiredRoles || !requiredRoles.length) && (!requiredPrivileges || !requiredPrivileges.length))
       return true
 
+    // Load the expanded user profile only when route metadata requires RBAC checks.
     const rawUser = await this.userService.findOne(user.userId)
 
-    const haveRole = requiredRoles.some(role => rawUser.roles?.map((item: Role) => {
-      return item.name
-    }).includes(role))
+    if (requiredRoles?.length) {
+      // Multiple roles are OR semantics: any required role can pass.
+      const haveRole = requiredRoles.some(role => rawUser.roles?.map((item: Role) => {
+        return item.name
+      }).includes(role))
 
-    if (!haveRole) {
-      throw new ForbiddenException('权限不足')
+      if (!haveRole) {
+        throw new ForbiddenException('权限不足')
+      }
+    }
+
+    if (requiredPrivileges?.length) {
+      // Multiple privileges are OR semantics inside privilege checks.
+      const havePrivilege = requiredPrivileges.some(privilege => rawUser.privileges?.map((item) => {
+        return item.type
+      }).includes(privilege))
+
+      if (!havePrivilege) {
+        throw new ForbiddenException('权限不足')
+      }
     }
     return true
   }

@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import {
   PublicUser,
+  RawGroup,
+  RawPrivilege,
+  RawRole,
   RawUser,
   REGEX_EMAIL,
   REGEX_MOBILE_PHONE,
@@ -53,6 +56,8 @@ export class UserService {
       if (defaultRole) {
         await userEntity.$add('roles', defaultRole)
       }
+      // Keep the admin-created path consistent with self-created users below.
+      return userEntity
     })
     return userItem.get({
       plain: true,
@@ -104,6 +109,7 @@ export class UserService {
 
     const directRoleIds = user.roles.map(r => r.id)
 
+    // Users inherit roles from their direct groups and every parent group.
     const allGroupIds = await this.getGroupIdsWithRecursiveParent(userId)
     const groupRoleIds = allGroupIds.length
       ? (await this.roleModel.findAll({
@@ -118,6 +124,7 @@ export class UserService {
 
     const allPermissionRoleIds = Array.from(new Set([...directRoleIds, ...groupRoleIds]))
 
+    // Privileges are derived from the effective role set, not stored on users.
     const privileges = allPermissionRoleIds.length
       ? await this.privilegeModel.findAll({
           include: [{
@@ -270,6 +277,288 @@ export class UserService {
     await user.destroy()
     await this.userStore.removeUser(user)
     return true
+  }
+
+  async findAllRoles(): Promise<RawRole[]> {
+    return this.roleModel.findAll({
+      include: [{ model: Privilege, through: { attributes: [] } }],
+      order: [['id', 'ASC']],
+    })
+  }
+
+  async findRoleById(id: number): Promise<RawRole> {
+    const role = await this.roleModel.findByPk(id, {
+      include: [{ model: Privilege, through: { attributes: [] } }],
+    })
+    if (!role)
+      throw new Error('角色不存在')
+    return role.get({ plain: true })
+  }
+
+  async createRole(roleDto: RawRole): Promise<RawRole> {
+    const role = await this.roleModel.create(roleDto)
+    return this.findRoleById(role.id)
+  }
+
+  async updateRole(id: number, roleDto: Partial<RawRole>): Promise<RawRole> {
+    const role = await this.roleModel.findByPk(id)
+    if (!role)
+      throw new Error('角色不存在')
+    await role.update(roleDto)
+    await this.removeUsersCacheByRoleIds([id])
+    return this.findRoleById(id)
+  }
+
+  async removeRole(id: number): Promise<boolean> {
+    const role = await this.roleModel.findByPk(id)
+    if (!role)
+      throw new Error('角色不存在')
+    await this.removeUsersCacheByRoleIds([id])
+    // Clear join rows first so role deletion does not depend on DB cascade config.
+    await role.$set('users', [])
+    await role.$set('groups', [])
+    await role.$set('privileges', [])
+    await role.destroy()
+    return true
+  }
+
+  async setRolePrivileges(roleId: number, privilegeIds: number[]): Promise<RawRole> {
+    const role = await this.roleModel.findByPk(roleId)
+    if (!role)
+      throw new Error('角色不存在')
+    const privileges = await this.getPrivilegesByIds(privilegeIds)
+    await role.$set('privileges', privileges)
+    await this.removeUsersCacheByRoleIds([roleId])
+    return this.findRoleById(roleId)
+  }
+
+  async findAllGroups(): Promise<RawGroup[]> {
+    return this.groupModel.findAll({
+      include: [{ model: Role, through: { attributes: [] } }],
+      order: [['id', 'ASC']],
+    })
+  }
+
+  async findGroupById(id: number): Promise<RawGroup> {
+    const group = await this.groupModel.findByPk(id, {
+      include: [{ model: Role, through: { attributes: [] } }],
+    })
+    if (!group)
+      throw new Error('用户组不存在')
+    return group.get({ plain: true })
+  }
+
+  async createGroup(groupDto: RawGroup): Promise<RawGroup> {
+    if (groupDto.parentId)
+      await this.assertGroupExists(groupDto.parentId)
+    const group = await this.groupModel.create(groupDto)
+    return this.findGroupById(group.id)
+  }
+
+  async updateGroup(id: number, groupDto: Partial<RawGroup>): Promise<RawGroup> {
+    const group = await this.groupModel.findByPk(id)
+    if (!group)
+      throw new Error('用户组不存在')
+    if (groupDto.parentId === id)
+      throw new Error('用户组父级不能是自身')
+    if (groupDto.parentId) {
+      await this.assertGroupExists(groupDto.parentId)
+      // Prevent loops in the group tree before moving this node.
+      const descendantGroupIds = await this.getDescendantGroupIds([id])
+      if (descendantGroupIds.includes(groupDto.parentId))
+        throw new Error('用户组父级不能是自身的子级')
+    }
+    await group.update(groupDto)
+    await this.removeUsersCacheByGroupIds([id])
+    return this.findGroupById(id)
+  }
+
+  async removeGroup(id: number): Promise<boolean> {
+    const group = await this.groupModel.findByPk(id)
+    if (!group)
+      throw new Error('用户组不存在')
+    const childCount = await this.groupModel.count({ where: { parentId: id } })
+    if (childCount)
+      throw new Error('请先删除子用户组')
+    await this.removeUsersCacheByGroupIds([id])
+    // Clear join rows first so group deletion does not depend on DB cascade config.
+    await group.$set('users', [])
+    await group.$set('roles', [])
+    await group.destroy()
+    return true
+  }
+
+  async setGroupRoles(groupId: number, roleIds: number[]): Promise<RawGroup> {
+    const group = await this.groupModel.findByPk(groupId)
+    if (!group)
+      throw new Error('用户组不存在')
+    const roles = await this.getRolesByIds(roleIds)
+    await group.$set('roles', roles)
+    await this.removeUsersCacheByGroupIds([groupId])
+    return this.findGroupById(groupId)
+  }
+
+  async findAllPrivileges(): Promise<RawPrivilege[]> {
+    return this.privilegeModel.findAll({
+      order: [['id', 'ASC']],
+    })
+  }
+
+  async findPrivilegeById(id: number): Promise<RawPrivilege> {
+    const privilege = await this.privilegeModel.findByPk(id)
+    if (!privilege)
+      throw new Error('权限不存在')
+    return privilege.get({ plain: true })
+  }
+
+  async createPrivilege(privilegeDto: RawPrivilege): Promise<RawPrivilege> {
+    const privilege = await this.privilegeModel.create(privilegeDto)
+    return privilege.get({ plain: true })
+  }
+
+  async updatePrivilege(id: number, privilegeDto: Partial<RawPrivilege>): Promise<RawPrivilege> {
+    const privilege = await this.privilegeModel.findByPk(id)
+    if (!privilege)
+      throw new Error('权限不存在')
+    await privilege.update(privilegeDto)
+    const roles = await this.roleModel.findAll({
+      attributes: ['id'],
+      include: [{ model: Privilege, where: { id }, through: { attributes: [] } }],
+    })
+    await this.removeUsersCacheByRoleIds(roles.map(role => role.id))
+    return this.findPrivilegeById(id)
+  }
+
+  async removePrivilege(id: number): Promise<boolean> {
+    const privilege = await this.privilegeModel.findByPk(id)
+    if (!privilege)
+      throw new Error('权限不存在')
+    // Capture affected roles before breaking the relation so their users can be invalidated.
+    const roles = await this.roleModel.findAll({
+      attributes: ['id'],
+      include: [{ model: Privilege, where: { id }, through: { attributes: [] } }],
+    })
+    await this.removeUsersCacheByRoleIds(roles.map(role => role.id))
+    await privilege.$set('roles', [])
+    await privilege.destroy()
+    return true
+  }
+
+  async setUserRoles(userId: number, roleIds: number[], updateUserId?: number): Promise<RawUser> {
+    const user = await this.userModel.findByPk(userId)
+    if (!user)
+      throw new Error('用户不存在')
+    const roles = await this.getRolesByIds(roleIds)
+    // These assignment APIs intentionally replace the whole relation set.
+    await user.$set('roles', roles)
+    await user.update({ updateBy: updateUserId ?? userId })
+    await this.userStore.removeUser(user)
+    return this.findOne(userId)
+  }
+
+  async setUserGroups(userId: number, groupIds: number[], updateUserId?: number): Promise<RawUser> {
+    const user = await this.userModel.findByPk(userId)
+    if (!user)
+      throw new Error('用户不存在')
+    const groups = await this.getGroupsByIds(groupIds)
+    // These assignment APIs intentionally replace the whole relation set.
+    await user.$set('groups', groups)
+    await user.update({ updateBy: updateUserId ?? userId })
+    await this.userStore.removeUser(user)
+    return this.findOne(userId)
+  }
+
+  private async getRolesByIds(roleIds: number[]): Promise<Role[]> {
+    if (!roleIds.length)
+      return []
+    const roles = await this.roleModel.findAll({ where: { id: roleIds } })
+    if (roles.length !== new Set(roleIds).size)
+      throw new Error('角色不存在')
+    return roles
+  }
+
+  private async getGroupsByIds(groupIds: number[]): Promise<Group[]> {
+    if (!groupIds.length)
+      return []
+    const groups = await this.groupModel.findAll({ where: { id: groupIds } })
+    if (groups.length !== new Set(groupIds).size)
+      throw new Error('用户组不存在')
+    return groups
+  }
+
+  private async getPrivilegesByIds(privilegeIds: number[]): Promise<Privilege[]> {
+    if (!privilegeIds.length)
+      return []
+    const privileges = await this.privilegeModel.findAll({ where: { id: privilegeIds } })
+    if (privileges.length !== new Set(privilegeIds).size)
+      throw new Error('权限不存在')
+    return privileges
+  }
+
+  private async assertGroupExists(groupId: number): Promise<void> {
+    const group = await this.groupModel.findByPk(groupId)
+    if (!group)
+      throw new Error('父级用户组不存在')
+  }
+
+  private async removeUsersCacheByRoleIds(roleIds: number[]): Promise<void> {
+    if (!roleIds.length)
+      return
+    // Role changes affect directly assigned users and users in groups using the roles.
+    const directUsers = await this.userModel.findAll({
+      include: [{ model: Role, where: { id: roleIds }, through: { attributes: [] } }],
+    })
+    const groups = await this.groupModel.findAll({
+      attributes: ['id'],
+      include: [{ model: Role, where: { id: roleIds }, through: { attributes: [] } }],
+    })
+    const groupIds = groups.map(group => group.id)
+    // Child groups inherit parent group roles, so their users need invalidation too.
+    const permissionGroupIds = groupIds.length
+      ? Array.from(new Set([...groupIds, ...await this.getDescendantGroupIds(groupIds)]))
+      : []
+    const groupUsers = groups.length
+      ? await this.userModel.findAll({
+          include: [{ model: Group, where: { id: permissionGroupIds }, through: { attributes: [] } }],
+        })
+      : []
+    await this.removeUsersCache([...directUsers, ...groupUsers])
+  }
+
+  private async removeUsersCacheByGroupIds(groupIds: number[]): Promise<void> {
+    if (!groupIds.length)
+      return
+    // Group role changes propagate down the tree through inherited permissions.
+    const permissionGroupIds = Array.from(new Set([...groupIds, ...await this.getDescendantGroupIds(groupIds)]))
+    const users = await this.userModel.findAll({
+      include: [{ model: Group, where: { id: permissionGroupIds }, through: { attributes: [] } }],
+    })
+    await this.removeUsersCache(users)
+  }
+
+  private async getDescendantGroupIds(groupIds: number[]): Promise<number[]> {
+    const result = new Set<number>()
+    const stack = [...groupIds]
+    // Iterative traversal avoids recursion depth surprises in large group trees.
+    while (stack.length) {
+      const parentId = stack.pop()
+      const children = await this.groupModel.findAll({
+        attributes: ['id'],
+        where: { parentId },
+      })
+      for (const child of children) {
+        if (result.has(child.id))
+          continue
+        result.add(child.id)
+        stack.push(child.id)
+      }
+    }
+    return Array.from(result)
+  }
+
+  private async removeUsersCache(users: User[]): Promise<void> {
+    const uniqueUsers = Array.from(new Map(users.map(user => [user.userId, user])).values())
+    await Promise.all(uniqueUsers.map(user => this.userStore.removeUser(user)))
   }
 
   normalizeUserInfo(userProfile: RegisterUser | UpdateUser) {

@@ -1,7 +1,10 @@
 import { Global, Module } from '@nestjs/common'
 import { SequelizeModule } from '@nestjs/sequelize'
 import { Group, Privilege, Role, RoleGroup, RolePrivilege, User, UserGroup, UserRole } from './entities'
+import { GroupController } from './group.controller'
 import { MeController } from './me.controller'
+import { PrivilegeController } from './privilege.controller'
+import { RoleController } from './role.controller'
 import { UserStore } from './store/user-store'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
@@ -20,7 +23,7 @@ import { UserService } from './user.service'
       RolePrivilege,
     ]),
   ],
-  controllers: [MeController, UserController],
+  controllers: [MeController, UserController, RoleController, GroupController, PrivilegeController],
   providers: [UserService, UserStore],
   exports: [UserService],
 })
