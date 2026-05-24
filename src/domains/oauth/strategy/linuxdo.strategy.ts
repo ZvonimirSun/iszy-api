@@ -26,12 +26,12 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
   }
 
   async userProfile(accessToken: string, done: (err: Error | null, profile?: any) => void) {
-    this._oauth2.get(this._userProfileURL, accessToken, (err, body: string, res) => {
+    this._oauth2.get(this._userProfileURL, accessToken, (err, body) => {
       if (err) {
         return done(new InternalOAuthError('Failed to fetch user profile', err))
       }
       try {
-        const profile = JSON.parse(body)
+        const profile = JSON.parse(body.toString())
         profile.id = profile.id.toString()
         done(null, profile)
       }

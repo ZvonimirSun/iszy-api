@@ -1,5 +1,4 @@
-import { PublicUser } from '@zvonimirsun/iszy-common'
-import { OptionalExcept } from '@zvonimirsun/iszy-common/dist/types/common'
+import { OptionalExcept, PublicUser } from '@zvonimirsun/iszy-common'
 
 const title = 'GitHub'
 

@@ -4,7 +4,6 @@ import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
 import { CodeStore } from '~domains/oauth/store/code-store'
-import { Role } from '~domains/user/entities'
 import { UserService } from '~domains/user/user.service'
 import { AuthRequest, MetaKeysEnum, toMinimalUser } from '~/shared'
 
@@ -75,7 +74,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     if (requiredRoles?.length) {
       // Multiple roles are OR semantics: any required role can pass.
-      const haveRole = requiredRoles.some(role => rawUser.roles?.map((item: Role) => {
+      const haveRole = requiredRoles.some(role => rawUser.roles?.map((item) => {
         return item.name
       }).includes(role))
 

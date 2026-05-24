@@ -4,6 +4,7 @@
     "target": "esnext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": "./",
     "module": "commonjs",
     "paths": {
@@ -12,6 +13,9 @@
       "~shared": ["src/shared"]
     },
     "resolveJsonModule": true,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "useUnknownInCatchVariables": false,
     "declaration": true,
     "outDir": "./dist",
     "removeComments": true,
