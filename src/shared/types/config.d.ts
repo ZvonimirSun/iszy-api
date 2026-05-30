@@ -59,6 +59,15 @@ export interface OAuthProviderConfig {
 }
 
 /**
+ * Local login fail2ban configuration
+ */
+export interface Fail2banConfig {
+  maxAttempts: number
+  window: StringValue
+  banTime: StringValue
+}
+
+/**
  * Authentication configuration interface
  *
  * @example this.configService.get<AuthConfig>('auth')
@@ -68,6 +77,7 @@ export interface AuthConfig {
   jwt: JwtConfig
   github: OAuthProviderConfig
   linuxdo: OAuthProviderConfig
+  fail2ban: Fail2banConfig
 }
 
 /**

@@ -46,6 +46,11 @@ export const DefaultConfig: AppConfiguration = {
       clientId: '',
       clientSecret: '',
     },
+    fail2ban: {
+      maxAttempts: 5,
+      window: '15m',
+      banTime: '30m',
+    },
   },
   behindProxy: false,
   trustProxy: undefined,
