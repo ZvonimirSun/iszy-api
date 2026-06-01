@@ -28,7 +28,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     try {
       const user = await this.authService.validateUser(userName, password)
-      await this.loginAttemptStore.reset(userName, ip)
+      await this.loginAttemptStore.reset(userName)
       req.device = generateDevice(req)
       return user
     }

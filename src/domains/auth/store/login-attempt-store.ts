@@ -24,6 +24,15 @@ interface LoginBanInfo {
   bannedUntil: string
 }
 
+type LoginAttemptScope = 'account' | 'ip'
+type LoginAttemptRecord = LoginAttemptInfo & { dimension: LoginAttemptDimension }
+
+interface LoginAttemptDimension {
+  scope: LoginAttemptScope
+  attemptKey: string
+  banKey: string
+}
+
 @Injectable()
 export class LoginAttemptStore {
   constructor(
@@ -42,23 +51,59 @@ export class LoginAttemptStore {
   private readonly banMs: number
 
   async assertAllowed(userName: string, ip: string) {
-    const bannedUntil = await this.cacheManager.get<number>(this.getBanKey(userName, ip))
-    if (!bannedUntil)
-      return
+    for (const dimension of this.getDimensions(userName, ip)) {
+      const bannedUntil = await this.cacheManager.get<number>(dimension.banKey)
+      if (!bannedUntil)
+        continue
 
-    const remainingMs = bannedUntil - Date.now()
-    if (remainingMs <= 0) {
-      await this.cacheManager.del(this.getBanKey(userName, ip))
-      return
+      const remainingMs = bannedUntil - Date.now()
+      if (remainingMs <= 0) {
+        await this.cacheManager.del(dimension.banKey)
+        continue
+      }
+
+      throw this.createBannedException(remainingMs, bannedUntil)
     }
-
-    throw this.createBannedException(remainingMs, bannedUntil)
   }
 
   async recordFailure(userName: string, ip: string): Promise<LoginAttemptInfo> {
-    const key = this.getAttemptKey(userName, ip)
+    const dimensions = this.getDimensions(userName, ip)
+    const attemptInfos = await Promise.all(
+      dimensions.map(dimension => this.recordDimensionFailure(userName, ip, dimension)),
+    )
+
+    const bannedAttemptInfos = attemptInfos.filter(info => info.failedCount >= this.maxAttempts)
+    if (bannedAttemptInfos.length) {
+      const bannedUntil = Date.now() + this.banMs
+      for (const attemptInfo of bannedAttemptInfos) {
+        const dimension = attemptInfo.dimension
+        await this.cacheManager.del(dimension.attemptKey)
+        await this.cacheManager.set(dimension.banKey, bannedUntil, this.banMs)
+        this.logger.warn('登录失败次数过多，已临时封禁', {
+          userName,
+          ip,
+          scope: dimension.scope,
+          maxAttempts: this.maxAttempts,
+          banMinutes: Math.ceil(this.banMs / 60000),
+        })
+      }
+      throw this.createBannedException(this.banMs, bannedUntil)
+    }
+
+    return this.toAttemptInfo(attemptInfos[0])
+  }
+
+  async reset(userName: string) {
+    await this.cacheManager.del(this.getAccountDimension(userName).attemptKey)
+  }
+
+  private async recordDimensionFailure(
+    userName: string,
+    ip: string,
+    dimension: LoginAttemptDimension,
+  ): Promise<LoginAttemptRecord> {
     const now = Date.now()
-    const state = await this.cacheManager.get<LoginAttemptState>(key)
+    const state = await this.cacheManager.get<LoginAttemptState>(dimension.attemptKey)
     const nextState: LoginAttemptState = state && now - state.firstFailedAt < this.windowMs
       ? {
           count: state.count + 1,
@@ -69,28 +114,17 @@ export class LoginAttemptStore {
           firstFailedAt: now,
         }
 
-    if (nextState.count >= this.maxAttempts) {
-      await this.cacheManager.del(key)
-      const bannedUntil = now + this.banMs
-      await this.cacheManager.set(this.getBanKey(userName, ip), bannedUntil, this.banMs)
-      this.logger.warn('登录失败次数过多，已临时封禁', {
-        userName,
-        ip,
-        maxAttempts: this.maxAttempts,
-        banMinutes: Math.ceil(this.banMs / 60000),
-      })
-      throw this.createBannedException(this.banMs, bannedUntil)
-    }
-
-    await this.cacheManager.set(key, nextState, this.windowMs)
+    await this.cacheManager.set(dimension.attemptKey, nextState, this.windowMs)
     this.logger.debug('登录失败已记录', {
       userName,
       ip,
+      scope: dimension.scope,
       failedCount: nextState.count,
       maxAttempts: this.maxAttempts,
     })
     return {
       code: 'LOGIN_FAILED',
+      dimension,
       failedCount: nextState.count,
       remainingAttempts: this.maxAttempts - nextState.count,
       maxAttempts: this.maxAttempts,
@@ -98,18 +132,33 @@ export class LoginAttemptStore {
     }
   }
 
-  async reset(userName: string, ip: string) {
-    await this.cacheManager.del(this.getAttemptKey(userName, ip))
-    await this.cacheManager.del(this.getBanKey(userName, ip))
+  private getDimensions(userName: string, ip: string): LoginAttemptDimension[] {
+    return [
+      this.getAccountDimension(userName),
+      {
+        scope: 'ip',
+        attemptKey: `fail2ban:login:attempt:ip:${ip}`,
+        banKey: `fail2ban:login:ban:ip:${ip}`,
+      },
+    ]
   }
 
-  private getAttemptKey(userName: string, ip: string) {
-    // 按用户名和 IP 组合计数，避免单一来源的失败尝试影响用户在其他网络登录。
-    return `fail2ban:login:attempt:${userName}:${ip}`
+  private getAccountDimension(userName: string): LoginAttemptDimension {
+    return {
+      scope: 'account',
+      attemptKey: `fail2ban:login:attempt:account:${userName}`,
+      banKey: `fail2ban:login:ban:account:${userName}`,
+    }
   }
 
-  private getBanKey(userName: string, ip: string) {
-    return `fail2ban:login:ban:${userName}:${ip}`
+  private toAttemptInfo(record: LoginAttemptRecord): LoginAttemptInfo {
+    return {
+      code: record.code,
+      failedCount: record.failedCount,
+      remainingAttempts: record.remainingAttempts,
+      maxAttempts: record.maxAttempts,
+      windowSeconds: record.windowSeconds,
+    }
   }
 
   private createBannedException(remainingMs: number, bannedUntil: number) {
