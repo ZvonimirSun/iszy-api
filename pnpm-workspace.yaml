@@ -21,6 +21,8 @@ overrides:
   chokidar: ^5.0.0
   eslint: ^10.4.1
   jsonc-eslint-parser: ^3.1.0
+  semver: ^7.8.1
+  undici-types: ^7.24.6
 
 allowBuilds:
   '@alicloud/openapi-core': false
