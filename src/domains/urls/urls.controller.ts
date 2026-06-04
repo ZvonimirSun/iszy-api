@@ -123,6 +123,7 @@ export class UrlsController {
       req.user.userId,
       paginationQueryDto.pageIndex,
       paginationQueryDto.pageSize,
+      paginationQueryDto,
     )
     if (data) {
       return {

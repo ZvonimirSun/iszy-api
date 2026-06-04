@@ -1,13 +1,16 @@
 import type { Cache } from 'cache-manager'
 import type { Request } from 'express'
+import type { PaginationQueryDto } from './dto/pagination_query.dto'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { load } from 'cheerio'
 import geoip from 'geoip-lite'
 import { $fetch } from 'ofetch'
+import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { Logger, PaginationDto } from '~shared'
+import { URL_ORDER_FIELDS } from './dto/pagination_query.dto'
 import { LogModel } from './entities/log.model'
 import { OptionsModel } from './entities/options.model'
 import { UrlModel } from './entities/url.model'
@@ -201,16 +204,19 @@ export class UrlsService {
     userId: number,
     pageIndex = 0,
     pageSize = 10,
+    query: PaginationQueryDto = {},
   ): Promise<PaginationDto<UrlModel>> {
     try {
+      const orderBy = URL_ORDER_FIELDS.includes(query.orderBy) ? query.orderBy : 'createdAt'
+      const orderDirection = query.orderDirection === 'asc' ? 'asc' : 'desc'
+      const where = this._buildUrlListWhere(userId, query)
+
       const { rows, count } = await this.urlModel.findAndCountAll({
-        order: [['createdAt', 'desc']],
+        order: [[orderBy, orderDirection]],
         limit: pageSize,
         offset: pageIndex * pageSize,
         raw: true,
-        where: {
-          userId,
-        },
+        where,
       })
       return {
         count,
@@ -220,9 +226,49 @@ export class UrlsService {
       }
     }
     catch (e) {
-      this.logger.error(e, '短链列表获取失败', { userId, pageIndex, pageSize })
+      this.logger.error(e, '短链列表获取失败', { userId, pageIndex, pageSize, query })
     }
     return null
+  }
+
+  private _buildUrlListWhere(userId: number, query: PaginationQueryDto) {
+    const where: Record<string | symbol, unknown> = {
+      userId,
+    }
+
+    const search = query.search?.trim()
+    if (search) {
+      const searchFields = query.searchField && query.searchField !== 'all'
+        ? [query.searchField]
+        : ['keyword', 'url', 'title', 'ip']
+      where[Op.or] = searchFields.map(field => ({
+        [field]: {
+          [Op.iLike]: `%${search}%`,
+        },
+      }))
+    }
+
+    if (query.clicks != null && query.clicksOperator) {
+      const operatorMap = {
+        more: Op.gt,
+        less: Op.lt,
+        equal: Op.eq,
+      } as const
+      where.clicks = {
+        [operatorMap[query.clicksOperator]]: query.clicks,
+      }
+    }
+
+    if (query.createdAt && query.createdOperator) {
+      const date = new Date(query.createdAt)
+      if (!Number.isNaN(date.getTime())) {
+        where.createdAt = {
+          [query.createdOperator === 'before' ? Op.lt : Op.gt]: date,
+        }
+      }
+    }
+
+    return where
   }
 
   private async _getNextKeyword(): Promise<string> {
