@@ -32,6 +32,12 @@ export class Role extends Model<RawRole> implements RawRole {
   @Column
   alias: string
 
+  @Column
+  isBuiltIn?: boolean
+
+  @Column
+  isDefault?: boolean
+
   @BelongsToMany(() => User, () => UserRole)
   users: User[]
 

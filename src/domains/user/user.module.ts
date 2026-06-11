@@ -6,6 +6,7 @@ import { MeController } from './me.controller'
 import { PrivilegeController } from './privilege.controller'
 import { RoleController } from './role.controller'
 import { UserStore } from './store/user-store'
+import { UserInitializerService } from './user-initializer.service'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
 
@@ -24,7 +25,7 @@ import { UserService } from './user.service'
     ]),
   ],
   controllers: [MeController, UserController, RoleController, GroupController, PrivilegeController],
-  providers: [UserService, UserStore],
+  providers: [UserService, UserStore, UserInitializerService],
   exports: [UserService],
 })
 export class UserModule {}

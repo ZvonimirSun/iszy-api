@@ -58,8 +58,8 @@ importers:
         specifier: ^11.4.4
         version: 11.4.4(@nestjs/common@11.1.24(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.24)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)
       '@zvonimirsun/iszy-common':
-        specifier: ^1.1.5
-        version: 1.1.5
+        specifier: ^1.2.0
+        version: 1.2.0
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -1885,8 +1885,8 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  '@zvonimirsun/iszy-common@1.1.5':
-    resolution: {integrity: sha512-2fGkoxKgUPvkfhloUVAOpaXBiUrNg8uwqry9dYw7NmkLGSzMkoYJ6B126rM2zo0M9tuEjtSQwIEZsgAvrE53vA==}
+  '@zvonimirsun/iszy-common@1.2.0':
+    resolution: {integrity: sha512-Vr/oelHaLDA+iXaxP+pAFH7CZWlvYLuU0zgHcEiA5+6c7wf7eVvKC+rchPo8crUvbIKzQZnR1zx1Au2BWXtmxQ==}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -7075,7 +7075,7 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@zvonimirsun/iszy-common@1.1.5':
+  '@zvonimirsun/iszy-common@1.2.0':
     dependencies:
       uuid: 14.0.0
 

@@ -1,3 +1,4 @@
+import type { Transaction } from 'sequelize'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import {
@@ -47,16 +48,15 @@ export class UserService {
       }
       else {
         userEntity = await this.userModel.create(user, transactionHost)
-        return await userEntity.update({
-          createBy: userEntity.id,
-          updateBy: userEntity.id,
+        userEntity = await userEntity.update({
+          createBy: userEntity.userId,
+          updateBy: userEntity.userId,
         }, transactionHost)
       }
-      const defaultRole = await this.roleModel.findByPk(0)
-      if (defaultRole) {
-        await userEntity.$add('roles', defaultRole)
-      }
-      // Keep the admin-created path consistent with self-created users below.
+      const defaultRoles = await this.getDefaultRoles(transactionHost)
+      if (defaultRoles.length)
+        await userEntity.$add('roles', defaultRoles, transactionHost)
+      // 新用户必须绑定默认角色，保证“已有账号即注册用户”的系统不变量。
       return userEntity
     })
     return userItem.get({
@@ -267,8 +267,15 @@ export class UserService {
     if (!user) {
       throw new Error('用户不存在')
     }
-    await user.destroy()
+    await this.sequelize.transaction(async (t) => {
+      const transactionHost = { transaction: t }
+      // 删除用户时允许清理默认角色关联；默认角色保护只约束用户角色编辑接口。
+      await user.$set('roles', [], transactionHost)
+      await user.$set('groups', [], transactionHost)
+      await user.destroy(transactionHost)
+    })
     await this.userStore.removeUser(user)
+    await this.deviceStore.removeDevice(userId, { all: true })
     return true
   }
 
@@ -289,6 +296,7 @@ export class UserService {
   }
 
   async createRole(roleDto: RawRole): Promise<RawRole> {
+    this.assertSystemRoleFieldsNotSet(roleDto)
     const role = await this.roleModel.create(roleDto)
     return this.findRoleById(role.id)
   }
@@ -297,6 +305,9 @@ export class UserService {
     const role = await this.roleModel.findByPk(id)
     if (!role)
       throw new Error('角色不存在')
+    this.assertSystemRoleFieldsNotSet(roleDto)
+    if (role.isBuiltIn && roleDto.name && roleDto.name !== role.name)
+      throw new Error('内置角色不允许修改角色名')
     await role.update(roleDto)
     await this.removeUsersCacheByRoleIds([id])
     return this.findRoleById(id)
@@ -306,6 +317,8 @@ export class UserService {
     const role = await this.roleModel.findByPk(id)
     if (!role)
       throw new Error('角色不存在')
+    if (role.isBuiltIn)
+      throw new Error('内置角色不允许删除')
     await this.removeUsersCacheByRoleIds([id])
     // Clear join rows first so role deletion does not depend on DB cascade config.
     await role.$set('users', [])
@@ -442,6 +455,7 @@ export class UserService {
     if (!user)
       throw new Error('用户不存在')
     const roles = await this.getRolesByIds(roleIds)
+    await this.assertDefaultRolesKept(roleIds)
     // These assignment APIs intentionally replace the whole relation set.
     await user.$set('roles', roles)
     await user.update({ updateBy: updateUserId ?? userId })
@@ -468,6 +482,27 @@ export class UserService {
     if (roles.length !== new Set(roleIds).size)
       throw new Error('角色不存在')
     return roles
+  }
+
+  private assertSystemRoleFieldsNotSet(roleDto: Partial<RawRole>): void {
+    // 内置角色和默认角色只能由初始化逻辑维护，普通角色接口不允许写入这些系统标记。
+    if ('isBuiltIn' in roleDto || 'isDefault' in roleDto)
+      throw new Error('内置角色和默认角色标记不允许手动设置')
+  }
+
+  private async getDefaultRoles(options?: { transaction?: Transaction }): Promise<Role[]> {
+    return this.roleModel.findAll({
+      where: { isDefault: true },
+      transaction: options?.transaction,
+    })
+  }
+
+  private async assertDefaultRolesKept(roleIds: number[]): Promise<void> {
+    const defaultRoles = await this.getDefaultRoles()
+    const roleIdSet = new Set(roleIds)
+    const removedDefaultRole = defaultRoles.find(role => !roleIdSet.has(role.id))
+    if (removedDefaultRole)
+      throw new Error(`默认角色 ${removedDefaultRole.name} 不允许取消绑定`)
   }
 
   private async getGroupsByIds(groupIds: number[]): Promise<Group[]> {
