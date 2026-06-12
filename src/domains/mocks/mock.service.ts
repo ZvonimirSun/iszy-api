@@ -86,7 +86,10 @@ export class MockService {
   }
 
   async getMockPrjs(userId: number): Promise<MockPrj[]> {
-    return this.mockPrjModel.findAll({ where: { userId } })
+    return this.mockPrjModel.findAll({
+      where: { userId },
+      order: [['updatedAt', 'DESC']],
+    })
   }
 
   async createMockData(
@@ -196,6 +199,7 @@ export class MockService {
   async getMockDatas(userId: number, mockPrjId: string): Promise<MockData[]> {
     return this.mockDataModel.findAll({
       where: { projectId: mockPrjId, userId },
+      order: [['updatedAt', 'DESC']],
     })
   }
 }
