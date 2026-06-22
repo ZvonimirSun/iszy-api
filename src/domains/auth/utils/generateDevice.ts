@@ -27,20 +27,24 @@ export function generateDevice(req: AuthRequest): Device {
   }
 }
 
-function maskIp(address: string) {
-  if (ip.isV4Format(address)) {
-    if (ip.isV4Format(address)) {
-      // IPv4 /24
-      const network = ip.cidrSubnet(`${address}/24`).networkAddress
-      return `${network}/24`
-    }
-    else if (ip.isV6Format(address)) {
-      // IPv6 /64
-      const network = ip.cidrSubnet(`${address}/64`).networkAddress
-      return `${network}/64`
-    }
-    else {
-      throw new Error('Invalid IP address')
-    }
-  }
+export function maskIp(address?: string) {
+  const normalizedAddress = address?.trim()
+  if (!normalizedAddress)
+    return '未知'
+
+  if (ip.isV4Format(normalizedAddress))
+    return maskIpv4(normalizedAddress)
+
+  if (ip.isV6Format(normalizedAddress))
+    return maskIpv6(normalizedAddress)
+
+  return '未知'
+}
+
+function maskIpv4(address: string) {
+  return `${ip.mask(address, ip.fromPrefixLen(24))}/24`
+}
+
+function maskIpv6(address: string) {
+  return `${ip.mask(address, ip.fromPrefixLen(64, 'ipv6'))}/64`
 }
