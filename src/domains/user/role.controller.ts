@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RoleEnum } from '@zvonimirsun/iszy-common'
 import { Roles } from '~shared'
-import { CreateRoleDto, SetPrivilegeIdsDto, UpdateRoleDto } from './dto/rbac.dto'
+import { CreateRoleDto, SetGroupIdsDto, SetPrivilegeIdsDto, SetUserIdsDto, UpdateRoleDto } from './dto/rbac.dto'
 import { UserService } from './user.service'
 
 @ApiBearerAuth()
@@ -58,6 +58,30 @@ export class RoleController {
     return {
       success: true,
       data: await this.userService.setRolePrivileges(id, setPrivilegeIdsDto.privilegeIds),
+      message: '更新成功',
+    }
+  }
+
+  @Put(':id/users')
+  async setRoleUsers(
+    @Param('id') id: number,
+    @Body() setUserIdsDto: SetUserIdsDto,
+  ): Promise<ResultDto<RawRole>> {
+    return {
+      success: true,
+      data: await this.userService.setRoleUsers(id, setUserIdsDto.userIds),
+      message: '更新成功',
+    }
+  }
+
+  @Put(':id/groups')
+  async setRoleGroups(
+    @Param('id') id: number,
+    @Body() setGroupIdsDto: SetGroupIdsDto,
+  ): Promise<ResultDto<RawRole>> {
+    return {
+      success: true,
+      data: await this.userService.setRoleGroups(id, setGroupIdsDto.groupIds),
       message: '更新成功',
     }
   }

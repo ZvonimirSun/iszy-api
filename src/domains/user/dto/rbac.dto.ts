@@ -56,6 +56,13 @@ export class SetRoleIdsDto {
   roleIds: number[]
 }
 
+export class SetUserIdsDto {
+  @ApiProperty({ type: [Number] })
+  @IsArray()
+  @IsInt({ each: true })
+  userIds: number[]
+}
+
 export class SetGroupIdsDto {
   @ApiProperty({ type: [Number] })
   @IsArray()

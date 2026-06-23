@@ -338,6 +338,31 @@ export class UserService {
     return this.findRoleById(roleId)
   }
 
+  async setRoleUsers(roleId: number, userIds: number[]): Promise<RawRole> {
+    const role = await this.roleModel.findByPk(roleId)
+    if (!role)
+      throw new Error('角色不存在')
+    this.assertDefaultRoleNotModified(role)
+    const users = await this.getUsersByIds(userIds)
+    const previousUsers = await this.userModel.findAll({
+      include: [{ model: Role, where: { id: roleId }, through: { attributes: [] } }],
+    })
+    await role.$set('users', users)
+    await this.removeUsersCache([...previousUsers, ...users])
+    return this.findRoleById(roleId)
+  }
+
+  async setRoleGroups(roleId: number, groupIds: number[]): Promise<RawRole> {
+    const role = await this.roleModel.findByPk(roleId)
+    if (!role)
+      throw new Error('角色不存在')
+    const groups = await this.getGroupsByIds(groupIds)
+    await this.removeUsersCacheByRoleIds([roleId])
+    await role.$set('groups', groups)
+    await this.removeUsersCacheByGroupIds(groupIds)
+    return this.findRoleById(roleId)
+  }
+
   async findAllGroups(): Promise<RawGroup[]> {
     return this.groupModel.findAll({
       include: [{ model: Role, through: { attributes: [] } }],
@@ -404,6 +429,19 @@ export class UserService {
     return this.findGroupById(groupId)
   }
 
+  async setGroupUsers(groupId: number, userIds: number[]): Promise<RawGroup> {
+    const group = await this.groupModel.findByPk(groupId)
+    if (!group)
+      throw new Error('用户组不存在')
+    const users = await this.getUsersByIds(userIds)
+    const previousUsers = await this.userModel.findAll({
+      include: [{ model: Group, where: { id: groupId }, through: { attributes: [] } }],
+    })
+    await group.$set('users', users)
+    await this.removeUsersCache([...previousUsers, ...users])
+    return this.findGroupById(groupId)
+  }
+
   async findAllPrivileges(): Promise<RawPrivilege[]> {
     return this.privilegeModel.findAll({
       order: [['id', 'ASC']],
@@ -435,6 +473,23 @@ export class UserService {
     return this.findPrivilegeById(id)
   }
 
+  async setPrivilegeRoles(privilegeId: number, roleIds: number[]): Promise<RawPrivilege> {
+    const privilege = await this.privilegeModel.findByPk(privilegeId)
+    if (!privilege)
+      throw new Error('权限不存在')
+    const roles = await this.getRolesByIds(roleIds)
+    const previousRoles = await this.roleModel.findAll({
+      attributes: ['id'],
+      include: [{ model: Privilege, where: { id: privilegeId }, through: { attributes: [] } }],
+    })
+    await privilege.$set('roles', roles)
+    await this.removeUsersCacheByRoleIds([
+      ...previousRoles.map(role => role.id),
+      ...roleIds,
+    ])
+    return this.findPrivilegeById(privilegeId)
+  }
+
   async removePrivilege(id: number): Promise<boolean> {
     const privilege = await this.privilegeModel.findByPk(id)
     if (!privilege)
@@ -454,8 +509,7 @@ export class UserService {
     const user = await this.userModel.findByPk(userId)
     if (!user)
       throw new Error('用户不存在')
-    const roles = await this.getRolesByIds(roleIds)
-    await this.assertDefaultRolesKept(roleIds)
+    const roles = await this.getRolesByIds(await this.withDefaultRoleIds(roleIds))
     // These assignment APIs intentionally replace the whole relation set.
     await user.$set('roles', roles)
     await user.update({ updateBy: updateUserId ?? userId })
@@ -497,12 +551,27 @@ export class UserService {
     })
   }
 
-  private async assertDefaultRolesKept(roleIds: number[]): Promise<void> {
+  private async withDefaultRoleIds(roleIds: number[]): Promise<number[]> {
     const defaultRoles = await this.getDefaultRoles()
-    const roleIdSet = new Set(roleIds)
-    const removedDefaultRole = defaultRoles.find(role => !roleIdSet.has(role.id))
-    if (removedDefaultRole)
-      throw new Error(`默认角色 ${removedDefaultRole.name} 不允许取消绑定`)
+    return Array.from(new Set([
+      ...roleIds,
+      ...defaultRoles.map(role => role.id),
+    ]))
+  }
+
+  private assertDefaultRoleNotModified(role: Role): void {
+    if (!role.isDefault)
+      return
+    throw new Error(`默认角色 ${role.name} 不允许修改用户绑定`)
+  }
+
+  private async getUsersByIds(userIds: number[]): Promise<User[]> {
+    if (!userIds.length)
+      return []
+    const users = await this.userModel.findAll({ where: { userId: userIds } })
+    if (users.length !== new Set(userIds).size)
+      throw new Error('用户不存在')
+    return users
   }
 
   private async getGroupsByIds(groupIds: number[]): Promise<Group[]> {

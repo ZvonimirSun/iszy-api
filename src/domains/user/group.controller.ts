@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RoleEnum } from '@zvonimirsun/iszy-common'
 import { Roles } from '~shared'
-import { CreateGroupDto, SetRoleIdsDto, UpdateGroupDto } from './dto/rbac.dto'
+import { CreateGroupDto, SetRoleIdsDto, SetUserIdsDto, UpdateGroupDto } from './dto/rbac.dto'
 import { UserService } from './user.service'
 
 @ApiBearerAuth()
@@ -58,6 +58,18 @@ export class GroupController {
     return {
       success: true,
       data: await this.userService.setGroupRoles(id, setRoleIdsDto.roleIds),
+      message: '更新成功',
+    }
+  }
+
+  @Put(':id/users')
+  async setGroupUsers(
+    @Param('id') id: number,
+    @Body() setUserIdsDto: SetUserIdsDto,
+  ): Promise<ResultDto<RawGroup>> {
+    return {
+      success: true,
+      data: await this.userService.setGroupUsers(id, setUserIdsDto.userIds),
       message: '更新成功',
     }
   }

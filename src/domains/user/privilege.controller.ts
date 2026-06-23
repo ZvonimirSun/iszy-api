@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RoleEnum } from '@zvonimirsun/iszy-common'
 import { Roles } from '~shared'
-import { CreatePrivilegeDto, UpdatePrivilegeDto } from './dto/rbac.dto'
+import { CreatePrivilegeDto, SetRoleIdsDto, UpdatePrivilegeDto } from './dto/rbac.dto'
 import { UserService } from './user.service'
 
 @ApiBearerAuth()
@@ -49,6 +49,18 @@ export class PrivilegeController {
     return {
       success: true,
       data: await this.userService.updatePrivilege(id, privilegeDto),
+      message: '更新成功',
+    }
+  }
+
+  @Put(':id/roles')
+  async setPrivilegeRoles(
+    @Param('id') id: number,
+    @Body() setRoleIdsDto: SetRoleIdsDto,
+  ): Promise<ResultDto<RawPrivilege>> {
+    return {
+      success: true,
+      data: await this.userService.setPrivilegeRoles(id, setRoleIdsDto.roleIds),
       message: '更新成功',
     }
   }
