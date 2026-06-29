@@ -23,4 +23,17 @@ export interface AuthRequest extends Request {
   thirdPartProfile?: any
 }
 
-export type ProviderType = 'github' | 'linuxdo'
+export type OAuthProviderType = 'github' | 'linuxdo'
+export type ProviderType = OAuthProviderType | 'sso'
+
+export interface SsoBindData {
+  providerId: string
+  ssoUserName: string
+  ssoNickName: string
+  ssoEmail?: string
+  ssoAdmin?: boolean
+  userId: number
+  userName: string
+  nickName: string
+  email?: string
+}

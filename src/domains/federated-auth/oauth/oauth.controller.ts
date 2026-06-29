@@ -1,7 +1,7 @@
 import type { PublicUser, ResultDto } from '@zvonimirsun/iszy-common'
 import { Body, Controller, Post, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { AuthRequest, ProviderType, TicketOnly } from '~shared'
+import { AuthRequest, OAuthProviderType, TicketOnly } from '~shared'
 import { OauthService } from './oauth.service'
 
 @ApiBearerAuth()
@@ -36,7 +36,7 @@ export class OauthController {
   }
 
   @Post('unbind')
-  async unbind(@Req() req: AuthRequest, @Body() body: { provider: ProviderType }) {
+  async unbind(@Req() req: AuthRequest, @Body() body: { provider: OAuthProviderType }) {
     await this.oauthService.unbind(req.user, body.provider)
     return {
       success: true,

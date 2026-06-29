@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Device, PublicUser } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
+import { CodeStore } from '~domains/auth/store/code-store'
 import { UserService } from '~domains/user/user.service'
 import {
   AppConfig,
@@ -10,14 +11,13 @@ import {
   AuthRequest,
   Logger,
   MinimalUser,
-  ProviderType,
+  OAuthProviderType,
   random,
   StateData,
   toPublicUser,
 } from '~shared'
+import { OauthStateStore } from '../store/oauth-state-store'
 import Provider from './providers'
-import { CodeStore } from './store/code-store'
-import { StateStore } from './store/state-store'
 
 @Injectable()
 export class OauthService {
@@ -25,7 +25,7 @@ export class OauthService {
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly oauthStore: StateStore,
+    private readonly oauthStore: OauthStateStore,
     private readonly codeStore: CodeStore,
   ) {}
 
@@ -39,14 +39,14 @@ export class OauthService {
     return this.authService.generateToken(user, device)
   }
 
-  async unbind(user: MinimalUser, provider: ProviderType) {
+  async unbind(user: MinimalUser, provider: OAuthProviderType) {
     await this.userService.updateUser({
       userId: user.userId,
       [provider]: null,
     })
   }
 
-  async bind(user: MinimalUser, provider: ProviderType, id: string) {
+  async bind(user: MinimalUser, provider: OAuthProviderType, id: string) {
     const tmpUser = await this.userService.find({
       [provider]: id,
     })
@@ -59,7 +59,7 @@ export class OauthService {
     })
   }
 
-  async register(provider: ProviderType, profile: any) {
+  async register(provider: OAuthProviderType, profile: any) {
     try {
       const userData = Provider[provider].normalizeProfile(profile)
       const testUser = await this.userService.findOne(userData.userId)
@@ -99,7 +99,7 @@ export class OauthService {
     }
   }
 
-  async validateUser(provider: ProviderType, id: string): Promise<PublicUser> {
+  async validateUser(provider: OAuthProviderType, id: string): Promise<PublicUser> {
     const user = await this.userService.find({
       [provider]: id,
     })
@@ -150,7 +150,7 @@ export class OauthService {
     }
   }
 
-  async callbackHandler(req: AuthRequest, res: Response, provider: ProviderType) {
+  async callbackHandler(req: AuthRequest, res: Response, provider: OAuthProviderType) {
     let bodyInfo = ''
     let msgInfo: any
     if (req.isBind) {
@@ -159,7 +159,8 @@ export class OauthService {
       }
       try {
         const userData = Provider[provider].normalizeProfile(req.thirdPartProfile)
-        await this.bind(req.user, provider, userData[provider])
+        const providerId = (userData as unknown as Record<OAuthProviderType, string>)[provider]
+        await this.bind(req.user, provider, providerId)
         if (req.oauthCallbackData) {
           const { state, redirect_uri } = req.oauthCallbackData
           return res.redirect(302, `${redirect_uri}?state=${state}`)
@@ -217,16 +218,7 @@ export class OauthService {
         }
       }
     }
-    return `
-      <body>
-        ${bodyInfo}
-        <script>
-          if (window.opener && !window.opener.closed) {
-            window.opener.postMessage(${JSON.stringify(msgInfo)}, '*');
-          }
-        </script>
-      </body>
-    `
+    return this.renderPostMessagePage(bodyInfo, msgInfo)
   }
 
   private _isAllowedOrigin(requestOrigin?: string) {
@@ -241,5 +233,18 @@ export class OauthService {
     }
     const allowOrigins = origins.split(',').map(item => item.trim()).filter(Boolean)
     return allowOrigins.includes(requestOrigin) || requestOrigin === origin
+  }
+
+  private renderPostMessagePage(bodyInfo: string, msgInfo: any) {
+    return `
+      <body>
+        ${bodyInfo}
+        <script>
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage(${JSON.stringify(msgInfo)}, '*');
+          }
+        </script>
+      </body>
+    `
   }
 }

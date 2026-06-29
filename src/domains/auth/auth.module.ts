@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { JwtConfig } from '~shared'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
+import { CodeStore } from './store/code-store'
 import { DeviceStore } from './store/device-store'
 import { LoginAttemptStore } from './store/login-attempt-store'
 import { LocalStrategy } from './strategy/local.strategy'
@@ -24,10 +25,11 @@ import { LocalStrategy } from './strategy/local.strategy'
   controllers: [AuthController],
   providers: [
     AuthService,
+    CodeStore,
     DeviceStore,
     LoginAttemptStore,
     LocalStrategy,
   ],
-  exports: [AuthService, DeviceStore],
+  exports: [AuthService, CodeStore, DeviceStore],
 })
 export class AuthModule {}

@@ -1,9 +1,9 @@
 import type { Response } from 'express'
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { GithubAuthGuard } from '~domains/oauth/guard/github-auth.guard'
-import { OauthService } from '~domains/oauth/oauth.service'
 import { AuthRequest, Public } from '~shared'
+import { GithubAuthGuard } from './guard/github-auth.guard'
+import { OauthService } from './oauth.service'
 
 @ApiBearerAuth()
 @ApiTags('OAuth')

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { InternalOAuthError, Strategy } from 'passport-oauth2'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
-import { OauthService } from '~domains/oauth/oauth.service'
+import { OauthService } from '../oauth.service'
 
 @Injectable()
 export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {

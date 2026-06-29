@@ -517,6 +517,25 @@ export class UserService {
     return this.findOne(userId)
   }
 
+  async ensureUserRoleByName(userId: number, roleName: string, updateUserId?: number): Promise<RawUser> {
+    const user = await this.userModel.findByPk(userId, {
+      include: [{ model: Role, through: { attributes: [] } }],
+    })
+    if (!user)
+      throw new Error('用户不存在')
+
+    const role = await this.roleModel.findOne({ where: { name: roleName } })
+    if (!role)
+      throw new Error('角色不存在')
+
+    if (!user.roles?.some(item => item.id === role.id)) {
+      await user.$add('roles', role)
+      await user.update({ updateBy: updateUserId ?? userId })
+      await this.userStore.removeUser(user)
+    }
+    return this.findOne(userId)
+  }
+
   async setUserGroups(userId: number, groupIds: number[], updateUserId?: number): Promise<RawUser> {
     const user = await this.userModel.findByPk(userId)
     if (!user)
@@ -693,6 +712,9 @@ export class UserService {
 
   async checkUser(user: RawUser, passwd: string = '', checkStatus = true): Promise<boolean> {
     if (user == null) {
+      return false
+    }
+    if (!user.passwd) {
       return false
     }
     let checkResult: boolean

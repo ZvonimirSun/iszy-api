@@ -2,8 +2,8 @@ import { ExecutionContext, ForbiddenException, Injectable, UnauthorizedException
 import { GUARDS_METADATA } from '@nestjs/common/constants'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
+import { CodeStore } from '~domains/auth/store/code-store'
 import { generateDevice } from '~domains/auth/utils/generateDevice'
-import { CodeStore } from '~domains/oauth/store/code-store'
 import { UserService } from '~domains/user/user.service'
 import { AuthRequest, MetaKeysEnum, toMinimalUser } from '~/shared'
 

@@ -46,6 +46,12 @@ export const DefaultConfig: AppConfiguration = {
       clientId: '',
       clientSecret: '',
     },
+    sso: {
+      origin: 'http://localhost',
+      clientId: '',
+      clientSecret: '',
+      title: 'SSO统一登录',
+    },
     fail2ban: {
       maxAttempts: 5,
       window: '15m',

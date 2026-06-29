@@ -183,4 +183,25 @@ export class AuthService {
   async getDevices(userId: number): Promise<Device[]> {
     return await this.deviceStore.getDevices(userId)
   }
+
+  getFeatures() {
+    const authConfig = this.configService.get<AuthConfig>('auth')
+    const isSso = this.isSsoEnabled(authConfig)
+    return {
+      authMode: isSso ? 'sso' : 'local',
+      publicRegister: authConfig.publicRegister,
+      sso: {
+        title: authConfig.sso.title || 'SSO统一登录',
+      },
+    }
+  }
+
+  isSsoEnabled(authConfig = this.configService.get<AuthConfig>('auth')) {
+    const ssoConfig = authConfig.sso
+    return Boolean(
+      ssoConfig.origin?.trim()
+      && ssoConfig.clientId?.trim()
+      && ssoConfig.clientSecret?.trim(),
+    )
+  }
 }

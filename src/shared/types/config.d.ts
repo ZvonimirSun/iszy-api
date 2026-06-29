@@ -56,6 +56,18 @@ export interface JwtConfig {
 export interface OAuthProviderConfig {
   clientId: string
   clientSecret: string
+  scope?: string
+  title?: string
+}
+
+/**
+ * SSO OIDC configuration
+ */
+export interface SsoOidcConfig {
+  origin: string
+  clientId: string
+  clientSecret: string
+  title: string
 }
 
 /**
@@ -77,6 +89,7 @@ export interface AuthConfig {
   jwt: JwtConfig
   github: OAuthProviderConfig
   linuxdo: OAuthProviderConfig
+  sso: SsoOidcConfig
   fail2ban: Fail2banConfig
 }
 

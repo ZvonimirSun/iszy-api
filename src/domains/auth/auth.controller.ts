@@ -26,6 +26,16 @@ export class AuthController {
 
   private readonly logger = new Logger(AuthController.name)
 
+  @Public()
+  @Get('features')
+  async getFeatures(): Promise<ResultDto<ReturnType<AuthService['getFeatures']>>> {
+    return {
+      success: true,
+      message: '获取成功',
+      data: this.authService.getFeatures(),
+    }
+  }
+
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })
   @Post('login')

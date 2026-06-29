@@ -63,4 +63,8 @@ export class User extends Model<RawUser> implements RawUser {
   @Unique
   @Column
   linuxdo?: string
+
+  @Unique
+  @Column
+  sso?: string
 }
