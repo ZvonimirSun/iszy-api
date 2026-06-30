@@ -29,6 +29,9 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
   ) {
     req.device = generateDevice(req)
     req.thirdPartProfile = profile
+    if (req.isBind) {
+      return req.user
+    }
     try {
       return await this.oauthService.validateUser('github', profile.id)
     }

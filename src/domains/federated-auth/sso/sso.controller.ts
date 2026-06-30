@@ -1,9 +1,7 @@
-import type { ResultDto } from '@zvonimirsun/iszy-common'
 import type { Response } from 'express'
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common'
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AuthRequest, Public } from '~shared'
-import { SsoResolveDto } from './dto/sso-resolve.dto'
 import { SsoAuthGuard } from './sso-auth.guard'
 import { SsoService } from './sso.service'
 
@@ -32,14 +30,4 @@ export class SsoController {
   @UseGuards(SsoAuthGuard)
   @Get('bind')
   bind() {}
-
-  @Public()
-  @Post('resolve')
-  async resolve(@Body() body: SsoResolveDto): Promise<ResultDto<string>> {
-    return {
-      success: true,
-      message: '处理成功',
-      data: await this.ssoService.resolve(body),
-    }
-  }
 }

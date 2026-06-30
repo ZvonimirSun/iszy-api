@@ -26,4 +26,12 @@ export class SsoAuthGuard extends AuthGuard('sso') {
     }
     return {}
   }
+
+  handleRequest(err: Error | null, user: any, info: any, context: ExecutionContext) {
+    const req: AuthRequest = context.switchToHttp().getRequest()
+    if (!err && !user && req.path.endsWith('/callback') && req.thirdPartProfile) {
+      return null
+    }
+    return super.handleRequest(err, user, info, context)
+  }
 }

@@ -1,5 +1,5 @@
 import type { AppConfig, AuthRequest, SsoOidcConfig } from '~shared'
-import { Injectable, Req, UnauthorizedException } from '@nestjs/common'
+import { Injectable, Req } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { InternalOAuthError, Strategy } from 'passport-oauth2'
@@ -51,11 +51,9 @@ export class SsoStrategy extends PassportStrategy(Strategy, 'sso') {
   ) {
     req.device = generateDevice(req)
     req.thirdPartProfile = profile
-    try {
-      return await this.ssoService.validateUser(profile.id, profile)
+    if (req.isBind) {
+      return req.user
     }
-    catch {
-      throw new UnauthorizedException('SSO 认证失败')
-    }
+    return await this.ssoService.findLinkedUser(profile.id, profile)
   }
 }

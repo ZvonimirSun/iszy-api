@@ -49,6 +49,9 @@ export class LinuxdoStrategy extends PassportStrategy(Strategy, 'linuxdo') {
   ) {
     req.device = generateDevice(req)
     req.thirdPartProfile = profile
+    if (req.isBind) {
+      return req.user
+    }
     try {
       return await this.oauthService.validateUser('linuxdo', profile.id)
     }
