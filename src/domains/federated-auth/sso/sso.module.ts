@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { AuthModule } from '~domains/auth/auth.module'
 import { UserModule } from '~domains/user/user.module'
 import { OauthStateStore } from '../store/oauth-state-store'
@@ -13,7 +14,16 @@ import { SsoStrategy } from './sso.strategy'
   controllers: [SsoController],
   providers: [
     SsoService,
-    SsoStrategy,
+    {
+      provide: SsoStrategy,
+      inject: [ConfigService, SsoService],
+      useFactory: (configService: ConfigService, ssoService: SsoService) => {
+        if (!ssoService.isEnabled()) {
+          return null
+        }
+        return new SsoStrategy(configService, ssoService)
+      },
+    },
     SsoAuthGuard,
     SsoBindStore,
     OauthStateStore,

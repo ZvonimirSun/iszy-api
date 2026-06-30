@@ -1,5 +1,5 @@
 import type { Response } from 'express'
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Device, PublicUser } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
@@ -109,7 +109,21 @@ export class OauthService {
     return toPublicUser(user)
   }
 
-  async canActive(req: AuthRequest) {
+  isProviderEnabled(provider: OAuthProviderType, authConfig = this.configService.get<AuthConfig>('auth')) {
+    const providerConfig = authConfig[provider]
+    return Boolean(
+      providerConfig.clientId?.trim()
+      && providerConfig.clientSecret?.trim(),
+    )
+  }
+
+  assertProviderEnabled(provider: OAuthProviderType) {
+    if (!this.isProviderEnabled(provider)) {
+      throw new NotFoundException(`${Provider[provider].title} 登录未启用`)
+    }
+  }
+
+  async canActive(req: AuthRequest, provider: OAuthProviderType) {
     const path = req.path
     // 回调
     if (path.endsWith('/callback')) {
@@ -142,7 +156,7 @@ export class OauthService {
       else if (req.query.state && origin) {
         stateData.callbackData = {
           state: req.query.state as string,
-          redirect_uri: `${req.query.client}/api/oauth/github/callback`,
+          redirect_uri: `${req.query.client}/api/oauth/${provider}/callback`,
         }
       }
       await this.oauthStore.setState(state, stateData)

@@ -11,13 +11,10 @@ export class LinuxdoAuthGuard extends AuthGuard('linuxdo') {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req: AuthRequest = context.switchToHttp().getRequest()
-    await this.oauthService.canActive(req)
-    try {
-      await super.canActivate(context)
-    }
-    catch (e) {
-    }
-    return true
+    this.oauthService.assertProviderEnabled('linuxdo')
+    await this.oauthService.canActive(req, 'linuxdo')
+    const result = await super.canActivate(context)
+    return result as boolean
   }
 
   getAuthenticateOptions(context: ExecutionContext): IAuthModuleOptions {

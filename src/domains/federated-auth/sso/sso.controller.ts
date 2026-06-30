@@ -9,7 +9,6 @@ import { SsoService } from './sso.service'
 
 @ApiBearerAuth()
 @ApiTags('OAuth')
-@UseGuards(SsoAuthGuard)
 @Controller('oauth/sso')
 export class SsoController {
   constructor(
@@ -17,17 +16,20 @@ export class SsoController {
   ) {}
 
   @Public()
+  @UseGuards(SsoAuthGuard)
   @Get('callback')
   async loginCallback(@Req() req: AuthRequest, @Res({ passthrough: true }) res: Response) {
     return this.ssoService.callbackHandler(req, res)
   }
 
   @Public()
+  @UseGuards(SsoAuthGuard)
   @Get()
   login() {
     // 自动跳转到 SSO 授权页面
   }
 
+  @UseGuards(SsoAuthGuard)
   @Get('bind')
   bind() {}
 

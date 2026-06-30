@@ -1,5 +1,5 @@
 import type { Response } from 'express'
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
@@ -8,6 +8,7 @@ import { UserService } from '~domains/user/user.service'
 import {
   AppConfig,
   AuthRequest,
+  AuthConfig,
   Logger,
   random,
   StateData,
@@ -38,6 +39,21 @@ export class SsoService {
     }
     await this.syncAdminRole(user.userId, profile)
     return toPublicUser(user)
+  }
+
+  isEnabled() {
+    const ssoConfig = this.configService.get<AuthConfig>('auth').sso
+    return Boolean(
+      ssoConfig.origin?.trim()
+      && ssoConfig.clientId?.trim()
+      && ssoConfig.clientSecret?.trim(),
+    )
+  }
+
+  assertEnabled() {
+    if (!this.isEnabled()) {
+      throw new NotFoundException('SSO 登录未启用')
+    }
   }
 
   async canActive(req: AuthRequest) {

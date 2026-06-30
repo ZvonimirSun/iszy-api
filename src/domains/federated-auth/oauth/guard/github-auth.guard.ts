@@ -11,13 +11,10 @@ export class GithubAuthGuard extends AuthGuard('github') {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req: AuthRequest = context.switchToHttp().getRequest()
-    await this.oauthService.canActive(req)
-    try {
-      await super.canActivate(context)
-    }
-    catch (e) {
-    }
-    return true
+    this.oauthService.assertProviderEnabled('github')
+    await this.oauthService.canActive(req, 'github')
+    const result = await super.canActivate(context)
+    return result as boolean
   }
 
   getAuthenticateOptions(context: ExecutionContext): IAuthModuleOptions {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { AuthModule } from '~domains/auth/auth.module'
 import { UserModule } from '~domains/user/user.module'
 import { OauthStateStore } from '../store/oauth-state-store'
@@ -16,8 +17,26 @@ import { LinuxdoStrategy } from './strategy/linuxdo.strategy'
   controllers: [OauthController, GithubController, LinuxdoController],
   providers: [
     OauthService,
-    GithubStrategy,
-    LinuxdoStrategy,
+    {
+      provide: GithubStrategy,
+      inject: [ConfigService, OauthService],
+      useFactory: (configService: ConfigService, oauthService: OauthService) => {
+        if (!oauthService.isProviderEnabled('github')) {
+          return null
+        }
+        return new GithubStrategy(configService, oauthService)
+      },
+    },
+    {
+      provide: LinuxdoStrategy,
+      inject: [ConfigService, OauthService],
+      useFactory: (configService: ConfigService, oauthService: OauthService) => {
+        if (!oauthService.isProviderEnabled('linuxdo')) {
+          return null
+        }
+        return new LinuxdoStrategy(configService, oauthService)
+      },
+    },
     GithubAuthGuard,
     LinuxdoAuthGuard,
     OauthStateStore,

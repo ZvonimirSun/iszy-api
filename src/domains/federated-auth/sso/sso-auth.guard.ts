@@ -11,13 +11,10 @@ export class SsoAuthGuard extends AuthGuard('sso') {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req: AuthRequest = context.switchToHttp().getRequest()
+    this.ssoService.assertEnabled()
     await this.ssoService.canActive(req)
-    try {
-      await super.canActivate(context)
-    }
-    catch (e) {
-    }
-    return true
+    const result = await super.canActivate(context)
+    return result as boolean
   }
 
   getAuthenticateOptions(context: ExecutionContext): IAuthModuleOptions {
