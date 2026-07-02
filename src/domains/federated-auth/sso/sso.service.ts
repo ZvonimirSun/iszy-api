@@ -1,7 +1,7 @@
 import type { Response } from 'express'
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PublicUser, UserStatus } from '@zvonimirsun/iszy-common'
+import { PublicUser, RawUser, UserStatus } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
 import { CodeStore } from '~domains/auth/store/code-store'
 import { UserService } from '~domains/user/user.service'
@@ -32,8 +32,9 @@ export class SsoService {
     if (!user) {
       return null
     }
-    await this.syncAdminRole(user.userId, profile)
-    return toPublicUser(user)
+    const syncedUser = await this.syncSsoProfile(user, profile)
+    await this.syncAdminRole(syncedUser.userId, profile)
+    return toPublicUser(syncedUser)
   }
 
   async validateUser(id: string, profile?: any): Promise<PublicUser> {
@@ -193,6 +194,27 @@ export class SsoService {
       sso: id,
     })
     await this.syncAdminRole(user.userId, profile)
+  }
+
+  private async syncSsoProfile(user: RawUser, profile?: any) {
+    if (!profile) {
+      return user
+    }
+    const userData = SsoProvider.normalizeProfile(profile)
+    const updateUser: Partial<RawUser> = {
+      userId: user.userId,
+    }
+
+    if (!user.nickName && userData.nickName) {
+      updateUser.nickName = userData.nickName
+    }
+    if (!user.email && userData.email) {
+      updateUser.email = userData.email
+    }
+    if (!updateUser.nickName && !updateUser.email) {
+      return user
+    }
+    return this.userService.updateUser(updateUser)
   }
 
   private async syncAdminRole(userId: number, profile?: any) {
