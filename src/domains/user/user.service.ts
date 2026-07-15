@@ -84,6 +84,18 @@ export class UserService {
     return await this.find(where)
   }
 
+  async findForLogin(identifier: string): Promise<RawUser | null> {
+    const normalizedIdentifier = identifier.trim().toLowerCase()
+    const user = await this.findOne(normalizedIdentifier)
+    if (user) {
+      return user
+    }
+    if (!REGEX_EMAIL.test(normalizedIdentifier)) {
+      return null
+    }
+    return this.find({ email: normalizedIdentifier })
+  }
+
   async find(where: Partial<RawUser>) {
     const user = await this.userModel.findOne({
       where,
@@ -259,6 +271,34 @@ export class UserService {
       ...profile,
       updateBy: updateUserId ?? userId,
     })
+    return this.findOne(userId)
+  }
+
+  async bindSsoIfUnbound(userId: number, sso: string, nickName?: string): Promise<RawUser | null> {
+    const user = await this.userModel.findByPk(userId)
+    if (!user) {
+      throw new Error('用户不存在')
+    }
+
+    const updateProfile: Partial<RawUser> = {
+      sso,
+      updateBy: userId,
+    }
+    if (nickName) {
+      updateProfile.nickName = nickName
+    }
+
+    const [affectedCount] = await this.userModel.update(updateProfile, {
+      where: {
+        userId,
+        sso: null,
+      },
+    })
+    if (affectedCount !== 1) {
+      return null
+    }
+
+    await this.userStore.removeUser(user)
     return this.findOne(userId)
   }
 

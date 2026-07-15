@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class LoginDto {
   @ApiProperty({
-    description: '用户名',
+    description: '用户名或邮箱',
   })
   readonly username!: string
 

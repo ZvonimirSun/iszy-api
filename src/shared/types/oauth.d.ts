@@ -11,6 +11,16 @@ export interface StateData {
   user?: MinimalUser
   callbackData?: OauthCallbackData
 }
+
+export interface SsoCompletionData {
+  ssoId: string
+  suggestedUserName: string
+  nickName: string
+  email?: string
+  grantAdmin: boolean
+  createdAt: number
+}
+
 export interface AuthRequest extends Request {
   user?: MinimalUser
   oauthCallbackData?: OauthCallbackData
@@ -21,6 +31,7 @@ export interface AuthRequest extends Request {
   state?: string
   isBind?: boolean
   thirdPartProfile?: any
+  ssoCompletion?: SsoCompletionData
 }
 
 export type OAuthProviderType = 'github' | 'linuxdo'

@@ -54,13 +54,23 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<PublicUser> {
-    const user = await this.userService.findOne(username.toLowerCase())
+    const user = await this.userService.findForLogin(username)
     const checkResult = await this.userService.checkUser(user, password)
     if (!checkResult) {
       throw new Error('用户名或密码错误')
     }
     // 密码正确
     return toPublicUser(user)
+  }
+
+  async getLoginAttemptKey(identifier: string) {
+    const normalizedIdentifier = identifier.trim().toLowerCase()
+    const user = await this.userService.findForLogin(normalizedIdentifier)
+    return user?.userName || normalizedIdentifier
+  }
+
+  async hashPassword(password: string) {
+    return bcrypt.hash(password, 10)
   }
 
   async generateToken(user: MinimalUser, device: Device): Promise<{
@@ -134,7 +144,7 @@ export class AuthService {
       const user: Partial<RawUser> = {}
       user.userName = registerDto.userName
       user.nickName = registerDto.nickName
-      user.passwd = await bcrypt.hash(registerDto.passwd, 10)
+      user.passwd = await this.hashPassword(registerDto.passwd)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
       user.status = publicRegister ? UserStatus.ENABLED : UserStatus.DEACTIVATED

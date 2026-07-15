@@ -22,18 +22,25 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     username: string,
     password: string,
   ): Promise<any> {
-    const userName = username.toLowerCase()
+    const loginIdentifier = username.trim().toLowerCase()
     const ip = req.ip || 'unknown'
-    await this.loginAttemptStore.assertAllowed(userName, ip)
+    // Keep the cheap IP/input ban check ahead of the user lookup. Email aliases
+    // are then mapped to the canonical username so both identifiers share the
+    // same account-level counter.
+    await this.loginAttemptStore.assertAllowed(loginIdentifier, ip)
+    const loginAttemptKey = await this.authService.getLoginAttemptKey(loginIdentifier)
+    if (loginAttemptKey !== loginIdentifier) {
+      await this.loginAttemptStore.assertAllowed(loginAttemptKey, ip)
+    }
 
     try {
-      const user = await this.authService.validateUser(userName, password)
-      await this.loginAttemptStore.reset(userName)
+      const user = await this.authService.validateUser(loginIdentifier, password)
+      await this.loginAttemptStore.reset(loginAttemptKey)
       req.device = generateDevice(req)
       return user
     }
     catch (e) {
-      const attemptInfo = await this.loginAttemptStore.recordFailure(userName, ip)
+      const attemptInfo = await this.loginAttemptStore.recordFailure(loginAttemptKey, ip)
       if (e instanceof UnauthorizedException)
         throw e
       throw new UnauthorizedException({
