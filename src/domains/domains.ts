@@ -7,6 +7,7 @@ import { IdiomModule } from './idiom/Idiom.module'
 import { IszyToolsModule } from './iszy_tools/iszy_tools.module'
 import { JsoneditorModule } from './jsonEditor/jsoneditor.module'
 import { MockModule } from './mocks/mock.module'
+import { RtcModule } from './rtc/rtc.module'
 import { UrlsModule } from './urls/urls.module'
 import { UserModule } from './user/user.module'
 
@@ -21,6 +22,7 @@ export const Domains = [
   IszyToolsModule,
   JsoneditorModule,
   MockModule,
+  RtcModule,
   UrlsModule,
 ]
 

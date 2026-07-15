@@ -80,6 +80,18 @@ export interface Fail2banConfig {
 }
 
 /**
+ * WebRTC ICE server configuration.
+ */
+export interface RtcConfig {
+  host: string
+  stunPort: number
+  turnPort: number
+  turnsPort: number
+  credentialTtl: number
+  authSecret: string
+}
+
+/**
  * Authentication configuration interface
  *
  * @example this.configService.get<AuthConfig>('auth')
@@ -114,6 +126,7 @@ export interface AppConfiguration extends SystemConfig {
   redis: RedisConfig
   app: AppConfig
   auth: AuthConfig
+  rtc: RtcConfig
 }
 
 export interface EnvOptions {
