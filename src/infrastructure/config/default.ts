@@ -59,9 +59,9 @@ export const DefaultConfig: AppConfiguration = {
     },
   },
   rtc: {
-    host: 'stun.ovooo.cc',
-    stunPort: 3479,
-    turnPort: 3479,
+    host: 'localhost',
+    stunPort: 3478,
+    turnPort: 3478,
     turnsPort: 5349,
     credentialTtl: 600,
     authSecret: '',
