@@ -1,88 +1,35 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger'
+import { IceServerDto } from './ice-servers.dto'
 
-export type FileTransferSignalType = 'offer' | 'answer' | 'candidate' | 'leave'
-
-export class CreateFileTransferRoomDto {
+export class FileTransferSessionDto {
   @ApiProperty({
-    description: '房间码',
+    description: '文件传输接收码',
   })
-  roomId: string
-}
-
-export class FileTransferRoomStatusDto {
-  @ApiProperty({
-    description: '房间码',
-  })
-  roomId: string
+  uid: string
 
   @ApiProperty({
-    description: '房间是否存在',
-  })
-  exists: boolean
-}
-
-export class FileTransferSignalMessageDto {
-  @ApiProperty({
-    description: '消息序号',
-  })
-  seq: number
-
-  @ApiProperty({
-    description: '发送端标识',
+    description: '发送端 peer 标识',
   })
   peerId: string
 
   @ApiProperty({
-    description: '信令消息类型',
-    enum: ['offer', 'answer', 'candidate', 'leave'],
+    description: '当前端角色',
   })
-  type: FileTransferSignalType
-
-  @ApiPropertyOptional({
-    description: '信令载荷',
-  })
-  payload?: unknown
+  role: 'offer'
 
   @ApiProperty({
-    description: '创建时间',
+    description: 'ICE 配置有效秒数',
   })
-  createdAt: number
-}
-
-export class FileTransferSignalMessagesDto {
-  @ApiProperty({
-    description: '信令消息列表',
-    type: [FileTransferSignalMessageDto],
-  })
-  messages: FileTransferSignalMessageDto[]
+  ttl: number
 
   @ApiProperty({
-    description: '当前最新消息序号',
+    description: 'ICE 配置过期时间戳',
   })
-  latestSeq: number
-}
-
-export class CreateFileTransferSignalMessageDto {
-  @ApiProperty({
-    description: '发送端标识',
-  })
-  peerId: string
+  expiresAt: number
 
   @ApiProperty({
-    description: '信令消息类型',
-    enum: ['offer', 'answer', 'candidate', 'leave'],
+    description: 'ICE servers',
+    type: [IceServerDto],
   })
-  type: FileTransferSignalType
-
-  @ApiPropertyOptional({
-    description: '信令载荷',
-  })
-  payload?: unknown
-}
-
-export class CreateFileTransferSignalMessageResultDto {
-  @ApiProperty({
-    description: '消息序号',
-  })
-  seq: number
+  iceServers: IceServerDto[]
 }
