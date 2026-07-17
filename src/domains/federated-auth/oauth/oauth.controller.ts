@@ -36,7 +36,7 @@ export class OauthController {
   }
 
   @Post('unbind')
-  async unbind(@Req() req: AuthRequest, @Body() body: { provider: OAuthProviderType }) {
+  async unbind(@Req() req: AuthRequest, @Body() body: { provider: OAuthProviderType | 'sso' }) {
     await this.oauthService.unbind(req.user, body.provider)
     return {
       success: true,

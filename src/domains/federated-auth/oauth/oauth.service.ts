@@ -1,5 +1,5 @@
 import type { Response } from 'express'
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Device, PublicUser } from '@zvonimirsun/iszy-common'
 import { AuthService } from '~domains/auth/auth.service'
@@ -39,7 +39,13 @@ export class OauthService {
     return this.authService.generateToken(user, device)
   }
 
-  async unbind(user: MinimalUser, provider: OAuthProviderType) {
+  async unbind(user: MinimalUser, provider: OAuthProviderType | 'sso') {
+    if (provider === 'sso') {
+      const currentUser = await this.userService.findOne(user.userId)
+      if (!currentUser.passwd) {
+        throw new BadRequestException('请先设置登录密码后再解绑 SSO')
+      }
+    }
     await this.userService.updateUser({
       userId: user.userId,
       [provider]: null,
