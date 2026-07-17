@@ -169,12 +169,8 @@ export class SsoService {
       })
       return res.redirect(302, `${redirect_uri}?${query.toString()}`)
     }
-    return this.renderPostMessagePage('需要完成账户关联', {
-      type: 'sso_completion_required',
-      data: {
-        pending_token: pendingToken,
-      },
-    })
+    await this.completionStore.remove(pendingToken)
+    throw new BadRequestException('缺少客户端回调信息，无法完成 SSO 账户关联')
   }
 
   async getCompletion(pendingToken: string) {
