@@ -9,6 +9,10 @@ on:
       - '**/*.md'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: iszy_api
@@ -22,16 +26,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-        with:
-          cache: true
-          run_install: true
 
-      - name: Build app
-        run: pnpm run build
-
-      - name: Prune development dependencies
-        run: pnpm prune --prod
+      - name: Read package.json
+        id: package-meta
+        shell: bash
+        run: |
+          OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          VERSION="$(node -p "require('./package.json').version")"
+          IMAGE="${{ env.REGISTRY }}/${OWNER}/${{ env.IMAGE_NAME }}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to the Container registry
         if: github.event_name != 'pull_request'
@@ -41,28 +45,54 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Read package.json
-        id: package-version
-        run: echo "version=$(node -p -e "require('./package.json').version")" >> $GITHUB_OUTPUT
+      - name: Check published image version
+        id: published
+        shell: bash
+        run: |
+          if docker buildx imagetools inspect "${{ steps.package-meta.outputs.image }}:${{ steps.package-meta.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Image version already exists, skip build and push."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: pnpm/action-setup@v6
+        if: steps.published.outputs.exists == 'false'
+        with:
+          cache: true
+          run_install: true
+
+      - name: Build app
+        if: steps.published.outputs.exists == 'false'
+        run: pnpm run build
+
+      - name: Prune development dependencies
+        if: steps.published.outputs.exists == 'false'
+        run: pnpm prune --prod
+
+      - name: Set up QEMU
+        if: steps.published.outputs.exists == 'false'
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        if: steps.published.outputs.exists == 'false'
+        uses: docker/setup-buildx-action@v4
 
       - name: Extract metadata (tags, labels) for Docker
-        if: ${{ github.ref_name == 'main' }}
+        if: ${{ github.ref_name == 'main' && steps.published.outputs.exists == 'false' }}
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          images: ${{ steps.package-meta.outputs.image }}
           tags: |
-            type=semver,pattern={{version}},value=${{ steps.package-version.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.package-version.outputs.version }}
+            type=semver,pattern={{version}},value=${{ steps.package-meta.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.package-meta.outputs.version }}
 
       - name: Build and push Docker image
-        if: ${{ github.ref_name == 'main' }}
+        if: ${{ github.ref_name == 'main' && steps.published.outputs.exists == 'false' }}
         uses: docker/build-push-action@v7
         with:
           context: .
