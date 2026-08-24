@@ -248,7 +248,9 @@ export class SsoService {
           userName: registerUser.userName,
           nickName: registerUser.nickName,
           email: registerUser.email || undefined,
-          passwd: await this.authService.hashPassword(registerUser.passwd),
+          ...(registerUser.passwd
+            ? { passwd: await this.authService.hashPassword(registerUser.passwd) }
+            : {}),
           sso: completion.ssoId,
           status: UserStatus.ENABLED,
         })

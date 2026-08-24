@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import {
@@ -136,10 +136,12 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterUser): Promise<boolean> {
+    if (!this.configService.get<AuthConfig>('auth').publicRegister) {
+      throw new ForbiddenException('公开注册已关闭')
+    }
+
     try {
       this.userService.normalizeUserInfo(registerDto)
-
-      const publicRegister = this.configService.get<AuthConfig>('auth').publicRegister
 
       const user: Partial<RawUser> = {}
       user.userName = registerDto.userName
@@ -147,10 +149,10 @@ export class AuthService {
       user.passwd = await this.hashPassword(registerDto.passwd)
       user.mobile = registerDto.mobile || undefined
       user.email = registerDto.email || undefined
-      user.status = publicRegister ? UserStatus.ENABLED : UserStatus.DEACTIVATED
+      user.status = UserStatus.ENABLED
 
       await this.userService.create(user)
-      return publicRegister
+      return true
     }
     catch (e) {
       if (e.name === 'SequelizeUniqueConstraintError') {

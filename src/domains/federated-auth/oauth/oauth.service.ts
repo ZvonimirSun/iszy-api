@@ -41,11 +41,23 @@ export class OauthService {
 
   async unbind(user: MinimalUser, provider: OAuthProviderType | 'sso') {
     if (provider === 'sso') {
-      const currentUser = await this.userService.findOne(user.userId)
-      if (!currentUser.passwd) {
-        throw new BadRequestException('请先设置登录密码后再解绑 SSO')
+      throw new BadRequestException('SSO 绑定不允许解绑')
+    }
+    if (!['github', 'linuxdo'].includes(provider)) {
+      throw new BadRequestException('不支持的登录方式')
+    }
+
+    const currentUser = await this.userService.findOne(user.userId)
+    if (!currentUser.passwd) {
+      const remainingProviders = ['github', 'linuxdo', 'sso'] as const
+      const hasRemainingLoginProvider = remainingProviders.some((item) => {
+        return item !== provider && !!currentUser[item]
+      })
+      if (!hasRemainingLoginProvider) {
+        throw new BadRequestException('无密码账户必须保留至少一种登录方式，请先设置登录密码')
       }
     }
+
     await this.userService.updateUser({
       userId: user.userId,
       [provider]: null,

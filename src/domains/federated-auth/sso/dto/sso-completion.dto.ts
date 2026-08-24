@@ -68,11 +68,12 @@ export class SsoCreateCompletionDto extends SsoCompletionDto {
   @MaxLength(255)
   email?: string
 
-  @ApiProperty({
-    description: '密码',
+  @ApiPropertyOptional({
+    description: '密码；不设置时仅可通过 SSO 登录',
   })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
-  passwd: string
+  passwd?: string
 }

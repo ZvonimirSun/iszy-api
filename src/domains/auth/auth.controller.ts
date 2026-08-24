@@ -5,6 +5,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   Post,
   Query,
   Req,
@@ -111,6 +112,9 @@ export class AuthController {
       }
     }
     catch (e) {
+      if (e instanceof HttpException) {
+        throw e
+      }
       return {
         success: false,
         message: `用户创建失败, ${e.message}`,
