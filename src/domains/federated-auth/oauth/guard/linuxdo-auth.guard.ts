@@ -1,5 +1,5 @@
 import { ExecutionContext, Injectable } from '@nestjs/common'
-import { AuthGuard, IAuthModuleOptions } from '@nestjs/passport'
+import { AuthGuard, AuthGuardAuthenticateOptions } from '@nestjs/passport'
 import { AuthRequest } from '~shared'
 import { OauthService } from '../oauth.service'
 
@@ -17,7 +17,7 @@ export class LinuxdoAuthGuard extends AuthGuard('linuxdo') {
     return result as boolean
   }
 
-  getAuthenticateOptions(context: ExecutionContext): IAuthModuleOptions {
+  getAuthenticateOptions(context: ExecutionContext): AuthGuardAuthenticateOptions {
     const req: AuthRequest = context.switchToHttp().getRequest()
     if (req.state) {
       return {

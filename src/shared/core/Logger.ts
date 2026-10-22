@@ -95,7 +95,7 @@ export class Logger extends ConsoleLogger {
     const text = typeof message === 'string' ? message : this.stringify(message)
     if (!meta || !Object.keys(meta).length)
       return text
-    return `${text} ${this.stringify(this.redact(meta))}`
+    return `${text} ${this.stringify(this.redactMeta(meta))}`
   }
 
   private stringify(value: unknown) {
@@ -109,14 +109,14 @@ export class Logger extends ConsoleLogger {
     }
   }
 
-  private redact(meta: LogMeta): LogMeta {
+  private redactMeta(meta: LogMeta): LogMeta {
     const result: LogMeta = {}
     for (const [key, value] of Object.entries(meta)) {
       if (/password|passwd|secret|token|authorization|credential/i.test(key)) {
         result[key] = '[REDACTED]'
       }
       else if (value && typeof value === 'object' && !Array.isArray(value)) {
-        result[key] = this.redact(value as LogMeta)
+        result[key] = this.redactMeta(value as LogMeta)
       }
       else {
         result[key] = value
