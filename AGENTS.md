@@ -90,7 +90,6 @@ src/
 - `src/domains/holiday/`：节假日导入、查询、ICS 导出。
 - `src/domains/gis/`：坐标点和几何转换。
 - `src/domains/ddns/`：动态域名更新。
-- `src/domains/rtc/`：RTC 信令相关能力。
 - `src/domains/idiom/`、`src/domains/jsonEditor/`：成语与 JSON 编辑器数据能力。
 
 ### 基础设施与配置
@@ -113,7 +112,7 @@ src/
   - `AuthModule`, `FederatedAuthModule`, `UserModule`
   - `DDNSModule`, `GisModule`, `HolidayModule`
   - `IdiomModule`, `IszyToolsModule`, `JsoneditorModule`
-  - `MockModule`, `RtcModule`, `UrlsModule`
+  - `MockModule`, `UrlsModule`
 
 - `PublicDomains`（见 `domains.ts`）用于标识公开能力模块（如 Auth/FederatedAuth/DDNS/GIS/Holiday/Mock/Urls）。
 
