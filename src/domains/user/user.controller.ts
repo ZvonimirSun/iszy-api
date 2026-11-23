@@ -1,13 +1,19 @@
 import type { PublicUser, RawUser } from '@zvonimirsun/iszy-common'
 import type { AuthRequest, MinimalUser } from '~shared'
+import type { PageResult, RbacStats } from './dto/rbac.dto'
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { ResultDto, RoleEnum, UserStatus } from '@zvonimirsun/iszy-common'
+import { REGEX_EMAIL, REGEX_MOBILE_PHONE, ResultDto, RoleEnum, UserStatus } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
 import { CreateUserDto } from '~domains/user/dto/createUser.dto'
 import { PageableDto, Roles, toPublicUser } from '~shared'
-import { SetGroupIdsDto, SetRoleIdsDto } from './dto/rbac.dto'
+import { SetGroupIdsDto, SetRoleIdsDto, UserPageQueryDto, UserSearchQueryDto } from './dto/rbac.dto'
 import { UserService } from './user.service'
+
+type AdminUpdateUserBody = Partial<Omit<RawUser, 'email' | 'mobile'>> & {
+  email?: string | null
+  mobile?: string | null
+}
 
 @ApiBearerAuth()
 @ApiTags('User')
@@ -24,6 +30,26 @@ export class UserController {
     return {
       success: true,
       data: users,
+      message: '获取成功',
+    }
+  }
+
+  @Get('page')
+  async getUsersPage(
+    @Query() query: UserPageQueryDto,
+  ): Promise<ResultDto<PageResult<PublicUser>>> {
+    return {
+      success: true,
+      data: await this.userService.findUsersPage(query),
+      message: '获取成功',
+    }
+  }
+
+  @Get('stats')
+  async getRbacStats(): Promise<ResultDto<RbacStats>> {
+    return {
+      success: true,
+      data: await this.userService.getRbacStats(),
       message: '获取成功',
     }
   }
@@ -47,11 +73,12 @@ export class UserController {
   }
 
   @Get('search')
-  async searchUserName(@Query('userName') userName: string): Promise<ResultDto<MinimalUser[]>> {
+  async searchUserName(@Query() query: UserSearchQueryDto): Promise<ResultDto<MinimalUser[]>> {
+    const keyword = query.keyword ?? query.userName ?? ''
     return {
       success: true,
       message: '搜索成功',
-      data: await this.userService.searchUserName(userName),
+      data: await this.userService.searchUserName(keyword, query.limit, query.includeDisabled),
     }
   }
 
@@ -103,26 +130,61 @@ export class UserController {
   }
 
   @Put(':id')
-  async updateUser(@Req() req: AuthRequest, @Param('id') id: number, @Body() userProfile: Partial<RawUser>): Promise<ResultDto<PublicUser>> {
-    const newProfile: Partial<RawUser> = {}
+  async updateUser(
+    @Req() req: AuthRequest,
+    @Param('id') id: number,
+    @Body() userProfile: AdminUpdateUserBody,
+  ): Promise<ResultDto<PublicUser>> {
+    const newProfile: Record<string, unknown> = {
+      userId: id,
+    }
     if (userProfile.passwd) {
       newProfile.passwdSalt = ''
       newProfile.passwd = await bcrypt.hash(userProfile.passwd, 10)
     }
-    newProfile.userId = id
-    if (userProfile.nickName)
-      newProfile.nickName = userProfile.nickName
-    if (userProfile.email)
-      newProfile.email = userProfile.email
-    if (userProfile.mobile)
-      newProfile.mobile = userProfile.mobile
+    if (userProfile.nickName !== undefined) {
+      const trimmedNick = userProfile.nickName.trim()
+      if (!trimmedNick) {
+        throw new Error('昵称值非法')
+      }
+      newProfile.nickName = trimmedNick
+    }
+    if ('email' in userProfile && userProfile.email !== undefined) {
+      const trimmedEmail = typeof userProfile.email === 'string' ? userProfile.email.trim().toLowerCase() : ''
+      if (!trimmedEmail) {
+        newProfile.email = null
+      }
+      else {
+        if (!REGEX_EMAIL.test(trimmedEmail)) {
+          throw new Error('邮箱值非法')
+        }
+        newProfile.email = trimmedEmail
+      }
+    }
+    if ('mobile' in userProfile && userProfile.mobile !== undefined) {
+      const trimmedMobile = typeof userProfile.mobile === 'string' ? userProfile.mobile.trim() : ''
+      if (!trimmedMobile) {
+        newProfile.mobile = null
+      }
+      else {
+        if (!REGEX_MOBILE_PHONE.test(trimmedMobile)) {
+          throw new Error('手机号值非法')
+        }
+        newProfile.mobile = trimmedMobile
+      }
+    }
 
-    const updatedUser = await this.userService.updateUser(newProfile, req.user.userId)
+    try {
+      const updatedUser = await this.userService.updateUser(newProfile as Partial<RawUser>, req.user.userId)
 
-    return {
-      success: true,
-      data: toPublicUser(updatedUser),
-      message: '更新成功',
+      return {
+        success: true,
+        data: toPublicUser(updatedUser),
+        message: '更新成功',
+      }
+    }
+    catch (e) {
+      this.rethrowUniqueConstraintError(e)
     }
   }
 
@@ -144,29 +206,31 @@ export class UserController {
       }
     }
     catch (e) {
-      if (e.name === 'SequelizeUniqueConstraintError') {
-        const error = e.errors[0]
-        if (error) {
-          switch (error.path) {
-            case 'userName': {
-              throw new Error('用户已存在')
-            }
-            case 'mobile': {
-              throw new Error('手机号已存在')
-            }
-            case 'email': {
-              throw new Error('邮箱已被绑定')
-            }
-            default: {
-              throw new Error(error.message)
-            }
+      this.rethrowUniqueConstraintError(e)
+    }
+  }
+
+  private rethrowUniqueConstraintError(e: any): never {
+    if (e?.name === 'SequelizeUniqueConstraintError') {
+      const error = e.errors?.[0]
+      if (error) {
+        switch (error.path) {
+          case 'userName': {
+            throw new Error('用户已存在')
+          }
+          case 'mobile': {
+            throw new Error('手机号已存在')
+          }
+          case 'email': {
+            throw new Error('邮箱已被绑定')
+          }
+          default: {
+            throw new Error(error.message)
           }
         }
-        else {
-          throw new Error(e.name)
-        }
       }
-      throw new Error(e.name ? e.name + e.message : e.message)
+      throw new Error(e.name)
     }
+    throw new Error(e?.name && e?.name !== 'Error' ? e.name + e.message : e?.message || '操作失败')
   }
 }

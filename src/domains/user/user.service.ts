@@ -1,4 +1,5 @@
-import type { Transaction } from 'sequelize'
+import type { Transaction, WhereOptions } from 'sequelize'
+import type { MemberPageQueryDto, PageResult, RbacStats, UserPageQueryDto } from './dto/rbac.dto'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import {
@@ -14,7 +15,7 @@ import {
   UserStatus,
 } from '@zvonimirsun/iszy-common'
 import bcrypt from 'bcrypt'
-import { Op } from 'sequelize'
+import { col, fn, Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { DeviceStore } from '~domains/auth/store/device-store'
 import { Logger, MinimalUser } from '~shared'
@@ -202,20 +203,129 @@ export class UserService {
     })
   }
 
-  async searchUserName(userName: string, limit: number = 10): Promise<MinimalUser[]> {
-    if (!userName)
+  async findUsersPage(query: UserPageQueryDto = {}): Promise<PageResult<PublicUser>> {
+    const pageIndex = Math.max(1, Number(query.pageIndex) || 1)
+    const pageSize = Math.min(100, Math.max(1, Number(query.pageSize) || 20))
+    const where: WhereOptions<RawUser> = {}
+
+    if (query.status != null && !Number.isNaN(Number(query.status))) {
+      where.status = Number(query.status)
+    }
+
+    const keyword = query.keyword?.trim()
+    if (keyword) {
+      const pattern = `%${keyword}%`
+      const orConditions: WhereOptions<RawUser>[] = [
+        { userName: { [Op.iLike]: pattern } },
+        { nickName: { [Op.iLike]: pattern } },
+        { email: { [Op.iLike]: pattern } },
+        { mobile: { [Op.iLike]: pattern } },
+      ]
+      if (/^\d+$/.test(keyword)) {
+        const numericId = Number(keyword)
+        if (Number.isSafeInteger(numericId)) {
+          orConditions.push({ userId: numericId })
+        }
+      }
+      Object.assign(where, { [Op.or]: orConditions })
+    }
+
+    const { rows, count } = await this.userModel.findAndCountAll({
+      where,
+      offset: (pageIndex - 1) * pageSize,
+      limit: pageSize,
+      order: [['userId', 'DESC']],
+      attributes: {
+        exclude: ['passwd', 'passwdSalt'],
+      },
+      raw: true,
+    })
+
+    return {
+      items: rows,
+      total: count,
+      pageIndex,
+      pageSize,
+    }
+  }
+
+  async getRbacStats(): Promise<RbacStats> {
+    const [statusRows, roles, groups, privileges] = await Promise.all([
+      this.userModel.findAll({
+        attributes: [
+          'status',
+          [fn('COUNT', col('userId')), 'count'],
+        ],
+        group: ['status'],
+        raw: true,
+      }) as unknown as Promise<Array<{ status: number, count: string | number }>>,
+      this.roleModel.count(),
+      this.groupModel.count(),
+      this.privilegeModel.count(),
+    ])
+
+    let enabled = 0
+    let deactivated = 0
+    let disabled = 0
+    let total = 0
+
+    for (const row of statusRows) {
+      const count = Number(row.count) || 0
+      total += count
+      if (row.status === UserStatus.ENABLED) {
+        enabled = count
+      }
+      else if (row.status === UserStatus.DEACTIVATED) {
+        deactivated = count
+      }
+      else if (row.status === UserStatus.DISABLED) {
+        disabled = count
+      }
+    }
+
+    return {
+      users: {
+        total,
+        enabled,
+        deactivated,
+        disabled,
+      },
+      roles,
+      groups,
+      privileges,
+    }
+  }
+
+  async searchUserName(userName: string, limit: number = 10, includeDisabled = false): Promise<MinimalUser[]> {
+    const keyword = userName?.trim()
+    if (!keyword)
       return []
 
+    const safeLimit = Math.min(50, Math.max(1, Number(limit) || 10))
+    const pattern = `%${keyword}%`
+    const orConditions: WhereOptions<RawUser>[] = [
+      { userName: { [Op.iLike]: pattern } },
+      { nickName: { [Op.iLike]: pattern } },
+    ]
+    if (/^\d+$/.test(keyword)) {
+      const numericId = Number(keyword)
+      if (Number.isSafeInteger(numericId)) {
+        orConditions.push({ userId: numericId })
+      }
+    }
+
+    const where: WhereOptions<RawUser> = includeDisabled
+      ? { [Op.or]: orConditions }
+      : {
+          [Op.or]: orConditions,
+          status: UserStatus.ENABLED,
+        }
+
     const users = await this.userModel.findAll({
-      where: {
-        userName: {
-          [Op.like]: `%${userName}%`,
-        },
-        status: UserStatus.ENABLED,
-      },
+      where,
       attributes: ['userId', 'userName', 'nickName'],
       order: [['userId', 'DESC']],
-      limit,
+      limit: safeLimit,
       raw: true,
     })
     return users.map(user => ({
@@ -392,6 +502,73 @@ export class UserService {
     return this.findRoleById(roleId)
   }
 
+  async findRoleUsersPage(roleId: number, query: MemberPageQueryDto = {}): Promise<PageResult<PublicUser>> {
+    const role = await this.roleModel.findByPk(roleId)
+    if (!role)
+      throw new Error('角色不存在')
+
+    const pageIndex = Math.max(1, Number(query.pageIndex) || 1)
+    const pageSize = Math.min(100, Math.max(1, Number(query.pageSize) || 20))
+    const where = this.buildMemberKeywordWhere(query.keyword)
+
+    const { rows, count } = await this.userModel.findAndCountAll({
+      where,
+      include: [{
+        model: Role,
+        where: { id: roleId },
+        attributes: [],
+        through: { attributes: [] },
+        required: true,
+      }],
+      attributes: {
+        exclude: ['passwd', 'passwdSalt'],
+      },
+      offset: (pageIndex - 1) * pageSize,
+      limit: pageSize,
+      order: [['userId', 'DESC']],
+      distinct: true,
+    })
+
+    return {
+      items: rows.map(row => row.get({ plain: true })),
+      total: count,
+      pageIndex,
+      pageSize,
+    }
+  }
+
+  async addRoleUsers(roleId: number, userIds: number[]): Promise<RawRole> {
+    const role = await this.roleModel.findByPk(roleId)
+    if (!role)
+      throw new Error('角色不存在')
+    this.assertDefaultRoleNotModified(role)
+    const uniqueIds = Array.from(new Set(userIds))
+    if (!uniqueIds.length)
+      return this.findRoleById(roleId)
+
+    const users = await this.getUsersByIds(uniqueIds)
+    await role.$add('users', users)
+    await this.removeUsersCache(users)
+    return this.findRoleById(roleId)
+  }
+
+  async removeRoleUsers(roleId: number, userIds: number[]): Promise<RawRole> {
+    const role = await this.roleModel.findByPk(roleId)
+    if (!role)
+      throw new Error('角色不存在')
+    this.assertDefaultRoleNotModified(role)
+    const uniqueIds = Array.from(new Set(userIds))
+    if (!uniqueIds.length)
+      return this.findRoleById(roleId)
+
+    const users = await this.userModel.findAll({ where: { userId: uniqueIds } })
+    if (users.length) {
+      await role.$remove('users', users)
+      await this.removeUsersCache(users)
+    }
+    return this.findRoleById(roleId)
+  }
+
   async setRoleGroups(roleId: number, groupIds: number[]): Promise<RawRole> {
     const role = await this.roleModel.findByPk(roleId)
     if (!role)
@@ -419,14 +596,18 @@ export class UserService {
     return group.get({ plain: true })
   }
 
-  async createGroup(groupDto: RawGroup): Promise<RawGroup> {
-    if (groupDto.parentId)
-      await this.assertGroupExists(groupDto.parentId)
-    const group = await this.groupModel.create(groupDto)
+  async createGroup(groupDto: Omit<RawGroup, 'parentId'> & { parentId?: number | null }): Promise<RawGroup> {
+    const parentId = groupDto.parentId ?? undefined
+    if (parentId)
+      await this.assertGroupExists(parentId)
+    const group = await this.groupModel.create({
+      ...groupDto,
+      parentId,
+    })
     return this.findGroupById(group.id)
   }
 
-  async updateGroup(id: number, groupDto: Partial<RawGroup>): Promise<RawGroup> {
+  async updateGroup(id: number, groupDto: Omit<Partial<RawGroup>, 'parentId'> & { parentId?: number | null }): Promise<RawGroup> {
     const group = await this.groupModel.findByPk(id)
     if (!group)
       throw new Error('用户组不存在')
@@ -439,7 +620,7 @@ export class UserService {
       if (descendantGroupIds.includes(groupDto.parentId))
         throw new Error('用户组父级不能是自身的子级')
     }
-    await group.update(groupDto)
+    await group.update(groupDto as Partial<RawGroup>)
     await this.removeUsersCacheByGroupIds([id])
     return this.findGroupById(id)
   }
@@ -479,6 +660,71 @@ export class UserService {
     })
     await group.$set('users', users)
     await this.removeUsersCache([...previousUsers, ...users])
+    return this.findGroupById(groupId)
+  }
+
+  async findGroupUsersPage(groupId: number, query: MemberPageQueryDto = {}): Promise<PageResult<PublicUser>> {
+    const group = await this.groupModel.findByPk(groupId)
+    if (!group)
+      throw new Error('用户组不存在')
+
+    const pageIndex = Math.max(1, Number(query.pageIndex) || 1)
+    const pageSize = Math.min(100, Math.max(1, Number(query.pageSize) || 20))
+    const where = this.buildMemberKeywordWhere(query.keyword)
+
+    const { rows, count } = await this.userModel.findAndCountAll({
+      where,
+      include: [{
+        model: Group,
+        where: { id: groupId },
+        attributes: [],
+        through: { attributes: [] },
+        required: true,
+      }],
+      attributes: {
+        exclude: ['passwd', 'passwdSalt'],
+      },
+      offset: (pageIndex - 1) * pageSize,
+      limit: pageSize,
+      order: [['userId', 'DESC']],
+      distinct: true,
+    })
+
+    return {
+      items: rows.map(row => row.get({ plain: true })),
+      total: count,
+      pageIndex,
+      pageSize,
+    }
+  }
+
+  async addGroupUsers(groupId: number, userIds: number[]): Promise<RawGroup> {
+    const group = await this.groupModel.findByPk(groupId)
+    if (!group)
+      throw new Error('用户组不存在')
+    const uniqueIds = Array.from(new Set(userIds))
+    if (!uniqueIds.length)
+      return this.findGroupById(groupId)
+
+    const users = await this.getUsersByIds(uniqueIds)
+    await group.$add('users', users)
+    await this.removeUsersCache(users)
+    return this.findGroupById(groupId)
+  }
+
+  async removeGroupUsers(groupId: number, userIds: number[]): Promise<RawGroup> {
+    const group = await this.groupModel.findByPk(groupId)
+    if (!group)
+      throw new Error('用户组不存在')
+    const uniqueIds = Array.from(new Set(userIds))
+    if (!uniqueIds.length)
+      return this.findGroupById(groupId)
+
+    const users = await this.userModel.findAll({ where: { userId: uniqueIds } })
+    if (users.length) {
+      await group.$remove('users', users)
+      await this.removeUsersCache(users)
+    }
     return this.findGroupById(groupId)
   }
 
@@ -710,6 +956,27 @@ export class UserService {
       }
     }
     return Array.from(result)
+  }
+
+  private buildMemberKeywordWhere(keyword?: string): WhereOptions<RawUser> {
+    const trimmed = keyword?.trim()
+    if (!trimmed) {
+      return {}
+    }
+    const pattern = `%${trimmed}%`
+    const orConditions: WhereOptions<RawUser>[] = [
+      { userName: { [Op.iLike]: pattern } },
+      { nickName: { [Op.iLike]: pattern } },
+      { email: { [Op.iLike]: pattern } },
+      { mobile: { [Op.iLike]: pattern } },
+    ]
+    if (/^\d+$/.test(trimmed)) {
+      const numericId = Number(trimmed)
+      if (Number.isSafeInteger(numericId)) {
+        orConditions.push({ userId: numericId })
+      }
+    }
+    return { [Op.or]: orConditions }
   }
 
   private async removeUsersCache(users: User[]): Promise<void> {

@@ -1,9 +1,10 @@
-import type { RawRole, ResultDto } from '@zvonimirsun/iszy-common'
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import type { PublicUser, RawRole, ResultDto } from '@zvonimirsun/iszy-common'
+import type { PageResult } from './dto/rbac.dto'
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RoleEnum } from '@zvonimirsun/iszy-common'
 import { Roles } from '~shared'
-import { CreateRoleDto, SetGroupIdsDto, SetPrivilegeIdsDto, SetUserIdsDto, UpdateRoleDto } from './dto/rbac.dto'
+import { CreateRoleDto, MemberPageQueryDto, SetGroupIdsDto, SetPrivilegeIdsDto, SetUserIdsDto, UpdateRoleDto } from './dto/rbac.dto'
 import { UserService } from './user.service'
 
 @ApiBearerAuth()
@@ -28,6 +29,18 @@ export class RoleController {
     return {
       success: true,
       data: await this.userService.findRoleById(id),
+      message: '获取成功',
+    }
+  }
+
+  @Get(':id/users')
+  async getRoleUsers(
+    @Param('id') id: number,
+    @Query() query: MemberPageQueryDto,
+  ): Promise<ResultDto<PageResult<PublicUser>>> {
+    return {
+      success: true,
+      data: await this.userService.findRoleUsersPage(id, query),
       message: '获取成功',
     }
   }
@@ -71,6 +84,30 @@ export class RoleController {
       success: true,
       data: await this.userService.setRoleUsers(id, setUserIdsDto.userIds),
       message: '更新成功',
+    }
+  }
+
+  @Post(':id/users')
+  async addRoleUsers(
+    @Param('id') id: number,
+    @Body() setUserIdsDto: SetUserIdsDto,
+  ): Promise<ResultDto<RawRole>> {
+    return {
+      success: true,
+      data: await this.userService.addRoleUsers(id, setUserIdsDto.userIds),
+      message: '添加成功',
+    }
+  }
+
+  @Delete(':id/users')
+  async removeRoleUsers(
+    @Param('id') id: number,
+    @Body() setUserIdsDto: SetUserIdsDto,
+  ): Promise<ResultDto<RawRole>> {
+    return {
+      success: true,
+      data: await this.userService.removeRoleUsers(id, setUserIdsDto.userIds),
+      message: '移除成功',
     }
   }
 
